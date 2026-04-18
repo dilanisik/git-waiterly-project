@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sipariş Fişi - Waiterly</title>
     <style>
-        .fis-konteynir {
-            background-color: transparent !important;
+       .fis-konteynir {
+            /* REMOVED: background-color: transparent !important; */
+            background-color: #ffffff; /* ADDED: This is your solid paper color */
+            
             width: 100%;
             max-width: 400px;
-            /* Arka planı transparent yapıyoruz ki SVG'yi görelim */
-            background-color: transparent; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* The shadow will now outline the white paper properly */
             border-radius: 8px;
             display: flex;
             flex-direction: column;
@@ -19,8 +19,7 @@
             overflow: hidden;
             min-height: 500px;
             filter: drop-shadow(0 2px 10px rgba(0,0,0,0.1));
-            /* ÖNEMLİ: Fişin en üstünden başlamasını garantiliyoruz */
-             justify-content: flex-start;
+            justify-content: flex-start;
         }
         .fis-konteynir::after {
             content: "";

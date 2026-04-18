@@ -130,26 +130,22 @@
         }
         
         /* 1. The Top Bun */
-        .bg-top {
-            height: 150px; /* Adjust this to match your actual top image height */
-            background: url('top-bg.png') no-repeat center top;
-            background-size: 100% 100%; 
-        }
-        
-        /* 2. The Meat (This stretches!) */
-        .bg-mid {
-            flex-grow: 1; /* The magic property that makes the middle grow with the content */
-            background: url('mid-bg.png') repeat-y center top; /* Use repeat-y if it's a pattern, or no-repeat if it's a solid stretch */
-            background-size: 100% auto; 
-            /* background-color: #f8f4e6; <- You can also just use a solid color for the middle! */
-        }
-        
-        /* 3. The Bottom Bun */
-        .bg-bot {
-            height: 100px; /* Adjust this to match your actual bottom image height */
-            background: url('bottom-bg.png') no-repeat center bottom;
-            background-size: 100% 100%;
-        }
+.bg-top {
+    height: 150px; 
+    background-color: #ffcccc; /* Light Red */
+}
+
+/* 2. The Meat (Green Test - This stretches!) */
+.bg-mid {
+    flex-grow: 1; 
+    background-color: #ccffcc; /* Light Green */
+}
+
+/* 3. The Bottom Bun (Blue Test) */
+.bg-bot {
+    height: 100px; 
+    background-color: #ccccff; /* Light Blue */
+}
     </style>
 </head>
 <body style="background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 40px 0;">

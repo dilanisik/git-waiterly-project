@@ -39,12 +39,18 @@ function renderRequests(istekler){
         buton.onclick = () => {
             inputArea.style.display =inputArea.style.display === "none" ? "block" : "none";
         };
-        gonderButonu.onclick= () => {
-          let mesaj = (input.value ? "(Not : "+ input.value + ")" : "");
-                bildirimGoster("'" + mesaj + "' isteğiniz garsonumuza iletilmiştir :)");
-                inputArea.style.display = "none";
-                input.value = "";
-            };
+      gonderButonu.onclick = () => {
+  let mesaj = input.value.trim();
+
+  let gosterilecekMesaj = mesaj
+    ? "(Not: " + mesaj + ") isteğiniz garsonumuza iletilmiştir :)"
+    : "İsteğiniz garsonumuza iletilmiştir :)";
+
+  bildirimGoster(gosterilecekMesaj);
+
+  inputArea.style.display = "none";
+  input.value = "";
+};
         } else {
             // Normal şablonu kopyala
             const template = document.getElementById("normal-request-template");

@@ -60,6 +60,14 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(menu));
     }
 
+    else if (req.url === "/receipt.js") {
+        const filePath = path.join(__dirname, "receipt.js");
+        fs.readFile(filePath, (err, data) => {
+            res.writeHead(200, { "Content-Type": "application/javascript" });
+            res.end(data);
+        });
+    }
+
     // JS dosyası 2
     else if (req.url === "/requests.js") {
         const filePath = path.join(__dirname, "requests.js");
@@ -99,6 +107,20 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+    else if (req.url === "/receipt.html") {
+        const filePath = path.join(__dirname, "receipt.html");
+
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(500);
+                res.end("Sunucu hatası");
+            } else {
+                res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+                res.end(data);
+            }
+        });
+    }
     
     // JS dosyası (cart)
     else if (req.url === "/cart.js") {
@@ -116,8 +138,9 @@ const server = http.createServer((req, res) => {
     fs.readFile(filePath, (err, data) => {
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
         res.end(data);
-    });
-}
+     });
+    }
+    
     else if (req.url === "/menu_script.html") {
         const filePath = path.join(__dirname, "menu_script.html");
 
@@ -132,12 +155,35 @@ const server = http.createServer((req, res) => {
         });
     }
 
+    else if (req.url === "/images/top.png") {
+        const filePath = path.join(__dirname, "images", "top.png");
+
+        fs.readFile(filePath, (err, data) => {
+            res.writeHead(200, { "Content-Type": "image/png" });
+            res.end(data);
+        });
+    }
+
+    else if (req.url === "/images/middle.png") {
+        const filePath = path.join(__dirname, "images", "middle.png");
+        fs.readFile(filePath, (err, data) => {
+            res.writeHead(200, { "Content-Type": "image/png" });
+            res.end(data);
+        });
+    }
+    else if (req.url === "/images/bottom.png") {
+        const filePath = path.join(__dirname, "images", "bottom.png");
+        fs.readFile(filePath, (err, data) => {
+            res.writeHead(200, { "Content-Type": "image/png" });
+            res.end(data);
+        });
+    }
     // 404
     else {
         res.writeHead(404);
         res.end("404 Not Found");
     }
-});
+ });
 
 server.listen(3000, () => {
     console.log("Server 3000 portunda çalışıyor");

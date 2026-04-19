@@ -587,7 +587,7 @@
               hour: "2-digit",
               minute: "2-digit",
             }),
-            toplamTutar: 425.5,
+            toplamTutar: 1165.5, // Corrected total sum
             urunler: [
               { isim: "Cheeseburger", miktar: 2, fiyat: 300.0 },
               { isim: "Patates Kızartması", miktar: 1, fiyat: 75.5 },
@@ -600,7 +600,7 @@
         ];
         localStorage.setItem("orderHistory", JSON.stringify(mockOrders));
         fisDinamikDoldur();
-        console.log("Mock data injected!");
+        console.log("Mock data injected.");
       }
 
       function wipeOrderHistory() {

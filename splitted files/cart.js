@@ -28,7 +28,14 @@ function siparisVer(){
     // sepetteki her şeyi pakete doldur ve fiyatı hesapla
     for (let key in cart) {
         let item = cart[key];
-        currentOrder.urunler.push(`${item.quantity}x ${item.isim}`);
+        
+        // YENİ: Ürünleri string yerine obje olarak kaydediyoruz ki fiş fiyatı okuyabilsin
+        currentOrder.urunler.push({
+            isim: item.isim,
+            miktar: item.quantity,
+            fiyat: item.fiyat * item.quantity
+        });
+        
         currentOrder.toplamTutar += (item.fiyat * item.quantity);
     }
     
@@ -72,9 +79,13 @@ function renderHistory(){
         let div = document.createElement("div");
         div.style = "text-align: left; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;";
         
+        // YENİ: Objeleri ekranda göstermek için tekrar string'e çeviriyoruz
+        // (typeof kontrolü, eski string formatındaki siparişlerin çökmesini engeller)
+        let urunlerMetin = order.urunler.map(u => typeof u === 'string' ? u : `${u.miktar}x ${u.isim}`).join(", ");
+
         div.innerHTML = `
             <span style="font-size: 12px; color: #888;">⏱️ ${order.zaman}</span><br>
-            <span style="font-weight: bold; color: #333;">${order.urunler.join(", ")}</span><br>
+            <span style="font-weight: bold; color: #333;">${urunlerMetin}</span><br>
             <span style="color: #4CAF50; font-size: 14px; font-weight: bold;">Tutar: ${order.toplamTutar} TL</span>
         `;
         historyList.appendChild(div);

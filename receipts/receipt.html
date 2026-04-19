@@ -6,9 +6,7 @@
     <title>Sipariş Fişi - Waiterly</title>
     <style>
        .fis-konteynir {
-            /* REMOVED: background-color: transparent !important; */
-            background-color: #ffffff; /* ADDED: This is your solid paper color */
-            
+            background-color: transparent !important;
             width: 100%;
             max-width: 400px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* The shadow will now outline the white paper properly */
@@ -21,18 +19,6 @@
             filter: drop-shadow(0 2px 10px rgba(0,0,0,0.1));
             justify-content: flex-start;
         }
-        .fis-konteynir::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background: linear-gradient(-45deg, #f0f0f0 5px, transparent 0), 
-                        linear-gradient(45deg, #f0f0f0 5px, transparent 0);
-            background-size: 10px 10px;
-        }
-
         .svg-layer {
             position: absolute;
             top: 0;   /* En tepeye yapıştırır */
@@ -55,38 +41,38 @@
         .yazi-svg { z-index: 2; }      /* Receipt yazısı */
         .cizimler-svg { z-index: 3; } /* Çizimlerin en üstte ve her şeyin önünde */
         .footer-svg {z-index: 10;}
-
+     
         #fis-header, #fis-body, #fis-footer {
             position: relative;
             z-index: 10; /* Yazıları SVG'nin üstüne çıkarır */
             padding-top: 45px; 
             text-align: center;
         }
-        
-    .arkaplan-svg {
-        position: fixed; /* Sayfa kaydıkça sabit kalması için */
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1; /* İçeriğin arkasında kalmasını sağlar */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .arkaplan-svg img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Görüntüyü ekranı kaplayacak şekilde ayarlar ama kesebilir */
-        /* Veya object-fit: contain; kullanarak tüm çizimin görünmesini sağlarsın */
-    }
-        #fis-icerik {
-        position: relative;
-        z-index: 20; /* Yazılar çizimlerin de üstünde kalmalı ki okunsun */
-        margin-top: 120px; /* Çizimlere yer açmak için içeriği aşağı itiyoruz */
-        padding: 20px;
+            
+        .arkaplan-svg {
+            position: fixed; /* Sayfa kaydıkça sabit kalması için */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* İçeriğin arkasında kalmasını sağlar */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+        
+        .arkaplan-svg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Görüntüyü ekranı kaplayacak şekilde ayarlar ama kesebilir */
+            /* Veya object-fit: contain; kullanarak tüm çizimin görünmesini sağlarsın */
+        }
+            #fis-icerik {
+            position: relative;
+            z-index: 20; /* Yazılar çizimlerin de üstünde kalmalı ki okunsun */
+            margin-top: 120px; /* Çizimlere yer açmak için içeriği aşağı itiyoruz */
+            padding: 20px;
+            }
         
         
         #fis-body {
@@ -116,41 +102,39 @@
             letter-spacing: 2px;
             color: #8b7d6b;
         }
-
         .arkaplan-sandwich {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; /* Keeps this strictly behind your text and doodle SVGs */
+            z-index: 0; 
             display: flex;
             flex-direction: column;
             pointer-events: none;
         }
         
         .bg-top {
-            height: 150px; /* Adjust this to match your actual top image height */
-            background: url('top-bg.png') no-repeat center top; /* burası değişecek gerçek resimle */
+            height: 150px;
+            background: url('/images/top.png') no-repeat center top;
             background-size: 100% 100%; 
         }
         
         .bg-mid {
-            flex-grow: 1; /* The magic property that makes the middle grow with the content */
-            background: url('mid-bg.png') repeat-y center top; /* burası değişecek gerçek resimle */
+            flex-grow: 1; 
+            background: url('/images/middle.png') repeat-y center top;
             background-size: 100% auto; 
-            /* background-color: #f8f4e6; <- You can also just use a solid color for the middle! */
         }
         
         .bg-bot {
-            height: 100px; /* Adjust this to match your actual bottom image height */
-            background: url('bottom-bg.png') no-repeat center bottom; /* burası değişecek gerçek resimle */
+            height: 100px;
+            background: url('/images/bottom.png') no-repeat center bottom;
             background-size: 100% 100%;
         }
     </style>
 </head>
 <body style="background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 40px 0;">
-
+     
     <div class="fis-konteynir">
         <div class="svg-layer arkaplan-sandwich">
             <div class="bg-top"></div>

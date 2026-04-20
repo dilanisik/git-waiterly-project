@@ -44,18 +44,90 @@ const server = http.createServer((req, res) => {
   else if (req.url === "/api/menu") {
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
 
+    // YENİ: Resim, içerik, alerjen ve puan verileri eklendi
     const menu = [
-      { id: 1, isim: "Latte", fiyat: 130 },
-      { id: 2, isim: "Caramel latte", fiyat: 160 },
-      { id: 3, isim: "Limonata", fiyat: 40 },
-      { id: 4, isim: "Kola", fiyat: 50 },
-      { id: 5, isim: "Americano", fiyat: 60 },
-      { id: 6, isim: "Smoothie", fiyat: 150 },
-      { id: 7, isim: "Sandiviç", fiyat: 50 },
-      { id: 8, isim: "Bowl", fiyat: 150 },
-      { id: 9, isim: "Brownie", fiyat: 100 },
+      {
+        id: 1,
+        isim: "Latte",
+        fiyat: 130,
+        puan: 4.8,
+        icerik: ["Espresso", "Sıcak Süt", "Süt Köpüğü"],
+        alerjenler: ["Süt/Laktoz"],
+        resim: "/images/latte.png",
+      },
+      {
+        id: 2,
+        isim: "Caramel Latte",
+        fiyat: 160,
+        puan: 4.9,
+        icerik: ["Espresso", "Süt", "Karamel Şurubu"],
+        alerjenler: ["Süt/Laktoz"],
+        resim: "/images/caramel-latte.png",
+      },
+      {
+        id: 3,
+        isim: "Limonata",
+        fiyat: 40,
+        puan: 4.5,
+        icerik: ["Taze Sıkım Limon", "Su", "Şeker", "Taze Nane"],
+        alerjenler: [],
+        resim: "/images/lemonade.png",
+      },
+      {
+        id: 4,
+        isim: "Kola",
+        fiyat: 50,
+        puan: 4.2,
+        icerik: ["Kola Özütü", "Karbonatlı Su", "Şeker"],
+        alerjenler: [],
+        resim: "/images/cola.png",
+      },
+      {
+        id: 5,
+        isim: "Americano",
+        fiyat: 60,
+        puan: 4.7,
+        icerik: ["Double Espresso", "Sıcak Su"],
+        alerjenler: [],
+        resim: "/images/americano.png",
+      },
+      {
+        id: 6,
+        isim: "Smoothie",
+        fiyat: 150,
+        puan: 4.6,
+        icerik: ["Çilek", "Muz", "Süzme Yoğurt", "Bal"],
+        alerjenler: ["Süt/Laktoz"],
+        resim: "/images/smoothie.png",
+      },
+      {
+        id: 7,
+        isim: "Sandiviç",
+        fiyat: 50,
+        puan: 4.4,
+        icerik: ["Tam Buğday Ekmeği", "Hindi Füme", "Kaşar", "Marul"],
+        alerjenler: ["Gluten", "Süt/Laktoz"],
+        resim: "/images/sandwich.png",
+      },
+      {
+        id: 8,
+        isim: "Bowl",
+        fiyat: 150,
+        puan: 4.9,
+        icerik: ["Kinoa", "Avokado", "Nohut", "Mevsim Yeşillikleri"],
+        alerjenler: [],
+        resim: "/images/bowl.png",
+      },
+      {
+        id: 9,
+        isim: "Brownie",
+        fiyat: 100,
+        puan: 4.8,
+        icerik: ["Bitter Çikolata", "Tereyağı", "Yumurta", "Un", "Ceviz"],
+        alerjenler: ["Gluten", "Yumurta", "Süt/Laktoz", "Kuruyemiş"],
+        resim: "/images/brownie.png",
+      },
     ];
-
     res.end(JSON.stringify(menu));
   }
 
@@ -126,24 +198,20 @@ const server = http.createServer((req, res) => {
         res.end(data);
       }
     });
-  } else if (req.url === "/images/top.png") {
-    const filePath = path.join(__dirname, "images", "top.png");
+  } // DYNAMIC IMAGE ROUTE: Handles ANY image inside the "images" folder
+  else if (req.url.startsWith("/images/")) {
+    const fileName = req.url.replace("/images/", "");
+    const filePath = path.join(__dirname, "images", fileName);
 
     fs.readFile(filePath, (err, data) => {
-      res.writeHead(200, { "Content-Type": "image/png" });
-      res.end(data);
-    });
-  } else if (req.url === "/images/middle.png") {
-    const filePath = path.join(__dirname, "images", "middle.png");
-    fs.readFile(filePath, (err, data) => {
-      res.writeHead(200, { "Content-Type": "image/png" });
-      res.end(data);
-    });
-  } else if (req.url === "/images/bottom.png") {
-    const filePath = path.join(__dirname, "images", "bottom.png");
-    fs.readFile(filePath, (err, data) => {
-      res.writeHead(200, { "Content-Type": "image/png" });
-      res.end(data);
+      if (err) {
+        res.writeHead(404);
+        res.end("Resim bulunamadı");
+      } else {
+        // Sends the file as a PNG image
+        res.writeHead(200, { "Content-Type": "image/png" });
+        res.end(data);
+      }
     });
   }
   // 404

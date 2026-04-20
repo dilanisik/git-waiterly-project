@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İstekler - Waiterly</title>
+
+    <style>
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: #ffffff; /* Temel rengimiz beyaz */
+        transition: background-color 0.2s;
+        
+        /* Mobildeki varsayılan dokunma vurgusunu kaldırcak, böylece sadece bizim rengimiz görünecek */
+        -webkit-tap-highlight-color: transparent; 
+      }
+
+      /* Sadece fare imleci olan cihazlarda (bilgisayar) hover çalışsın. 
+         Mobilde hover dokunduktan sonra takılı kalabilir, bu yüzden ayırıyoruz. */
+      @media (hover: hover) {
+        button:hover {
+          background-color: #f9f9f9;
+        }
+      }
+
+      /* Hem mobilde dokunulduğu anda hem de bilgisayarda basılı tutulduğunda rengi koyu beyaz yapar */
+      button:active {
+        background-color: #e0e0e0; 
+      }
+
+      /* İstek butonlarının tam genişlikte olması için ek bir sınıf */
+      .request-button {
+        width: 100%;
+        padding: 15px;
+        border-radius: 8px;
+        /* background-color ve border gibi özellikleri ana button stilinden alıyor */
+      }
+
+      /* BOTTOM DEV PANEL ONLY */
+      .bottom-controls-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 100%;
+        max-width: 600px;
+        z-index: 1000;
+        pointer-events: none;
+      }
+    </style>
+</head>
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+
+    <h1>İsteğiniz nedir?</h1>
+    <div id="request-list"></div>
+
+    <template id="normal-request-template">
+        <div class="request-container" style="margin: 15px auto; width: 80%; max-width: 400px;">
+            <button class="request-button" onclick="istegiIsle(this)">
+                <span class="request-text" style="font-weight: bold; font-size: 16px;"></span>
+            </button>
+        </div>
+    </template>
+    
+    <template id="special-request-template">
+        <div class="request-container" style="margin: 15px auto; width: 80%; max-width: 400px;">
+            <button class="request-button" onclick="ozelIstegiAc(this)">
+                <span class="request-text" style="font-weight: bold; font-size: 16px;"></span>
+            </button>
+            <div class="input-area" style="display: none; margin-top: 10px; padding: 15px; background-color: #eef; border-radius: 8px; border: 1px dashed #aaa;">
+                <input type="text" class="ozel-not" maxlength="50" placeholder="Eklemek istediğiniz not...(İsteğe bağlı)" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                <button class="gonderButonu" onclick="ozelIstekGonder(this)" style="padding: 10px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">Gönder 🚀</button>
+            </div>
+        </div>
+    </template>
+    
+    <br><br>
+
+    <button onclick="window.location.href='/'">Anasayfaya Dön 🏠</button>
+    
+    <div id="bildirimKutusu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background-color: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 80%; width: 300px; box-shadow: 0px 5px 15px rgba(0,0,0,0.3);">
+            <h3 style="margin-top: 0; color: #4CAF50;">✅ İletildi!</h3>
+            <p id="bildirimMesaji" style="font-size: 16px; margin: 20px 0; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.5; text-align: justify; ">Buraya mesaj gelecek</p>
+            <button onclick="bildirimiKapat()" style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%;">Kapat</button>
+        </div>
+    </div>
+    
+    <script src="requests.js"></script>
+</body>
+</html>

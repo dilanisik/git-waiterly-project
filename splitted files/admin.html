@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Paneli - Waiterly</title>
+    <style>
+      body {
+        font-family: Arial;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+      }
+      .dashboard-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+      h1 {
+        color: #333;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 10px;
+        margin-top: 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #f8f9fa;
+        color: #555;
+      }
+      .btn-delete {
+        background: #ff4c4c;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .add-form {
+        background: #fdfdfd;
+        padding: 20px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        margin-top: 30px;
+        display: grid;
+        gap: 15px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #333;
+      }
+      input[type="text"],
+      input[type="number"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #4caf50;
+      }
+      .btn-submit {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <h1>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4caf50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <h1 style="margin: 0; border-bottom: none; padding-bottom: 0">
+            👨‍🍳 Waiterly Yönetim Paneli
+          </h1>
+          <button
+            onclick="logout()"
+            style="
+              background: #ff4c4c;
+              color: white;
+              border: none;
+              padding: 10px 15px;
+              border-radius: 5px;
+              cursor: pointer;
+              font-weight: bold;
+            "
+          >
+            Çıkış Yap 🚪
+          </button>
+        </div>
+      </h1>
+
+      <h3>Mevcut Menü</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>İsim</th>
+            <th>Fiyat</th>
+            <th>Özellikler</th>
+            <th>Alerjenler</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="admin-menu-list"></tbody>
+      </table>
+
+      <div class="add-form">
+        <h3 style="margin-top: 0">➕ Yeni Ürün Ekle</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div class="form-group">
+            <label>Ürün Adı</label>
+            <input
+              type="text"
+              id="add-isim"
+              placeholder="Örn: Filtre Kahve"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Fiyat (TL)</label>
+            <input
+              type="number"
+              id="add-fiyat"
+              placeholder="Örn: 80"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Açıklama</label>
+          <input
+            type="text"
+            id="add-aciklama"
+            placeholder="Örn: Kolombiya çekirdeklerinden demlenmiş..."
+          />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div class="form-group">
+            <label>İçindekiler (Virgülle ayırın)</label>
+            <input
+              type="text"
+              id="add-icerik"
+              placeholder="Örn: Su, Kahve Çekirdeği"
+            />
+          </div>
+          <div class="form-group">
+            <label>Alerjenler (Virgülle ayırın)</label>
+            <input
+              type="text"
+              id="add-alerjen"
+              placeholder="Örn: Süt/Laktoz, Gluten"
+            />
+          </div>
+        </div>
+
+        <label class="checkbox-group">
+          <input
+            type="checkbox"
+            id="add-vegan"
+            style="width: 20px; height: 20px"
+          />
+          Bu ürün Vegan (🌱)
+        </label>
+
+        <button class="btn-submit" onclick="addNewItem()">Menüye Ekle</button>
+      </div>
+    </div>
+
+    <script>
+      function loadAdminMenu() {
+        fetch("/api/menu")
+          .then((res) => res.json())
+          .then((data) => {
+            const tbody = document.getElementById("admin-menu-list");
+            tbody.innerHTML = "";
+            data.forEach((item) => {
+              const veganBadge = item.vegan ? "🌱 " : "";
+              tbody.innerHTML += `
+                        <tr>
+                            <td>#${item.id}</td>
+                            <td><strong>${veganBadge}${item.isim}</strong></td>
+                            <td>${item.fiyat} TL</td>
+                            <td style="color: #666; font-size: 12px; max-width: 200px;">${item.aciklama || "-"}</td>
+                            <td><span style="color:red; font-size:12px; font-weight:bold;">${item.alerjenler ? item.alerjenler.join(", ") : ""}</span></td>
+                            <td><button class="btn-delete" onclick="deleteItem(${item.id})">Sil 🗑️</button></td>
+                        </tr>
+                    `;
+            });
+          });
+      }
+
+      // MOVED OUTSIDE: Now the HTML button can actually see and trigger this function!
+      function logout() {
+        fetch("/api/logout", { method: "POST" })
+          .then((res) => {
+            if (res.ok) {
+              // If the server says OK (200), redirect instantly!
+              window.location.href = "/login.html";
+            } else {
+              alert("Çıkış yapılamadı. Lütfen sayfayı yenileyin.");
+            }
+          })
+          .catch((err) => console.error("Ağ hatası:", err));
+      }
+
+      function addNewItem() {
+        const isim = document.getElementById("add-isim").value;
+        const fiyat = parseFloat(document.getElementById("add-fiyat").value);
+        const aciklama = document.getElementById("add-aciklama").value;
+        const isVegan = document.getElementById("add-vegan").checked;
+
+        const icerikStr = document.getElementById("add-icerik").value;
+        const alerjenStr = document.getElementById("add-alerjen").value;
+        const icerik = icerikStr
+          ? icerikStr.split(",").map((s) => s.trim())
+          : [];
+        const alerjenler = alerjenStr
+          ? alerjenStr.split(",").map((s) => s.trim())
+          : [];
+
+        if (!isim || !fiyat) return alert("Lütfen isim ve fiyat giriniz!");
+
+        const newItem = {
+          isim,
+          fiyat,
+          puan: 5.0,
+          aciklama,
+          vegan: isVegan,
+          icerik,
+          alerjenler,
+          resim: "/images/americano.png",
+        };
+
+        fetch("/api/menu", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newItem),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Ürün eklendi!");
+              document
+                .querySelectorAll('input[type="text"], input[type="number"]')
+                .forEach((i) => (i.value = ""));
+              document.getElementById("add-vegan").checked = false;
+              loadAdminMenu();
+            }
+          });
+      }
+
+      function deleteItem(id) {
+        if (confirm("Silmek istediğinize emin misiniz?")) {
+          fetch(`/api/menu/${id}`, { method: "DELETE" })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) loadAdminMenu();
+            });
+        }
+      }
+
+      window.onload = loadAdminMenu;
+    </script>
+  </body>
+</html>

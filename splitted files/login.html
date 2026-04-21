@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giriş Yap - Waiterly</title>
+    <style>
+      body {
+        font-family: Arial;
+        background-color: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .login-box {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        width: 100%;
+        max-width: 350px;
+        text-align: center;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      .btn-login {
+        width: 100%;
+        padding: 12px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.2s;
+      }
+      .btn-login:hover {
+        background: #45a049;
+      }
+      .error-msg {
+        color: #ff4c4c;
+        font-size: 14px;
+        margin-top: 15px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-box">
+      <h2 style="margin-top: 0">🔒 Yönetici Girişi</h2>
+      <div class="form-group">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="username" placeholder="admin" />
+      </div>
+      <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="password" placeholder="1234" />
+      </div>
+      <button class="btn-login" onclick="login()">Giriş Yap</button>
+      <p id="error-msg" class="error-msg">Hatalı kullanıcı adı veya şifre!</p>
+    </div>
+
+    <script>
+      function login() {
+        const u = document.getElementById("username").value;
+        const p = document.getElementById("password").value;
+
+        fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.href = "/admin"; // Redirect to admin panel on success
+            } else {
+              document.getElementById("error-msg").style.display = "block";
+            }
+          });
+      }
+    </script>
+  </body>
+</html>

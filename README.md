@@ -2,6 +2,7 @@
 
 ##Live URL !!!!!!
 https://waiterly-latest.onrender.com
+
 ##Live URL for Admin Panel
 https://waiterly-latest.onrender.com/admin
 

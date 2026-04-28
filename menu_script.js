@@ -1,7 +1,6 @@
 let menu = [];
 let activeAllergensToAvoid = []; 
 let isVeganOnly = false; // YENİ: Vegan filtresi durumu
-let activeIngredientsToInclude = []; // YENİ: Seçilen içerikler
 
 function menuyuGoster() {
   fetch("/api/menu")
@@ -11,7 +10,6 @@ function menuyuGoster() {
     })
     .then((data) => {
       menu = data;
-      populateIngredientDrawer(); // YENİ: İçerikleri tara ve listeyi oluştur
       rendermenu();
     })
     .catch((err) => {
@@ -41,7 +39,7 @@ function rendermenu() {
   menuList.innerHTML = "";
 
   menu.forEach((item) => {
-    // VEGAN FİLTRESİ KONTROLÜ
+    // YENİ: VEGAN FİLTRESİ KONTROLÜ
     if (isVeganOnly && !item.vegan) {
         return; // Sadece vegan seçiliyse ve ürün vegan değilse atla (çizme)
     }
@@ -54,22 +52,12 @@ function rendermenu() {
       if (containsForbiddenAllergen) return;
     }
 
-    // İÇERİK FİLTRESİ KONTROLÜ
-    if (activeIngredientsToInclude.length > 0 && item.icerik) {
-      // Seçilen TÜM içeriklerin bu üründe olmasını istiyorsak 'every' kullanıyoruz.
-      // Sadece 1 tanesinin olması yeterliyse 'some' ile değiştirebilirsiniz.
-      const hasRequiredIngredients = activeIngredientsToInclude.every((reqIng) =>
-        item.icerik.some((itemIng) => itemIng.trim() === reqIng)
-      );
-      if (!hasRequiredIngredients) return;
-    }
-
     let guncelMiktar = getCartQuantity(item.id);
     let div = document.createElement("div");
     div.className = "menu-item";
     div.onclick = () => openItemModal(item.id);
 
-    // Eğer ürün vegansa kartın sağ altına rozet ekle
+    // YENİ: Eğer ürün vegansa kartın sağ altına rozet ekle
     let veganBadge = item.vegan ? `
       <div style="text-align: right; margin-top: 10px;">
         <span style="font-size: 12px; background: #e8f5e9; color: #2e7d32; padding: 3px 10px; border-radius: 12px; font-weight: bold; border: 1px solid #a5d6a7;">🌱 Vegan</span>
@@ -99,7 +87,7 @@ function rendermenu() {
   });
 }
 
-// ... Sepet Ekle/Çıkar Fonksiyonları ...
+// ... Sepet Ekle/Çıkar Fonksiyonları Aynen Kalıyor ...
 function handleAddToCart(id) {
     let cart = getSafeCart();
     let existingItem = cart.find(c => c.id === id);
@@ -173,68 +161,6 @@ function clearFilters() {
   
   rendermenu();
   closeFilterDrawer();
-}
-
-// --- İÇERİK FİLTRESİ FONKSİYONLARI ---
-function populateIngredientDrawer() {
-  const container = document.getElementById("ingredient-list-container");
-  
-  // Önce içeriği sıfırlayalım ve başlıkları ekleyelim
-  container.innerHTML = `
-      <h3 style="margin-top: 0; font-size: 16px; color: #4CAF50;">İçerikler</h3>
-      <p style="font-size: 12px; color: #888; margin-top: 0; margin-bottom: 15px;">
-        Üründe mutlaka olmasını istediğiniz içerikleri seçin:
-      </p>
-  `;
-
-  // Menüyü tara ve benzersiz içerikleri bul (Set ile tekrarları engelleriz)
-  let allIngredients = new Set();
-  menu.forEach((item) => {
-    if (item.icerik && Array.isArray(item.icerik)) {
-      item.icerik.forEach((ing) => allIngredients.add(ing.trim()));
-    }
-  });
-
-  // Alfabetik sıraya dizelim
-  let sortedIngredients = Array.from(allIngredients).sort();
-
-  // Her bir içerik için checkbox oluştur
-  sortedIngredients.forEach((ing) => {
-    let label = document.createElement("label");
-    label.className = "filter-checkbox-container";
-    label.innerHTML = `<input type="checkbox" value="${ing}" class="ingredient-cb"/> ${ing}`;
-    container.appendChild(label);
-  });
-}
-
-function openIngredientDrawer() {
-  const overlay = document.getElementById("ingredient-overlay");
-  const drawer = document.getElementById("ingredient-drawer");
-  overlay.style.display = "block";
-  setTimeout(() => { drawer.classList.add("open"); }, 10);
-}
-
-function closeIngredientDrawer(event) {
-  if (event && event.target.id !== "ingredient-overlay") return;
-  const overlay = document.getElementById("ingredient-overlay");
-  const drawer = document.getElementById("ingredient-drawer");
-  drawer.classList.remove("open");
-  setTimeout(() => { overlay.style.display = "none"; }, 300);
-}
-
-function applyIngredientFilters() {
-  const checkboxes = document.querySelectorAll('.ingredient-cb:checked');
-  activeIngredientsToInclude = Array.from(checkboxes).map((cb) => cb.value);
-  rendermenu();
-  closeIngredientDrawer();
-}
-
-function clearIngredientFilters() {
-  const checkboxes = document.querySelectorAll('#ingredient-drawer input[type="checkbox"]');
-  checkboxes.forEach((cb) => (cb.checked = false));
-  activeIngredientsToInclude = [];
-  rendermenu();
-  closeIngredientDrawer();
 }
 
 // --- MODAL (BİLGİ EKRANI) FONKSİYONU ---

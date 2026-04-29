@@ -123,7 +123,7 @@ let menuDb = [
     resim: "/images/brownie.png",
     aciklama: "Saf Karamel.",
     vegan: false,
-    tags: []
+    tags: ["enerjik"]
   },
 ];
 

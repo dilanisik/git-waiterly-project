@@ -35,13 +35,17 @@ function selectMood(mood, clickedBtn) {
     document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
     clickedBtn.classList.add('active');
 
-    // Filter Logic: Find menu items that contain AT LEAST ONE tag matching the mood's tags
-    const targetTags = mood.tags.map(t => t.toLowerCase());
+    // FIX: Check for both 'tags' and 'etiketler' to handle admin panel data
+    const moodTagsArray = mood.tags || mood.etiketler || [];
+    const targetTags = moodTagsArray.map(t => t.toLowerCase());
     
     const matchedProducts = menuData.filter(product => {
-        if (!product.tags || !Array.isArray(product.tags)) return false;
+        // FIX: Check for both 'tags' and 'etiketler' on the product
+        const productTagsArray = product.tags || product.etiketler;
         
-        const productTags = product.tags.map(t => t.toLowerCase());
+        if (!productTagsArray || !Array.isArray(productTagsArray)) return false;
+        
+        const productTags = productTagsArray.map(t => t.toLowerCase());
         // Check if there is an intersection between product tags and mood tags
         return productTags.some(tag => targetTags.includes(tag));
     });

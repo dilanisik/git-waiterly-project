@@ -16,6 +16,7 @@ let menuDb = [
     resim: "/images/latte.png",
     aciklama: "Yumuşak içimli, taze çekilmiş espresso ve kadifemsi süt.",
     vegan: false,
+    tags: []
   },
   {
     id: 2,
@@ -27,6 +28,7 @@ let menuDb = [
     resim: "/images/caramel-latte.png",
     aciklama: "Karamel severler için tatlı ve dengeli bir kahve deneyimi.",
     vegan: false,
+    tags: []
   },
   {
     id: 3,
@@ -38,6 +40,7 @@ let menuDb = [
     resim: "/images/lemonade.png",
     aciklama: "Taze nane yapraklarıyla hazırlanan ev yapımı serinlik.",
     vegan: true,
+    tags: []
   },
   {
     id: 4,
@@ -49,6 +52,7 @@ let menuDb = [
     resim: "/images/cola.png",
     aciklama: "Buz gibi, ferahlatıcı klasik lezzet.",
     vegan: true,
+    tags: []
   },
   {
     id: 5,
@@ -71,6 +75,7 @@ let menuDb = [
     resim: "/images/smoothie.png",
     aciklama: "Taze meyvelerle hazırlanan sağlıklı ve doyurucu atıştırmalık.",
     vegan: false,
+    tags: []
   },
   {
     id: 7,
@@ -82,6 +87,7 @@ let menuDb = [
     resim: "/images/sandwich.png",
     aciklama: "Hafif bir mola için taze yeşillikli soğuk sandviç.",
     vegan: true,
+    tags: []
   },
   {
     id: 8,
@@ -93,6 +99,7 @@ let menuDb = [
     resim: "/images/bowl.png",
     aciklama: "Bitkisel protein kaynağı, taze ve besleyici fit kase.",
     vegan: true,
+    tags: []
   },
   {
     id: 9,
@@ -104,6 +111,19 @@ let menuDb = [
     resim: "/images/brownie.png",
     aciklama: "Bol cevizli ve yoğun bitter çikolatalı ıslak lezzet bombası.",
     vegan: false,
+    tags: []
+  },
+  {
+    id: 10,
+    isim: "Karamel",
+    fiyat: 999,
+    puan: -5.0,
+    icerik: ["Karamel"],
+    alerjenler: [""],
+    resim: "/images/brownie.png",
+    aciklama: "Saf Karamel.",
+    vegan: false,
+    tags: ["enerjik"]
   },
 ];
 
@@ -156,11 +176,43 @@ const server = http.createServer((req, res) => {
         res.end(data);
       }
     });
-  } else if (req.url === "/login.html") {
+  } else if (req.url === "/ingredients.html") {
+    const filePath = path.join(__dirname, "ingredients.html");
+    fs.readFile(filePath, (err, data) => {
+      if (!err) {
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(data);
+      }
+    });
+  } else if (req.url === "/ingredients.js") {
+    const filePath = path.join(__dirname, "ingredients.js");
+    fs.readFile(filePath, (err, data) => {
+      if (!err) {
+        res.writeHead(200, { "Content-Type": "application/javascript" });
+        res.end(data);
+      }
+    });
+  }else if (req.url === "/login.html") {
     const filePath = path.join(__dirname, "login.html");
     fs.readFile(filePath, (err, data) => {
       if (!err) {
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(data);
+      }
+    });
+  }else if (req.url === "/mood.html") {
+    const filePath = path.join(__dirname, "mood.html");
+    fs.readFile(filePath, (err, data) => {
+      if (!err) {
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(data);
+      }
+    });
+  } else if (req.url === "/mood.js") {
+    const filePath = path.join(__dirname, "mood.js");
+    fs.readFile(filePath, (err, data) => {
+      if (!err) {
+        res.writeHead(200, { "Content-Type": "application/javascript" });
         res.end(data);
       }
     });
@@ -216,6 +268,18 @@ const server = http.createServer((req, res) => {
       } else {
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
         res.end(data);
+      }
+    });
+  }
+  else if (req.url === "/admin.js") {
+    const filePath = path.join(__dirname, "admin.js");
+    fs.readFile(filePath, (err, data) => {
+      if (!err) {
+        res.writeHead(200, { "Content-Type": "application/javascript" });
+        res.end(data);
+      } else {
+        res.writeHead(404);
+        res.end("Not found");
       }
     });
   }
@@ -325,3 +389,4 @@ const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Sunucu http://localhost:${PORT} adresinde çalışıyor`);
 });
+

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>İçeriğe Göre Bul - Waiterly</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+        background-color: #f9f9f9;
+        overflow-x: hidden;
+        padding-bottom: 80px; /* Sepet butonu için boşluk */
+      }
+      button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: white;
+        cursor: pointer;
+        transition: 0.2s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      button:active { background-color: #e0e0e0; }
+
+      /* FLOATING CART BUTTON (SEPET BUTONU) */
+      .floating-cart-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        cursor: pointer;
+        z-index: 9000;
+      }
+
+      /* INGREDIENT GRID STYLES */
+      #ingredients-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 10px;
+      }
+      .ingredient-card {
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        padding: 15px;
+        width: 100px;
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+      .ingredient-card:active { transform: scale(0.95); }
+      .ingredient-card.selected {
+        border-color: #4CAF50;
+        background-color: #e8f5e9;
+      }
+      .ingredient-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-bottom: 10px;
+      }
+      .ingredient-name {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+        word-wrap: break-word;
+      }
+
+      /* MENU ITEM STYLES */
+      .menu-item {
+        margin: 15px auto;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 450px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        cursor: pointer; /* Tıklanabilir olduğunu belirtir */
+      }
+      .menu-item-top { display: flex; justify-content: space-between; align-items: center; }
+      .item-thumbnail {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-left: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .item-controls {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding-top: 10px;
+        border-top: 1px dashed #eee; 
+      }
+
+      /* ÜRÜN LİSTESİ MODALI (Z-Index: 9998) */
+      .item-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9998;
+        backdrop-filter: blur(3px);
+        overflow-y: auto;
+      }
+      .item-modal-card {
+        background: #fff;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 12px;
+        margin: 50px auto;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      /* ÜRÜN BİLGİ MODALI (Z-Index: 9999 - En üstte olacak) */
+      .product-info-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999; 
+        backdrop-filter: blur(3px);
+        overflow-y: auto;
+      }
+      .product-info-card {
+        background: #fff;
+        width: 90%;
+        max-width: 400px;
+        border-radius: 12px;
+        margin: 50px auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+      .product-info-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .modal-close-btn {
+        position: absolute;
+        top: 10px; right: 10px;
+        width: 35px; height: 35px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none; border-radius: 50%;
+        cursor: pointer; font-weight: bold; font-size: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>İçeriğe Göre Bul 🥑</h1>
+    <p>Canınız ne çekiyor? İstediğiniz malzemeleri seçin.</p>
+
+    <div id="ingredients-grid"></div>
+
+    <br />
+    <button onclick="showMatchingProducts()" style="background-color: #4CAF50; color: white; font-weight: bold; padding: 12px 30px; font-size: 16px;">Tamam ✅</button>
+    <br /><br />
+    <button onclick="window.location.href = '/'">Anasayfaya Dön 🏠</button>
+
+    <button class="floating-cart-btn" onclick="window.location.href='/cart.html'">🛒 Sepete Git</button>
+
+    <div id="products-modal-overlay" class="item-modal-overlay" onclick="closeProductsModal(event)">
+      <div class="item-modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeProductsModal()">&times;</button>
+        <h2 style="margin-top: 0;">Sizin İçin Seçtiklerimiz</h2>
+        <p style="color: #666; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Seçtiğiniz malzemeleri içeren ürünler aşağıdadır.</p>
+        
+        <div id="matched-menu-list"></div>
+      </div>
+    </div>
+
+    <div id="product-info-overlay" class="product-info-overlay" onclick="closeItemModal(event)">
+      <div class="product-info-card" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeItemModal()">&times;</button>
+        <img id="modal-img" class="product-info-img" src="" alt="">
+        <div style="padding: 20px; text-align: left;">
+          <h2 id="modal-title" style="margin-top: 0; margin-bottom: 5px;"></h2>
+          <div style="color: #ff9800; font-weight: bold; margin-bottom: 10px;">⭐ <span id="modal-rating"></span></div>
+          <div id="modal-price" style="font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 15px;"></div>
+          <p id="modal-text" style="color: #555; font-size: 14px; line-height: 1.4;"></p>
+          
+          <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 15px;">
+            <strong style="font-size: 13px;">İçindekiler:</strong>
+            <div id="modal-ingredients" style="font-size: 13px; color: #666; margin-top: 5px;"></div>
+          </div>
+
+          <div id="modal-allergens-container" style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-top: 10px; display: none;">
+            <strong style="font-size: 13px; color: #856404;">⚠️ Alerjen Uyarısı:</strong>
+            <div id="modal-allergens" style="font-size: 13px; color: #856404; margin-top: 5px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="ingredients.js"></script>
+  </body>
+</html>

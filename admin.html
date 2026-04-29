@@ -6,30 +6,84 @@
     <title>Admin Paneli - Waiterly</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      :root { --green: #4caf50; --green-dark: #388e3c; --green-light: #e8f5e9; --black: #111; --gray: #f4f4f2; --shadow: 0 8px 40px rgba(0,0,0,0.18); }
+      :root {
+        --green: #4caf50;
+        --green-dark: #388e3c;
+        --green-light: #e8f5e9;
+        --black: #111;
+        --gray: #f4f4f2;
+        --shadow: 0 8px 40px rgba(0,0,0,0.18);
+      }
+
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: 'DM Sans', sans-serif; background: url('/images/admin_bgrnd.jpg') no-repeat center center fixed; background-size: cover; min-height: 100vh; padding: 24px; color: #222; display: flex; align-items: center; justify-content: center; }
-      .dashboard-container { max-width: 1140px; margin: 0 auto; background: rgba(255,255,255,0.97); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; width: 100%; }
-      .header { display: flex; justify-content: space-between; align-items: center; padding: 28px 40px 20px; border-bottom: 1px solid #eee; }
+
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background: url('/images/admin_bgrnd.jpg') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        padding: 24px;
+        color: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dashboard-container {
+        max-width: 1140px;
+        margin: 0 auto;
+        background: rgba(255,255,255,0.97);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        width: 100%;
+        }
+
+      /* HEADER */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 28px 40px 20px;
+        border-bottom: 1px solid #eee;
+      }
       .header h1 { font-family:'Playfair Display',serif; font-size:28px; color:var(--black); }
       .btn-logout { background:#e53935; color:white; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:background 0.2s; }
       .btn-logout:hover { background:#b71c1c; }
-      .admin-nav { display: grid; grid-template-columns: repeat(5, 1fr); padding: 32px 40px; gap: 16px; }
-      .nav-card { display: flex; flex-direction: column; align-items: center; cursor: pointer; border-radius: 16px; overflow: hidden; border: 2px solid transparent; transition: all 0.28s cubic-bezier(.4,0,.2,1); background: var(--gray); box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+
+      /* NAV CARDS (Updated to 5 columns for Moods) */
+      .admin-nav {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        padding: 32px 40px;
+        gap: 16px;
+      }
+      .nav-card {
+        display: flex; flex-direction: column; align-items: center;
+        cursor: pointer; border-radius: 16px; overflow: hidden;
+        border: 2px solid transparent;
+        transition: all 0.28s cubic-bezier(.4,0,.2,1);
+        background: var(--gray);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      }
       .nav-card:hover { border-color:var(--green); transform:translateY(-6px); box-shadow:0 12px 32px rgba(76,175,80,0.18); }
       .nav-card.active { border-color:var(--green); background:var(--green); color:white; box-shadow:0 8px 28px rgba(76,175,80,0.35); }
-      .nav-thumb-wrap { width:100%; height:90px; overflow:hidden; background:#ddd; display:flex; align-items:center; justify-content:center; font-size:32px; }
-      .nav-card-thumb { width:100%; height:90px; object-fit:cover; display:block; transition:transform 0.35s ease; }
+      .nav-thumb-wrap { width:100%; height:110px; overflow:hidden; background:#eee; display:flex; align-items:center; justify-content:center; font-size:40px; }
+      .nav-card-thumb { width:100%; height:110px; object-fit:cover; display:block; transition:transform 0.35s ease; }
       .nav-card:hover .nav-card-thumb { transform:scale(1.06); }
       .nav-card-label { width:100%; padding:14px 10px; text-align:center; font-weight:700; font-size:13px; }
       .nav-card.active .nav-card-label { color:white; }
+
+      /* PANELS */
       .admin-panel { display:none; }
       .admin-panel.active { display:block; }
-      .panel-hero { width:100%; height:220px; object-fit:cover; display:block; background:#333; }
+      .panel-hero { width:100%; height:220px; object-fit:cover; display:block; }
       .panel-body { padding:32px 40px 40px; }
       .back-btn { background:var(--black); color:white; border:none; padding:10px 18px; border-radius:7px; cursor:pointer; font-weight:600; font-size:14px; margin-bottom:24px; display:inline-flex; align-items:center; gap:6px; transition:opacity 0.2s; }
       .back-btn:hover { opacity:0.8; }
       .panel-title { font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px; }
+
+      /* TABLES */
       table { width:100%; border-collapse:collapse; margin-top:16px; background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
       th { background:#111; color:#fff !important; text-align:left; padding:14px 15px; border-bottom:3px solid var(--green); font-size:12px; text-transform:uppercase; letter-spacing:1px; }
       td { padding:14px 15px; border-bottom:1px solid #eee; vertical-align:middle; color:#333; font-size:14px; }
@@ -38,8 +92,12 @@
       tbody tr:nth-child(even) { background:#f8f9fa; }
       tr:hover { background:var(--green-light) !important; transition:0.2s; }
       .menu-thumb { width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid #eee; }
+
+      /* BUTTONS */
       .btn-delete { background:#e53935; color:white; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12px; transition:0.2s; }
       .btn-delete:hover { background:#b71c1c; }
+
+      /* FORMS */
       .add-form { background:#fdfdfd; padding:28px; border:1px solid #eee; border-radius:14px; margin-top:32px; display:grid; gap:14px; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
       .add-form h3 { margin:0; font-size:17px; }
       .form-group { display:flex; flex-direction:column; gap:6px; }
@@ -49,38 +107,75 @@
       .btn-submit { background:var(--green); color:white; border:none; padding:13px; border-radius:9px; font-weight:700; cursor:pointer; font-size:15px; transition:background 0.2s, transform 0.15s; }
       .btn-submit:hover { background:var(--green-dark); transform:translateY(-1px); }
       .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
-      .image-upload-area { border:2px dashed #ccc; border-radius:10px; padding:20px; text-align:center; cursor:pointer; transition:border-color 0.2s, background 0.2s; background:#fafafa; min-height:100px; display:flex; align-items:center; justify-content:center; }
+
+      /* IMAGE UPLOAD AREA */
+      .image-upload-area {
+        border:2px dashed #ccc; border-radius:10px; padding:20px;
+        text-align:center; cursor:pointer;
+        transition:border-color 0.2s, background 0.2s;
+        background:#fafafa; min-height:100px;
+        display:flex; align-items:center; justify-content:center;
+      }
       .image-upload-area:hover { border-color:var(--green); background:var(--green-light); }
       .upload-inner { pointer-events:none; }
       .upload-icon { font-size:30px; margin-bottom:6px; }
       .upload-text { font-size:13px; color:#888; }
       .upload-text strong { color:var(--green); }
       .image-upload-preview { width:80px; height:80px; object-fit:cover; border-radius:10px; margin:0 auto 8px; display:block; border:2px solid var(--green); }
-      /* Employee styles omitted for brevity but remain functional */
+
+      /* EMPLOYEES */
       .employees-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:22px; margin-top:8px; }
       .employee-card { background:white; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.09); transition:transform 0.25s, box-shadow 0.25s; border:2px solid transparent; cursor:pointer; position:relative; }
+      .employee-card:hover { transform:translateY(-5px); box-shadow:0 12px 32px rgba(76,175,80,0.18); border-color:var(--green); }
+      .employee-edit-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.25s; border-radius:14px; z-index:2; }
+      .employee-card:hover .employee-edit-overlay { opacity:1; }
+      .employee-edit-btn { background:white; color:#111; border:none; padding:10px 22px; border-radius:30px; font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(0,0,0,0.2); }
       .employee-photo-wrap { width:100%; height:180px; background:#eee; overflow:hidden; position:relative; }
-      .employee-photo-wrap img { width:100%; height:100%; object-fit:cover; }
+      .employee-photo-wrap img { width:100%; height:100%; object-fit:cover; transition:transform 0.35s; }
+      .employee-card:hover .employee-photo-wrap img { transform:scale(1.05); }
       .employee-photo-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:60px; background:linear-gradient(135deg,#e8f5e9,#c8e6c9); }
-      .employee-role-badge { position:absolute; bottom:10px; left:10px; background:var(--green); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; z-index:1; }
+      .employee-role-badge { position:absolute; bottom:10px; left:10px; background:var(--green); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; z-index:1; }
       .employee-info { padding:16px 18px 18px; }
       .employee-name { font-family:'Playfair Display',serif; font-size:18px; color:var(--black); margin-bottom:3px; }
       .employee-meta { font-size:12px; color:#999; margin-bottom:10px; }
-      .employee-detail-row { display:flex; align-items:flex-start; gap:7px; font-size:13px; color:#555; margin-bottom: 4px;}
-      .status-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; }
+      .employee-details { display:flex; flex-direction:column; gap:5px; }
+      .employee-detail-row { display:flex; align-items:flex-start; gap:7px; font-size:13px; color:#555; }
+      .employee-detail-row .icon { font-size:13px; flex-shrink:0; margin-top:1px; }
+      .status-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
       .status-active { background:#e8f5e9; color:#2e7d32; }
       .status-inactive { background:#fce4ec; color:#c62828; }
+
+      /* MODAL */
       .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.25s; }
       .modal-overlay.open { opacity:1; pointer-events:all; }
       .modal { background:white; border-radius:18px; padding:36px; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); transform:translateY(20px); transition:transform 0.25s; }
       .modal-overlay.open .modal { transform:translateY(0); }
       .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #eee; }
       .modal-title { font-family:'Playfair Display',serif; font-size:20px; }
-      .modal-close { background:#f1f1f1; border:none; width:34px; height:34px; border-radius:50%; cursor:pointer; font-size:18px; }
+      .modal-close { background:#f1f1f1; border:none; width:34px; height:34px; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+      .modal-close:hover { background:#e0e0e0; }
+      .modal-form { display:flex; flex-direction:column; gap:14px; }
+      .modal-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+      .modal-photo-section { display:flex; align-items:center; gap:16px; padding:16px; background:#f8f8f8; border-radius:12px; }
+      .modal-photo-display { width:72px; height:72px; border-radius:12px; border:2px solid var(--green); background:#eee; display:flex; align-items:center; justify-content:center; font-size:32px; flex-shrink:0; overflow:hidden; }
+      .modal-photo-display img { width:100%; height:100%; object-fit:cover; }
+      .modal-photo-info { flex:1; }
+      .modal-photo-info span { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+      .modal-photo-info small { color:#888; font-size:12px; }
+      .btn-upload-photo { margin-top:8px; background:var(--green-light); color:var(--green-dark); border:1px solid var(--green); padding:7px 14px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; position:relative; overflow:hidden; display:inline-block; }
+      .btn-upload-photo input { position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0; }
+
+      .modal-actions { display:flex; gap:10px; margin-top:8px; }
+      .btn-modal-save { flex:1; background:var(--green); color:white; border:none; padding:13px; border-radius:9px; font-weight:700; font-size:15px; cursor:pointer; transition:background 0.2s; }
+      .btn-modal-save:hover { background:var(--green-dark); }
+      .btn-modal-cancel { background:#f1f1f1; color:#333; border:none; padding:13px 20px; border-radius:9px; font-weight:600; font-size:15px; cursor:pointer; transition:background 0.2s; }
+      .btn-modal-cancel:hover { background:#e0e0e0; }
     </style>
   </head>
   <body>
     <div class="dashboard-container">
+
       <div class="header">
         <h1>👨‍🍳 Waiterly Yönetim</h1>
         <button class="btn-logout" onclick="logout()">Çıkış Yap</button>
@@ -88,28 +183,29 @@
 
       <div class="admin-nav" id="admin-nav">
         <div id="btn-menu" class="nav-card" onclick="switchPanel('menu')">
-          <div class="nav-thumb-wrap">📋</div>
-          <div class="nav-card-label">Menü Düzenleme</div>
+          <div class="nav-thumb-wrap"><img class="nav-card-thumb" src="/images/menu_admin.jpg" alt="Menü" /></div>
+          <div class="nav-card-label">📋 Menü Düzenleme</div>
         </div>
         <div id="btn-orders" class="nav-card" onclick="switchPanel('orders')">
-          <div class="nav-thumb-wrap">🔔</div>
-          <div class="nav-card-label">Sipariş Geçmişi</div>
+          <div class="nav-thumb-wrap"><img class="nav-card-thumb" src="/images/order_history.jpg" alt="Sipariş" /></div>
+          <div class="nav-card-label">🔔 Sipariş Geçmişi</div>
         </div>
         <div id="btn-requests" class="nav-card" onclick="switchPanel('requests')">
-          <div class="nav-thumb-wrap">💬</div>
-          <div class="nav-card-label">İstek Ayarları</div>
+          <div class="nav-thumb-wrap"><img class="nav-card-thumb" src="/images/server-providing-service-at-restaurant.jpg" alt="İstek" /></div>
+          <div class="nav-card-label">💬 İstek Ayarları</div>
         </div>
         <div id="btn-employees" class="nav-card" onclick="switchPanel('employees')">
-          <div class="nav-thumb-wrap">👥</div>
-          <div class="nav-card-label">Çalışan Yönetimi</div>
+          <div class="nav-thumb-wrap"><img class="nav-card-thumb" src="/images/workers_.jpg" alt="Çalışanlar" /></div>
+          <div class="nav-card-label">👥 Çalışan Yönetimi</div>
         </div>
         <div id="btn-moods" class="nav-card" onclick="switchPanel('moods')">
-          <div class="nav-thumb-wrap">🎭</div>
+          <div class="nav-thumb-wrap" style="background:#f3e5f5; color:#9c27b0;">🎭</div>
           <div class="nav-card-label">Ruh Hali Modülü</div>
         </div>
       </div>
 
       <div id="panel-menu" class="admin-panel">
+        <img class="panel-hero" src="/images/menu_admin.jpg" alt="Menü" />
         <div class="panel-body">
           <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
           <div class="panel-title">🍴 Mevcut Menü</div>
@@ -122,19 +218,144 @@
 
           <div class="add-form">
             <h3>Yeni Ürün Ekle</h3>
-            <div class="grid-2">
-              <div class="form-group"><label>Ürün Adı *</label><input type="text" id="add-isim" placeholder="Örn: Latte" /></div>
-              <div class="form-group"><label>Fiyat (TL) *</label><input type="number" id="add-fiyat" placeholder="130" /></div>
+
+            <div class="form-group">
+              <label>Ürün Görseli</label>
+              <div class="image-upload-area" id="upload-area" onclick="document.getElementById('add-resim-file').click()">
+                <input type="file" id="add-resim-file" accept="image/*" style="display:none" onchange="previewMenuImage(event)" />
+                <div class="upload-inner" id="upload-placeholder">
+                  <div class="upload-icon">📷</div>
+                  <div class="upload-text">Resim seçmek için tıklayın<br><strong>veya sürükleyip bırakın</strong></div>
+                  <div class="upload-text" style="margin-top:5px;font-size:11px;color:#bbb;">JPG, PNG · Maks 5MB</div>
+                </div>
+                <div id="upload-preview-wrap" style="display:none;" class="upload-inner">
+                  <img id="upload-preview-img" class="image-upload-preview" src="" alt="Önizleme" />
+                  <div class="upload-text">Değiştirmek için tıklayın</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                <span style="font-size:12px;color:#aaa;">Ya da</span>
+                <input type="text" id="add-resim" placeholder="/images/urun.jpg dosya yolu" style="flex:1;" />
+              </div>
             </div>
-            <div class="form-group"><label>İçindekiler / Açıklama</label><input type="text" id="add-aciklama" placeholder="Örn: Süt, Espresso" /></div>
-            <div class="form-group"><label>Alerjenler (Virgülle ayırın)</label><input type="text" id="add-alerjenler" placeholder="Örn: Süt, Laktoz" /></div>
-            <div class="form-group"><label>Gizli Etiketler (Ruh hali için, virgülle ayırın)</label><input type="text" id="add-etiketler" placeholder="Örn: rahatlatici, enerjik, tatli_krizi" /></div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Ürün Adı *</label>
+                <input type="text" id="add-isim" placeholder="Örn: Latte" />
+              </div>
+              <div class="form-group">
+                <label>Fiyat (TL) *</label>
+                <input type="number" id="add-fiyat" placeholder="130" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>İçindekiler / Açıklama</label>
+              <input type="text" id="add-aciklama" placeholder="Örn: Süt, Espresso ve yoğun köpük" />
+            </div>
+            <div class="form-group">
+              <label>Alerjenler (Virgülle ayırın)</label>
+              <input type="text" id="add-alerjenler" placeholder="Örn: Süt, Laktoz, Kafein" />
+            </div>
+            
+            <div class="form-group">
+              <label>Gizli Etiketler (Ruh hali için, virgülle ayırın)</label>
+              <input type="text" id="add-etiketler" placeholder="Örn: rahatlatici, enerjik, tatli_krizi" />
+            </div>
+
             <button class="btn-submit" onclick="addNewItem()">✅ Menüye Ekle</button>
           </div>
         </div>
       </div>
 
+      <div id="panel-orders" class="admin-panel">
+        <img class="panel-hero" src="/images/order_history.jpg" alt="Siparişler" />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
+          <div class="panel-title">✅ Sipariş Kayıtları</div>
+          <table>
+            <thead><tr><th>Tarih</th><th>Saat</th><th>Ürünler</th><th>Toplam</th><th>İşlem</th></tr></thead>
+            <tbody id="admin-order-list"></tbody>
+          </table>
+          <br> </br>
+           <div class="add-form" style="background:#ffffff;border-color:#ffffff;margin-top:0;margin-bottom:28px;">
+            <h3 style="color:#000000;">📝 Manuel Sipariş Oluştur</h3>
+            <div class="grid-2">
+              <div class="form-group"><label>Ürünler</label><input type="text" id="manual-urunler" placeholder="2x Latte, 1x Brownie"></div>
+              <div class="form-group"><label>Tutar (TL)</label><input type="number" id="manual-tutar" placeholder="230"></div>
+            </div>
+            <button class="btn-submit" style="background:#109b31;" onclick="addManualOrder()">Siparişi Ekle</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-requests" class="admin-panel">
+        <img class="panel-hero" src="/images/server-providing-service-at-restaurant.jpg" alt="İstekler" />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
+          <div style="border-bottom:2px solid #919191;margin-bottom:20px;padding-bottom:8px;">
+            <div class="panel-title" style="color:#000000;">💬 Hazır İstek Listesi</div>
+          </div>
+          <table>
+            <thead><tr><th>ID</th><th>İstek Metni</th><th style="text-align:right;">İşlem</th></tr></thead>
+            <tbody id="admin-request-list"></tbody>
+          </table>
+          <div class="add-form" style="background:#ffffff;border-left:5px solid #e7e7e7;margin-top:30px;">
+            <h3 style="color:#000000;">Yeni Hazır İstek Ekle</h3>
+            <div class="form-group">
+              <label>İstek Cümlesi</label>
+              <input type="text" id="add-request-text" placeholder="Örn: Tuz alabilir miyiz?" />
+            </div>
+            <button class="btn-submit" style="background:#15f32b;" onclick="addNewRequest()">Listeye Ekle</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-employees" class="admin-panel">
+        <img class="panel-hero" src="/images/workers_.jpg" alt="Çalışanlar" style="object-position:center 30%;" />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
+          <div class="panel-title" style="margin-bottom:20px;">👥 Çalışan Listesi <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#999;font-weight:400;">(Karta tıklayarak düzenleyebilirsiniz)</span></div>
+          <div class="employees-grid" id="employees-grid"></div>
+          <div class="add-form" style="margin-top:32px;">
+            <h3>Yeni Çalışan Ekle</h3>
+
+            <div class="modal-photo-section" style="background:#f0f0f0;">
+              <div class="modal-photo-display" id="new-emp-photo-display">👤</div>
+              <div class="modal-photo-info">
+                <span>Profil Fotoğrafı</span>
+                <small>JPG veya PNG, maks 5MB</small><br>
+                <label class="btn-upload-photo">
+                  📁 Fotoğraf Seç
+                  <input type="file" id="new-emp-photo-file" accept="image/*" onchange="previewNewEmpPhoto(event)" />
+                </label>
+              </div>
+            </div>
+
+            <div class="modal-grid-2">
+              <div class="form-group"><label>Ad Soyad *</label><input type="text" id="new-emp-ad" placeholder="Ad Soyad" /></div>
+              <div class="form-group"><label>Rol / Pozisyon *</label><input type="text" id="new-emp-rol" placeholder="Örn: Garson" /></div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group"><label>Telefon</label><input type="text" id="new-emp-telefon" placeholder="+90 5xx xxx xx xx" /></div>
+              <div class="form-group"><label>Başlangıç Tarihi</label><input type="text" id="new-emp-baslangic" placeholder="Örn: Nisan 2025" /></div>
+            </div>
+            <div class="form-group"><label>E-posta</label><input type="email" id="new-emp-email" placeholder="ad.soyad@waiterly.com" /></div>
+            <div class="form-group">
+              <label>Durum</label>
+              <select id="new-emp-durum">
+                <option value="active">✅ Aktif</option>
+                <option value="inactive">⏸️ İzinli</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Notlar</label><textarea id="new-emp-notlar" rows="2" placeholder="Ek bilgi veya notlar..."></textarea></div>
+            <button class="btn-submit" onclick="addNewEmployee()">👤 Çalışanı Ekle</button>
+          </div>
+        </div>
+      </div>
+
       <div id="panel-moods" class="admin-panel">
+        <div style="width:100%; height:220px; background:linear-gradient(135deg, #f3e5f5, #e1bee7); display:flex; align-items:center; justify-content:center; font-size:80px;">🎭</div>
         <div class="panel-body">
           <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
           <div class="panel-title">🎭 Ruh Hali Algoritması Yönetimi</div>
@@ -168,10 +389,52 @@
         </div>
       </div>
 
-      <div id="panel-orders" class="admin-panel"><div class="panel-body"><button class="back-btn" onclick="goBackToNav()">⬅️ Geri</button><h3>Siparişler</h3></div></div>
-      <div id="panel-requests" class="admin-panel"><div class="panel-body"><button class="back-btn" onclick="goBackToNav()">⬅️ Geri</button><h3>İstekler</h3></div></div>
-      <div id="panel-employees" class="admin-panel"><div class="panel-body"><button class="back-btn" onclick="goBackToNav()">⬅️ Geri</button><h3>Çalışanlar</h3></div></div>
     </div>
+    
+    <div class="modal-overlay" id="emp-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">✏️ Çalışan Düzenle</div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-form">
+          <div class="modal-photo-section">
+            <div class="modal-photo-display" id="modal-photo-display">👤</div>
+            <div class="modal-photo-info">
+              <span>Profil Fotoğrafı</span>
+              <small>JPG veya PNG, maks 5MB</small><br>
+              <label class="btn-upload-photo">
+                📁 Fotoğraf Seç
+                <input type="file" id="modal-photo-file" accept="image/*" onchange="previewModalPhoto(event)" />
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-grid-2">
+            <div class="form-group"><label>Ad Soyad *</label><input type="text" id="modal-ad" placeholder="Ad Soyad" /></div>
+            <div class="form-group"><label>Rol / Pozisyon *</label><input type="text" id="modal-rol" placeholder="Örn: Garson" /></div>
+          </div>
+          <div class="modal-grid-2">
+            <div class="form-group"><label>Telefon</label><input type="text" id="modal-telefon" placeholder="+90 5xx xxx xx xx" /></div>
+            <div class="form-group"><label>Başlangıç Tarihi</label><input type="text" id="modal-baslangic" placeholder="Örn: Mart 2021" /></div>
+          </div>
+          <div class="form-group"><label>E-posta</label><input type="email" id="modal-email" placeholder="ad.soyad@waiterly.com" /></div>
+          <div class="form-group">
+            <label>Durum</label>
+            <select id="modal-durum">
+              <option value="active">✅ Aktif</option>
+              <option value="inactive">⏸️ İzinli</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Notlar</label><textarea id="modal-notlar" rows="2" placeholder="Ek bilgi veya notlar..."></textarea></div>
+          <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal()">İptal</button>
+            <button class="btn-modal-save" onclick="saveEmployee()">💾 Kaydet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="admin.js"></script>
   </body>
 </html>

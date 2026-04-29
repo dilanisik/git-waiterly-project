@@ -200,22 +200,7 @@ const server = http.createServer((req, res) => {
         res.end(data);
       }
     });
-  } else if (req.url === "/mood.js") {
-    const filePath = path.join(__dirname, "mood.js");
-    fs.readFile(filePath, (err, data) => {
-      if (!err) {
-        res.writeHead(200, { "Content-Type": "application/javascript" });
-        res.end(data);
-      }
-    });
-  } else if (req.url === "/mood.html") {
-    const filePath = path.join(__dirname, "mood.html");
-    fs.readFile(filePath, (err, data) => {
-      if (!err) {
-        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        res.end(data);
-      }
-    });
+  }
 
   // --- CSS & JS ASSETS ---
   else if (req.url === "/style.css") {

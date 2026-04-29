@@ -1,3 +1,51 @@
+// --- SEPET İŞLEMLERİ (Menü Script ile Birebir Aynı) ---
+function getSafeCart() {
+    try {
+        let cart = JSON.parse(localStorage.getItem("cart"));
+        if (!Array.isArray(cart)) return [];
+        return cart;
+    } catch (e) {
+        return [];
+    }
+}
+
+function getCartQuantity(id) {
+    let cart = getSafeCart();
+    let item = cart.find(c => c.id === id);
+    return item ? item.quantity : 0;
+}
+
+function sepeteEkle(id, change) {
+    let cart = getSafeCart();
+    let existingItem = cart.find(c => c.id === id);
+
+    if (change > 0) {
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            // menuData üzerinden ürünü bul
+            let menuItem = menuData.find(m => m.id === id);
+            if (menuItem) {
+                cart.push({ ...menuItem, quantity: 1 });
+            }
+        }
+    } else if (change < 0 && existingItem) {
+        existingItem.quantity -= 1;
+        if (existingItem.quantity <= 0) {
+            cart = cart.filter(c => c.id !== id);
+        }
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    
+    // UI'daki miktarı dinamik olarak güncelle
+    const qtyElement = document.getElementById(`qty-${id}`);
+    if (qtyElement) {
+        qtyElement.innerText = getCartQuantity(id);
+    }
+}
+// -----------------------------------------------------
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Load Moods created by Admin
     // Since we don't have a DB yet, we grab it from localStorage where admin.js saved it, 
@@ -79,39 +127,28 @@ function renderResults(products) {
 
     products.forEach(product => {
         const imgSrc = product.resim || "/images/americano.jpg";
+        let guncelMiktar = getCartQuantity(product.id);
+        
         const card = document.createElement('div');
         card.className = 'product-card';
+        
+        // Vegan etiketi (opsiyonel olarak menu_scriptteki gibi ekleyebilirsiniz)
+        let veganBadge = product.vegan ? `<span style="font-size: 12px; background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid #a5d6a7; margin-left: 10px;">🌱 Vegan</span>` : "";
+
         card.innerHTML = `
             <img src="${imgSrc}" class="product-img" alt="${product.isim}" onerror="this.src='/images/americano.jpg'">
             <div class="product-info">
-                <h3 class="product-title">${product.isim}</h3>
+                <h3 class="product-title">${product.isim} ${veganBadge}</h3>
                 <p class="product-desc">${product.aciklama || "Harika bir tercih."}</p>
                 <div class="product-price">${product.fiyat} TL</div>
-                <button class="add-to-cart-btn" onclick="addToCart(${product.id})" style="margin-top: 10px; width: 100%; padding: 10px; background: #ff9800; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Sepete Ekle</button>
+                
+                <div class="item-controls" onclick="event.stopPropagation()">
+                    <button class="btn-minus" onclick="sepeteEkle(${product.id}, -1)">-</button>
+                    <span id="qty-${product.id}" class="item-qty">${guncelMiktar}</span>
+                    <button class="btn-plus" onclick="sepeteEkle(${product.id}, 1)">+</button>
+                </div>
             </div>
         `;
         resultsContainer.appendChild(card);
     });
-}
-
-function addToCart(productId) {
-    // Find the product in our fetched menu data
-    const product = menuData.find(p => p.id === productId);
-    if (!product) return;
-    
-    // Grab the current cart, or start a new empty one
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    
-    // Check if item already exists in cart to increase quantity
-    let existingItem = cart.find(item => item.id === productId);
-    if (existingItem) {
-        existingItem.quantity = (existingItem.quantity || 1) + 1;
-    } else {
-        cart.push({ ...product, quantity: 1 });
-    }
-    
-    // Save it back to storage so cart.html can see it
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    alert(product.isim + " sepete eklendi! 🛒");
 }

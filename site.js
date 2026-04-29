@@ -246,6 +246,18 @@ const server = http.createServer((req, res) => {
       }
     });
   }
+  else if (req.url === "/admin.js") {
+    const filePath = path.join(__dirname, "admin.js");
+    fs.readFile(filePath, (err, data) => {
+      if (!err) {
+        res.writeHead(200, { "Content-Type": "application/javascript" });
+        res.end(data);
+      } else {
+        res.writeHead(404);
+        res.end("Not found");
+      }
+    });
+  }
 
   // --- REST API: LOGIN ---
   else if (req.url === "/api/login" && req.method === "POST") {

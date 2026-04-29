@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Since we don't have a DB yet, we grab it from localStorage where admin.js saved it, 
     // or use defaults if empty.
     const defaultMoods = [
-        { id: 1, isim: "Enerjik Hissetmek", emoji: "⚡", etiketler: ["enerjik", "soguk", "kafein"] },
-        { id: 2, isim: "Rahatlamak İstiyorum", emoji: "🧘‍♀️", etiketler: ["rahatlatici", "sicak"] }
+        { id: 1, isim: "Enerjik Hissetmek", emoji: "⚡", tags: ["enerjik", "soguk", "kafein"] },
+        { id: 2, isim: "Rahatlamak İstiyorum", emoji: "🧘‍♀️", tags: ["rahatlatici", "sicak"] }
     ];
     const moodsData = JSON.parse(localStorage.getItem('moodsDB')) || defaultMoods;
     
@@ -36,12 +36,12 @@ function selectMood(mood, clickedBtn) {
     clickedBtn.classList.add('active');
 
     // Filter Logic: Find menu items that contain AT LEAST ONE tag matching the mood's tags
-    const targetTags = mood.etiketler.map(t => t.toLowerCase());
+    const targetTags = mood.tags.map(t => t.toLowerCase());
     
     const matchedProducts = menuData.filter(product => {
-        if (!product.etiketler || !Array.isArray(product.etiketler)) return false;
+        if (!product.tags || !Array.isArray(product.tags)) return false;
         
-        const productTags = product.etiketler.map(t => t.toLowerCase());
+        const productTags = product.tags.map(t => t.toLowerCase());
         // Check if there is an intersection between product tags and mood tags
         return productTags.some(tag => targetTags.includes(tag));
     });

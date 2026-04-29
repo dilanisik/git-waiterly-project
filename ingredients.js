@@ -142,7 +142,8 @@ function showMatchingProducts() {
             .map(ing => ingredientMap[typeof ing === 'string' ? ing.trim() : ""])
             .filter(root => root !== null && root !== undefined);
         
-        return Array.from(selectedIngredients).some(selected => itemRoots.includes(selected));
+        // FIX: Changed from .some() to .every() to enforce AND logic
+        return Array.from(selectedIngredients).every(selected => itemRoots.includes(selected));
     });
 
     if (matchingProducts.length === 0) {

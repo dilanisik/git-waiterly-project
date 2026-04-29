@@ -1,10 +1,10 @@
 # PROJECT - WAITERLY (Smart Digital Waiter System)
 
 ##Live URL !!!!!!
-https://waiterly-latest.onrender.com
+https://waiterly-project-1.onrender.com/
 
 ##Live URL for Admin Panel
-https://waiterly-latest.onrender.com/admin
+https://waiterly-project-1.onrender.com/admin
 
 ## DESCRIPTION
 Waiterly is a Smart Digital Waiter System designed to address the issue of traditional menus being organized around products rather than customer moods or requests  and most importantly the issue that usual QR menus are nothing different than the paper ones. It is an innovative digital ordering website for cafés, bars, and restaurants that provides a personalized ordering experience. The system aims to speed up the ordering process, reduce waiting times, and improve overall customer satisfaction while helping businesses operate more efficiently and cost-effectively.Unlike conventional menus that are strictly product-based and static—even in QR form—Waiterly introduces a dynamic, user-centered approach

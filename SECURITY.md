@@ -17,7 +17,7 @@ We recommend always using the latest version of the project to benefit from secu
 
 If you discover a security vulnerability, please report it responsibly:
 
-- 📧 Email: your-email@example.com  
+- 📧 Email: -  
 - 🐙 GitHub: Open a private security advisory (preferred)
 
 ### What to include in your report:

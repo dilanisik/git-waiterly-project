@@ -3,17 +3,16 @@ console.log("Waiterly has begun 🚀");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+require('dotenv').config();
 const { MongoClient, ObjectId } = require("mongodb");
 
 // 1. MongoDB Ayarları ve Global 'db' Değişkeni
-const uri = "mongodb://localhost:27017"; 
+const uri = process.env.MONGODB_URI || "mongodb://localhost:27017"; 
 const client = new MongoClient(uri);
 const dbName = "waiterly_db";
 let db; // Bunu dışarıda tanımlıyoruz ki her yerden ulaşılabilsin!
 
-// Eskiden kalan geçici menü (Eğer DB boşsa patlamasın diye durabilir)
-let menuDb = []; 
-
+// Eskiden kalan geçici menü (Eğer DB boşsa patlamasın diye durabilir) 
 function isAuth(req) {
   const cookieHeader = req.headers.cookie;
   return cookieHeader && cookieHeader.includes("auth=admin_vip_token");
@@ -79,11 +78,19 @@ const server = http.createServer(async (req, res) => {
   // --- REST API: MENU ITEMS (DB'den Çekme) ---
   else if (req.url.startsWith("/api/menu") && req.method === "GET") {
     try {
+        db = client.db(dbName);
         const menuData = await db.collection("menu").find({}).toArray();
+        
+        // FIX 1: Changed print() to console.log()
+        console.log(menuData); 
+        
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-        // Eğer DB boşsa eski menuDb'yi yolla (geliştirme aşaması için)
-        res.end(JSON.stringify(menuData.length > 0 ? menuData : menuDb));
+        
+        // FIX 2: Replaced the undefined 'menuDb' fallback with an empty array '[]'
+        res.end(JSON.stringify(menuData.length > 0 ? menuData : []));
     } catch(e) {
+        // Added console.error here so you can see future backend errors in your terminal!
+        console.error("Menu API Error:", e); 
         res.writeHead(500);
         res.end("Menu cekilemedi");
     }

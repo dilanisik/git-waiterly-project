@@ -1,15 +1,4 @@
-// ══════════════════════════════════════════
-// EMPLOYEE DATA (hardcoded, DB bağlanacak)
-// ══════════════════════════════════════════
-let employeesData = [
-  { id:1, ad:"Ayşe Kaya",     rol:"Baş Garson",  telefon:"+90 532 111 22 33", email:"ayse.kaya@waiterly.com",     baslangic:"Mart 2021",    durum:"active",   foto:null, emoji:"👩",   notlar:"" },
-  { id:2, ad:"Mehmet Demir",  rol:"Garson",       telefon:"+90 544 222 33 44", email:"mehmet.demir@waiterly.com",  baslangic:"Haziran 2022", durum:"active",   foto:null, emoji:"👨",   notlar:"" },
-  { id:3, ad:"Zeynep Arslan", rol:"Kasiyer",      telefon:"+90 505 333 44 55", email:"zeynep.arslan@waiterly.com", baslangic:"Ocak 2023",    durum:"active",   foto:null, emoji:"👩",   notlar:"" },
-  { id:4, ad:"Ali Çelik",     rol:"Garson",       telefon:"+90 553 444 55 66", email:"ali.celik@waiterly.com",     baslangic:"Eylül 2023",   durum:"inactive", foto:null, emoji:"👨",   notlar:"" },
-  { id:5, ad:"Fatma Yıldız",  rol:"Mutfak Şefi",  telefon:"+90 561 555 66 77", email:"fatma.yildiz@waiterly.com",  baslangic:"Şubat 2020",   durum:"active",   foto:null, emoji:"👩‍🍳", notlar:"" },
-  { id:6, ad:"Kerem Şahin",   rol:"Garson",       telefon:"+90 542 666 77 88", email:"kerem.sahin@waiterly.com",   baslangic:"Temmuz 2024",  durum:"active",   foto:null, emoji:"👨",   notlar:"" },
-];
-
+let employeesData = [];
 let editingEmpId = null;
 let modalPhotoBase64 = null;
 let menuImageBase64 = null;
@@ -17,6 +6,13 @@ let menuImageBase64 = null;
 // ══════════════════════════════════════════
 // RENDER EMPLOYEES
 // ══════════════════════════════════════════
+function loadAdminEmployees() {
+  fetch("/api/users").then(r => r.json()).then(data => {
+      employeesData = data;
+      renderEmployees();
+  });
+}
+
 function renderEmployees() {
   const grid = document.getElementById("employees-grid");
   if(!grid) return;
@@ -24,161 +20,98 @@ function renderEmployees() {
   employeesData.forEach(emp => {
     const statusClass = emp.durum === "active" ? "status-active" : "status-inactive";
     const statusLabel = emp.durum === "active" ? "Aktif" : "İzinli";
-    const photoHtml = emp.foto
-      ? `<img src="${emp.foto}" alt="${emp.ad}" />`
-      : `<div class="employee-photo-placeholder">${emp.emoji}</div>`;
+    const photoHtml = emp.foto ? `<img src="${emp.foto}" alt="${emp.ad}" />` : `<div class="employee-photo-placeholder">${emp.emoji || "👤"}</div>`;
 
     grid.innerHTML += `
       <div class="employee-card" onclick="openEditModal(${emp.id})">
-        <div class="employee-edit-overlay">
-          <button class="employee-edit-btn">✏️ Düzenle</button>
-        </div>
-        <div class="employee-photo-wrap">
-          ${photoHtml}
-          <span class="employee-role-badge">${emp.rol}</span>
-        </div>
+        <div class="employee-edit-overlay"><button class="employee-edit-btn">✏️ Düzenle</button></div>
+        <div class="employee-photo-wrap">${photoHtml}<span class="employee-role-badge">${emp.rol}</span></div>
         <div class="employee-info">
           <div class="employee-name">${emp.ad}</div>
-          <div class="employee-meta">ID #${emp.id} · Başlangıç: ${emp.baslangic}</div>
+          <div class="employee-meta">ID #${emp.id} · Başlangıç: ${emp.baslangic || '-'}</div>
           <div class="employee-details">
-            <div class="employee-detail-row"><span class="icon">📞</span><span>${emp.telefon}</span></div>
-            <div class="employee-detail-row"><span class="icon">✉️</span><span>${emp.email}</span></div>
+            <div class="employee-detail-row"><span class="icon">📞</span><span>${emp.telefon || '-'}</span></div>
+            <div class="employee-detail-row"><span class="icon">✉️</span><span>${emp.email || '-'}</span></div>
             <div class="employee-detail-row"><span class="icon">●</span><span class="status-badge ${statusClass}">${statusLabel}</span></div>
-            ${emp.notlar ? `<div class="employee-detail-row"><span class="icon">📝</span><span>${emp.notlar}</span></div>` : ""}
           </div>
+          <button class="btn-delete" style="width:100%; margin-top:10px;" onclick="event.stopPropagation(); deleteEmployee(${emp.id})">Sil</button>
         </div>
       </div>`;
   });
 }
 
-// ══════════════════════════════════════════
-// MODAL FOR EMPLOYEES
-// ══════════════════════════════════════════
 function openEditModal(id) {
   const emp = employeesData.find(e => e.id === id);
   if (!emp) return;
   editingEmpId = id;
   modalPhotoBase64 = emp.foto || null;
-
   document.getElementById("modal-ad").value = emp.ad;
   document.getElementById("modal-rol").value = emp.rol;
-  document.getElementById("modal-telefon").value = emp.telefon;
-  document.getElementById("modal-email").value = emp.email;
-  document.getElementById("modal-baslangic").value = emp.baslangic;
-  document.getElementById("modal-durum").value = emp.durum;
+  document.getElementById("modal-telefon").value = emp.telefon || "";
+  document.getElementById("modal-email").value = emp.email || "";
+  document.getElementById("modal-baslangic").value = emp.baslangic || "";
+  document.getElementById("modal-durum").value = emp.durum || "active";
   document.getElementById("modal-notlar").value = emp.notlar || "";
-  document.getElementById("modal-photo-file").value = "";
-
+  
   const display = document.getElementById("modal-photo-display");
-  display.innerHTML = emp.foto ? `<img src="${emp.foto}" alt="${emp.ad}" />` : emp.emoji;
-
+  display.innerHTML = emp.foto ? `<img src="${emp.foto}" alt="${emp.ad}" />` : (emp.emoji || "👤");
   document.getElementById("emp-modal").classList.add("open");
 }
 
-function closeModal() {
-  document.getElementById("emp-modal").classList.remove("open");
-  editingEmpId = null;
-  modalPhotoBase64 = null;
-}
-
-document.getElementById("emp-modal").addEventListener("click", function(e) {
-  if (e.target === this) closeModal();
-});
-
-function previewModalPhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    modalPhotoBase64 = e.target.result;
-    document.getElementById("modal-photo-display").innerHTML = `<img src="${modalPhotoBase64}" alt="Önizleme" />`;
-  };
-  reader.readAsDataURL(file);
-}
+function closeModal() { document.getElementById("emp-modal").classList.remove("open"); editingEmpId = null; }
 
 function saveEmployee() {
-  const idx = employeesData.findIndex(e => e.id === editingEmpId);
-  if (idx === -1) return;
   const ad = document.getElementById("modal-ad").value.trim();
   const rol = document.getElementById("modal-rol").value.trim();
-  if (!ad || !rol) { alert("Ad ve Rol zorunludur!"); return; }
-
-  employeesData[idx] = {
-    ...employeesData[idx],
-    ad,
-    rol,
+  if (!ad || !rol) return alert("Ad ve Rol zorunludur!");
+  
+  const updatedData = {
+    ad, rol,
     telefon: document.getElementById("modal-telefon").value.trim(),
     email: document.getElementById("modal-email").value.trim(),
     baslangic: document.getElementById("modal-baslangic").value.trim(),
     durum: document.getElementById("modal-durum").value,
     notlar: document.getElementById("modal-notlar").value.trim(),
-    foto: modalPhotoBase64 || employeesData[idx].foto,
+    foto: modalPhotoBase64
   };
 
-  closeModal();
-  renderEmployees();
+  fetch(`/api/users/${editingEmpId}`, {
+    method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(updatedData)
+  }).then(() => { closeModal(); loadAdminEmployees(); });
 }
 
 let newEmpPhotoBase64 = null;
-
 function previewNewEmpPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
-    newEmpPhotoBase64 = e.target.result;
-    const display = document.getElementById("new-emp-photo-display");
-    display.innerHTML = `<img src="${newEmpPhotoBase64}" alt="Önizleme" />`;
-  };
+  reader.onload = (e) => { newEmpPhotoBase64 = e.target.result; document.getElementById("new-emp-photo-display").innerHTML = `<img src="${newEmpPhotoBase64}" />`; };
   reader.readAsDataURL(file);
 }
 
 function addNewEmployee() {
   const ad = document.getElementById("new-emp-ad").value.trim();
   const rol = document.getElementById("new-emp-rol").value.trim();
-  if (!ad || !rol) { alert("Ad ve Rol zorunludur!"); return; }
+  const email = document.getElementById("new-emp-email").value.trim();
+  if (!ad || !rol) return alert("Ad ve Rol zorunludur!");
 
   const newEmp = {
-    id: employeesData.length > 0 ? Math.max(...employeesData.map(e => e.id)) + 1 : 1,
-    ad,
-    rol,
+    ad, rol, email,
     telefon: document.getElementById("new-emp-telefon").value.trim(),
-    email: document.getElementById("new-emp-email").value.trim(),
     baslangic: document.getElementById("new-emp-baslangic").value.trim(),
     durum: document.getElementById("new-emp-durum").value,
     notlar: document.getElementById("new-emp-notlar").value.trim(),
     foto: newEmpPhotoBase64 || null,
+    password: "1234",
     emoji: "👤",
   };
 
-  employeesData.push(newEmp);
-  renderEmployees();
-
-  ["new-emp-ad","new-emp-rol","new-emp-telefon","new-emp-baslangic","new-emp-email","new-emp-notlar"]
-    .forEach(id => document.getElementById(id).value = "");
-  document.getElementById("new-emp-durum").value = "active";
-  document.getElementById("new-emp-photo-file").value = "";
-  document.getElementById("new-emp-photo-display").innerHTML = "👤";
-  newEmpPhotoBase64 = null;
-
-  alert("✅ Çalışan başarıyla eklendi!");
+  fetch("/api/users", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(newEmp) })
+    .then(() => { alert("✅ Çalışan eklendi!"); loadAdminEmployees(); });
 }
 
-// ══════════════════════════════════════════
-// MENU IMAGE PREVIEW
-// ══════════════════════════════════════════
-function previewMenuImage(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    menuImageBase64 = e.target.result;
-    document.getElementById("upload-placeholder").style.display = "none";
-    document.getElementById("upload-preview-wrap").style.display = "block";
-    document.getElementById("upload-preview-img").src = menuImageBase64;
-    document.getElementById("add-resim").value = "";
-  };
-  reader.readAsDataURL(file);
+function deleteEmployee(id) {
+    if(confirm("Çalışanı silmek istiyor musunuz?")) fetch(`/api/users/${id}`, {method:"DELETE"}).then(() => loadAdminEmployees());
 }
 
 // ══════════════════════════════════════════
@@ -187,21 +120,103 @@ function previewMenuImage(event) {
 function switchPanel(name) {
   document.getElementById("admin-nav").style.display = "none";
   document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".nav-card").forEach(c => c.classList.remove("active"));
-  document.getElementById(`panel-${name}`).classList.add("active");
-  document.getElementById(`btn-${name}`).classList.add("active");
+  
+  const targetPanel = document.getElementById(`panel-${name}`);
+  if(targetPanel) targetPanel.classList.add("active");
   
   if (name === "menu") loadAdminMenu();
   else if (name === "orders") loadOrders();
   else if (name === "requests") loadAdminRequests();
-  else if (name === "employees") renderEmployees();
-  else if (name === "moods") loadAdminMoods(); 
+  else if (name === "employees") loadAdminEmployees();
+  else if (name === "moods") loadAdminMoods();
+  else if (name === "ingredients") loadAdminIngredients();
 }
 
 function goBackToNav() {
   document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".nav-card").forEach(c => c.classList.remove("active"));
   document.getElementById("admin-nav").style.display = "grid";
+}
+
+// ══════════════════════════════════════════
+// İÇERİK (INGREDIENT) MANTIĞI
+// ══════════════════════════════════════════
+let currentIngredientsData = [];
+
+function loadAdminIngredients() {
+  const select = document.getElementById("add-ing-isim");
+  if(select) select.innerHTML = '<option value="">-- Yükleniyor... --</option>';
+
+  Promise.all([
+    fetch("/api/ingredients").then(r => r.json()),
+    fetch("/api/menu").then(r => r.json())
+  ]).then(([ingredientsData, menuData]) => {
+      currentIngredientsData = ingredientsData;
+      
+      const tbody = document.getElementById("admin-ingredient-list");
+      if(tbody) {
+        tbody.innerHTML = "";
+        ingredientsData.forEach(ing => {
+          tbody.innerHTML += `<tr>
+            <td>#${ing.id}</td><td><strong>${ing.isim}</strong></td><td>${ing.emoji}</td>
+            <td><span style="background:#e8f5e9; padding:4px 8px; border-radius:4px; font-size:12px; color:#2e7d32;">${Array.isArray(ing.etiketler) ? ing.etiketler.join(", ") : "-"}</span></td>
+            <td>
+              <button class="btn-delete" onclick="deleteIngredient(${ing.id})">Sil</button>
+            </td>
+          </tr>`;
+        });
+      }
+
+      // Menüden malzemeleri toplama (Bozuk/Eski veriye karşı %100 korumalı)
+      let allIngs = new Set();
+      if(Array.isArray(menuData)) {
+          menuData.forEach(m => {
+            if (m.icerik && Array.isArray(m.icerik)) {
+              m.icerik.forEach(i => {
+                  if (typeof i === 'string' && i.trim() !== "") {
+                      allIngs.add(i.trim());
+                  }
+              });
+            }
+          });
+      }
+
+      if(select) {
+        select.innerHTML = '<option value="">-- Menüden Malzeme Seçin --</option>';
+        Array.from(allIngs).sort((a,b) => a.localeCompare(b, 'tr-TR')).forEach(ing => {
+          let isAlreadyExcluded = ingredientsData.some(ex => typeof ex.isim === 'string' && ex.isim.toLocaleLowerCase('tr-TR') === ing.toLocaleLowerCase('tr-TR'));
+          if (!isAlreadyExcluded) {
+              select.innerHTML += `<option value="${ing}">${ing}</option>`;
+          }
+        });
+      }
+  }).catch(err => {
+      console.error("Malzemeler yüklenemedi:", err);
+      if(select) select.innerHTML = '<option value="">Sunucu Hatası!</option>';
+  });
+}
+
+function addNewIngredient() {
+  const isim = document.getElementById("add-ing-isim").value.trim();
+  const emoji = document.getElementById("add-ing-emoji").value.trim() || "🚫";
+  const etiketInput = document.getElementById("add-ing-etiketler").value.trim();
+  
+  if (!isim) return alert("⚠️ Menüden kısıtlanacak bir içerik seçmelisiniz!");
+  
+  const etiketler = etiketInput ? etiketInput.split(",").map(e => e.trim().toLowerCase()) : [isim.toLowerCase()];
+  
+  fetch("/api/ingredients", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({isim, emoji, etiketler})})
+    .then(() => { resetIngredientForm(); loadAdminIngredients(); });
+}
+
+function deleteIngredient(id) {
+  if (confirm("Bu içerik kısıtlamadan çıkarılsın mı?")) 
+      fetch(`/api/ingredients/${id}`, {method:"DELETE"}).then(() => loadAdminIngredients());
+}
+
+function resetIngredientForm() {
+  document.getElementById("add-ing-isim").value = "";
+  document.getElementById("add-ing-emoji").value = "";
+  document.getElementById("add-ing-etiketler").value = "";
 }
 
 // ══════════════════════════════════════════
@@ -210,10 +225,9 @@ function goBackToNav() {
 function loadAdminRequests() {
   fetch("/api/requests").then(r => r.json()).then(data => {
     const tbody = document.getElementById("admin-request-list");
-    if(!tbody) return;
     tbody.innerHTML = "";
     data.forEach(item => {
-      const silBtn = item.id === 5 ? "" : `<button class="btn-delete" onclick="deleteRequest(${item.id})">Sil</button>`;
+      const silBtn = item.istek.includes("Özel İstek") ? "" : `<button class="btn-delete" onclick="deleteRequest(${item.id})">Sil</button>`;
       tbody.innerHTML += `<tr><td>#${item.id}</td><td>${item.istek}</td><td style="text-align:right;">${silBtn}</td></tr>`;
     });
   });
@@ -225,12 +239,78 @@ function addNewRequest() {
     .then(() => { document.getElementById("add-request-text").value=""; loadAdminRequests(); });
 }
 function deleteRequest(id) {
-  if (confirm("Bu isteği silmek istediğinize emin misiniz?"))
-    fetch(`/api/requests/${id}`, {method:"DELETE"}).then(() => loadAdminRequests());
+  if (confirm("Silinsin mi?")) fetch(`/api/requests/${id}`, {method:"DELETE"}).then(() => loadAdminRequests());
 }
 
 // ══════════════════════════════════════════
-// MENU
+// MOOD YÖNETİMİ
+// ══════════════════════════════════════════
+let currentMoodsData = [];
+let editingMoodId = null;
+
+function loadAdminMoods() {
+  fetch("/api/moods").then(r=>r.json()).then(data => {
+      currentMoodsData = data;
+      const tbody = document.getElementById("admin-mood-list");
+      tbody.innerHTML = "";
+      data.forEach(mood => {
+        tbody.innerHTML += `<tr>
+          <td>#${mood.id}</td><td><strong>${mood.isim}</strong></td><td>${mood.emoji}</td>
+          <td><span style="background:#e3f2fd; padding:4px 8px; border-radius:4px; font-size:12px; color:#1565c0;">${Array.isArray(mood.etiketler) ? mood.etiketler.join(", ") : "-"}</span></td>
+          <td>
+            <button class="btn-submit" style="padding:8px 12px; font-size:12px; background:#2196f3; margin-right:4px;" onclick="editMood(${mood.id})">✏️</button>
+            <button class="btn-delete" onclick="deleteMood(${mood.id})">Sil</button>
+          </td>
+        </tr>`;
+      });
+  });
+}
+
+function addNewMood() {
+  const isim = document.getElementById("add-mood-isim").value.trim();
+  const emoji = document.getElementById("add-mood-emoji").value.trim() || "✨";
+  const etiketInput = document.getElementById("add-mood-etiketler").value.trim();
+  if (!isim || !etiketInput) return alert("⚠️ İsim ve etiketler zorunludur!");
+  
+  const etiketler = etiketInput.split(",").map(e => e.trim().toLowerCase());
+  fetch("/api/moods", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({isim, emoji, etiketler})})
+    .then(() => { resetMoodForm(); loadAdminMoods(); });
+}
+
+function editMood(id) {
+  const mood = currentMoodsData.find(m => m.id === id);
+  if (!mood) return;
+  editingMoodId = id;
+  document.getElementById("add-mood-isim").value = mood.isim;
+  document.getElementById("add-mood-emoji").value = mood.emoji;
+  document.getElementById("add-mood-etiketler").value = Array.isArray(mood.etiketler) ? mood.etiketler.join(", ") : "";
+  
+  document.querySelector("#mood-add-form h3").innerText = "✏️ Ruh Halini Düzenle";
+  document.querySelector("#mood-add-form .btn-submit").setAttribute("onclick", "saveMood()");
+}
+
+function saveMood() {
+  const isim = document.getElementById("add-mood-isim").value.trim();
+  const etiketler = document.getElementById("add-mood-etiketler").value.split(",").map(e => e.trim().toLowerCase());
+  fetch(`/api/moods/${editingMoodId}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({isim, emoji: document.getElementById("add-mood-emoji").value, etiketler})})
+    .then(() => { resetMoodForm(); loadAdminMoods(); });
+}
+
+function deleteMood(id) {
+  if (confirm("Silinsin mi?")) fetch(`/api/moods/${id}`, {method:"DELETE"}).then(() => loadAdminMoods());
+}
+
+function resetMoodForm() {
+  editingMoodId = null;
+  document.getElementById("add-mood-isim").value = "";
+  document.getElementById("add-mood-emoji").value = "";
+  document.getElementById("add-mood-etiketler").value = "";
+  document.querySelector("#mood-add-form h3").innerText = "Yeni Ruh Hali Ekle";
+  document.querySelector("#mood-add-form .btn-submit").setAttribute("onclick", "addNewMood()");
+}
+
+// ══════════════════════════════════════════
+// MENU YÖNETİMİ
 // ══════════════════════════════════════════
 let currentMenuData = []; 
 let editingMenuId = null; 
@@ -239,18 +319,18 @@ function loadAdminMenu() {
   fetch("/api/menu").then(r => r.json()).then(data => {
     currentMenuData = data; 
     const tbody = document.getElementById("admin-menu-list");
-    if(!tbody) return;
     tbody.innerHTML = "";
     data.forEach(item => {
-      const imgSrc = item.resim || "/images/americano.jpg";
+      const icerikMetni = item.icerik && Array.isArray(item.icerik) ? item.icerik.join(", ") : "-";
+      const etiketMetni = item.tags && Array.isArray(item.tags) ? item.tags.join(", ") : "-";
+      const alerjenMetni = item.alerjenler && Array.isArray(item.alerjenler) ? item.alerjenler.join(", ") : "-";
+      
       tbody.innerHTML += `<tr>
-        <td><img class="menu-thumb" src="${imgSrc}" alt="${item.isim}" onerror="this.src='/images/americano.jpg'" /></td>
-        <td>#${item.id}</td>
-        <td><strong>${item.isim}</strong></td>
-        <td>${item.fiyat} TL</td>
-        <td>${item.aciklama || "-"}</td>
-        <td>${item.alerjenler ? item.alerjenler.join(", ") : "-"}</td>
-        <td><span style="background:#eee; padding:4px 8px; border-radius:4px; font-size:12px; color:#555;">${item.etiketler ? item.etiketler.join(", ") : "-"}</span></td>
+        <td><img class="menu-thumb" src="${item.resim||"/images/americano.jpg"}" onerror="this.src='/images/americano.jpg'" /></td>
+        <td>#${item.id}</td><td><strong>${item.isim}</strong></td><td>${item.fiyat} TL</td>
+        <td><small><b>İçerik:</b> ${icerikMetni}<br><b>Açıklama:</b> ${item.aciklama || "-"}<br><b>Vegan:</b> ${item.vegan ? 'Evet' : 'Hayır'}</small></td>
+        <td>${alerjenMetni}</td>
+        <td><span style="background:#eee; padding:4px; font-size:11px;">${etiketMetni}</span></td>
         <td>
           <button class="btn-submit" style="padding:8px 12px; font-size:12px; background:#2196f3; margin-right:4px;" onclick="editMenu(${item.id})">✏️</button>
           <button class="btn-delete" onclick="deleteItem(${item.id})">Sil</button>
@@ -262,326 +342,140 @@ function loadAdminMenu() {
 
 function editMenu(id) {
   const item = currentMenuData.find(i => i.id === id);
-  if (!item) return;
-
   editingMenuId = id;
-
+  
   document.getElementById("add-isim").value = item.isim;
   document.getElementById("add-fiyat").value = item.fiyat;
+  document.getElementById("add-icerik").value = item.icerik && Array.isArray(item.icerik) ? item.icerik.join(", ") : "";
   document.getElementById("add-aciklama").value = item.aciklama || "";
-  document.getElementById("add-alerjenler").value = item.alerjenler ? item.alerjenler.join(", ") : "";
-  document.getElementById("add-etiketler").value = item.etiketler ? item.etiketler.join(", ") : "";
-
-  menuImageBase64 = null;
-  if (item.resim && !item.resim.startsWith("data:")) {
-    document.getElementById("add-resim").value = item.resim;
-  } else {
-    document.getElementById("add-resim").value = "";
-  }
-
-  if (item.resim) {
-    document.getElementById("upload-placeholder").style.display = "none";
-    document.getElementById("upload-preview-wrap").style.display = "block";
-    document.getElementById("upload-preview-img").src = item.resim;
-  }
-
-  document.querySelector(".add-form h3").innerText = "✏️ Ürünü Düzenle";
-  const btnSubmit = document.querySelector(".add-form .btn-submit");
-  btnSubmit.innerText = "💾 Değişiklikleri Kaydet";
-  btnSubmit.setAttribute("onclick", "saveMenuItem()");
-
-  if (!document.getElementById("cancel-edit-btn")) {
-    const cancelBtn = document.createElement("button");
-    cancelBtn.id = "cancel-edit-btn";
-    cancelBtn.className = "btn-modal-cancel";
-    cancelBtn.style.marginLeft = "10px";
-    cancelBtn.innerText = "İptal";
-    cancelBtn.onclick = resetMenuForm;
-    btnSubmit.parentNode.insertBefore(cancelBtn, btnSubmit.nextSibling);
-  }
-
-  document.querySelector(".add-form").scrollIntoView({ behavior: 'smooth' });
-}
-
-function resetMenuForm() {
-  editingMenuId = null;
+  document.getElementById("add-alerjenler").value = item.alerjenler && Array.isArray(item.alerjenler) ? item.alerjenler.join(", ") : "";
+  document.getElementById("add-etiketler").value = item.tags && Array.isArray(item.tags) ? item.tags.join(", ") : "";
   
-  document.querySelector(".add-form h3").innerText = "Yeni Ürün Ekle";
-  const btnSubmit = document.querySelector(".add-form .btn-submit");
-  btnSubmit.innerText = "✅ Menüye Ekle";
-  btnSubmit.setAttribute("onclick", "addNewItem()");
+  if (document.getElementById("add-vegan")) {
+    document.getElementById("add-vegan").value = item.vegan ? "true" : "false";
+  }
+  if (document.getElementById("add-resim")) {
+    document.getElementById("add-resim").value = item.resim || "";
+  }
   
-  const cancelBtn = document.getElementById("cancel-edit-btn");
-  if (cancelBtn) cancelBtn.remove();
-
-  ["add-isim", "add-fiyat", "add-aciklama", "add-alerjenler", "add-etiketler", "add-resim"].forEach(id => document.getElementById(id).value = "");
-  document.getElementById("add-resim-file").value = "";
-  menuImageBase64 = null;
-  document.getElementById("upload-placeholder").style.display = "block";
-  document.getElementById("upload-preview-wrap").style.display = "none";
+  document.querySelector("#panel-menu .add-form .btn-submit").setAttribute("onclick", "saveMenuItem()");
+  document.querySelector("#panel-menu .add-form h3").innerText = "Ürün Düzenle";
 }
 
 function saveMenuItem() {
   const isim = document.getElementById("add-isim").value.trim();
-  const fiyat = document.getElementById("add-fiyat").value;
-  if (!isim || !fiyat) { alert("⚠️ Ürün adı ve fiyat zorunludur!"); return; }
-  
+  const fiyat = parseFloat(document.getElementById("add-fiyat").value) || 0;
+  const icerik = document.getElementById("add-icerik").value.split(",").map(i => i.trim()).filter(i => i);
   const aciklama = document.getElementById("add-aciklama").value.trim();
-  const alerjenInput = document.getElementById("add-alerjenler").value.trim();
-  const etiketInput = document.getElementById("add-etiketler").value.trim();
-  const manualResim = document.getElementById("add-resim").value.trim();
+  const alerjenler = document.getElementById("add-alerjenler").value.split(",").map(a => a.trim()).filter(a => a);
+  const tags = document.getElementById("add-etiketler").value.split(",").map(e => e.trim()).filter(e => e);
+  const vegan = document.getElementById("add-vegan") ? document.getElementById("add-vegan").value === "true" : false;
   
-  const alerjenler = alerjenInput ? alerjenInput.split(",").map(a => a.trim()) : [];
-  const etiketler = etiketInput ? etiketInput.split(",").map(e => e.trim()) : []; 
-  const resim = menuImageBase64 || manualResim || "/images/americano.jpg";
+  let resim = document.getElementById("add-resim") ? document.getElementById("add-resim").value.trim() : "/images/americano.jpg";
+  if (typeof menuImageBase64 !== 'undefined' && menuImageBase64) {
+      resim = menuImageBase64;
+  }
+
+  if (!isim || icerik.length === 0) return alert("İsim ve İçerik (Malzemeler) zorunludur!");
 
   fetch(`/api/menu/${editingMenuId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ isim, fiyat: parseFloat(fiyat), aciklama, alerjenler, etiketler, resim }) 
-  }).then(r => {
-    if (r.ok) {
-      loadAdminMenu();
-      alert("✅ Ürün başarıyla güncellendi!");
-      resetMenuForm();
-    } else {
-      alert("⚠️ Güncelleme sırasında bir hata oluştu.");
-    }
-  });
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isim, fiyat, icerik, alerjenler, resim, aciklama, vegan, tags }) 
+  }).then(() => { loadAdminMenu(); resetMenuForm(); });
 }
 
 function addNewItem() {
   const isim = document.getElementById("add-isim").value.trim();
-  const fiyat = document.getElementById("add-fiyat").value;
-  if (!isim || !fiyat) { alert("⚠️ Ürün adı ve fiyat zorunludur!"); return; }
-  
+  const fiyat = parseFloat(document.getElementById("add-fiyat").value) || 0;
+  const icerik = document.getElementById("add-icerik").value.split(",").map(i => i.trim()).filter(i => i);
   const aciklama = document.getElementById("add-aciklama").value.trim();
-  const alerjenInput = document.getElementById("add-alerjenler").value.trim();
-  const etiketInput = document.getElementById("add-etiketler").value.trim();
-  const manualResim = document.getElementById("add-resim").value.trim();
+  const alerjenler = document.getElementById("add-alerjenler").value.split(",").map(a => a.trim()).filter(a => a);
+  const tags = document.getElementById("add-etiketler").value.split(",").map(e => e.trim()).filter(e => e);
+  const vegan = document.getElementById("add-vegan") ? document.getElementById("add-vegan").value === "true" : false;
   
-  const alerjenler = alerjenInput ? alerjenInput.split(",").map(a => a.trim()) : [];
-  const etiketler = etiketInput ? etiketInput.split(",").map(e => e.trim()) : []; 
-  const resim = menuImageBase64 || manualResim || "/images/americano.jpg";
+  let resim = document.getElementById("add-resim") ? document.getElementById("add-resim").value.trim() : "/images/americano.jpg";
+  if (typeof menuImageBase64 !== 'undefined' && menuImageBase64) {
+      resim = menuImageBase64;
+  }
+
+  if (!isim || icerik.length === 0) return alert("İsim ve İçerik (Malzemeler) zorunludur!");
 
   fetch("/api/menu", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({isim, fiyat:parseFloat(fiyat), aciklama, alerjenler, etiketler, puan:5.0, resim})
-  }).then(r => {
-    if (r.ok) {
-      loadAdminMenu();
-      alert("✅ Ürün başarıyla eklendi!");
-      resetMenuForm(); 
-    }
-  });
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isim, fiyat, puan: 0, icerik, alerjenler, resim, aciklama, vegan, tags })
+  }).then(() => { loadAdminMenu(); resetMenuForm(); });
 }
 
-function deleteItem(id) {
-  if (confirm("Silinsin mi?"))
-    fetch(`/api/menu/${id}`, {method:"DELETE"}).then(() => loadAdminMenu());
+function previewMenuImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => { 
+      menuImageBase64 = e.target.result; 
+      document.getElementById("upload-preview-img").src = menuImageBase64;
+      document.getElementById("upload-preview-wrap").style.display = "block";
+      document.getElementById("upload-placeholder").style.display = "none";
+  };
+  reader.readAsDataURL(file);
 }
+
+function resetMenuForm() {
+  editingMenuId = null;
+  document.getElementById("add-isim").value = "";
+  document.getElementById("add-fiyat").value = "";
+  document.getElementById("add-icerik").value = "";
+  document.getElementById("add-aciklama").value = "";
+  document.getElementById("add-alerjenler").value = "";
+  document.getElementById("add-etiketler").value = "";
+  if(document.getElementById("add-vegan")) document.getElementById("add-vegan").value = "false";
+  if(document.getElementById("add-resim")) document.getElementById("add-resim").value = "";
+  
+  if (typeof menuImageBase64 !== 'undefined') menuImageBase64 = null;
+  
+  const previewWrap = document.getElementById("upload-preview-wrap");
+  const placeholderWrap = document.getElementById("upload-placeholder");
+  if(previewWrap) previewWrap.style.display = "none";
+  if(placeholderWrap) placeholderWrap.style.display = "block";
+  
+  document.querySelector("#panel-menu .add-form .btn-submit").setAttribute("onclick", "addNewItem()");
+  document.querySelector("#panel-menu .add-form h3").innerText = "Yeni Ürün Ekle";
+}
+
+function deleteItem(id) { if (confirm("Silinsin mi?")) fetch(`/api/menu/${id}`, {method:"DELETE"}).then(() => loadAdminMenu()); }
 
 // ══════════════════════════════════════════
-// ORDERS
+// ORDERS & OTHERS
 // ══════════════════════════════════════════
 function loadOrders() {
   const orders = JSON.parse(localStorage.getItem("orderHistory")) || [];
   const tbody = document.getElementById("admin-order-list");
-  if(!tbody) return;
   tbody.innerHTML = "";
-  if (!orders.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#999;padding:30px;">Henüz sipariş kaydı yok.</td></tr>`;
-    return;
-  }
+  
   [...orders].reverse().forEach((order, index) => {
     const urunDetay = order.urunler.map(u => `${u.miktar||u.quantity}x ${u.isim}`).join(", ");
+    
+    let formattedDate = "-";
+    let formattedTime = order.zaman || "-";
+    if (order.tarih) {
+        const d = new Date(order.tarih);
+        if (!isNaN(d.getTime())) {
+            formattedDate = d.toLocaleDateString("tr-TR");
+            formattedTime = d.toLocaleTimeString("tr-TR", { hour: '2-digit', minute:'2-digit' });
+        }
+    }
+
     tbody.innerHTML += `<tr>
-      <td>${order.tarih||"-"}</td><td>${order.saat||"-"}</td><td>${urunDetay}</td>
-      <td><strong>${order.toplamTutar.toFixed(2)} TL</strong></td>
+      <td>${formattedDate}</td>
+      <td>${formattedTime}</td>
+      <td>${urunDetay}</td>
+      <td><strong>${order.toplamTutar} TL</strong></td>
       <td><button class="btn-delete" onclick="deleteOrder(${orders.length-1-index})">Sil</button></td>
     </tr>`;
   });
 }
+function deleteOrder(idx) { let orders = JSON.parse(localStorage.getItem("orderHistory")) || []; orders.splice(idx, 1); localStorage.setItem("orderHistory", JSON.stringify(orders)); loadOrders(); }
+function logout() { fetch("/api/logout", {method:"POST"}).then(() => window.location.href = "/login.html"); }
 
-function deleteOrder(idx) {
-  if (confirm("Silinsin mi?")) {
-    let orders = JSON.parse(localStorage.getItem("orderHistory")) || [];
-    orders.splice(idx, 1);
-    localStorage.setItem("orderHistory", JSON.stringify(orders));
-    loadOrders();
-  }
-}
-
-function addManualOrder() {
-  const urun = document.getElementById("manual-urunler").value.trim();
-  const tutar = parseFloat(document.getElementById("manual-tutar").value);
-  if (!urun || !tutar) return alert("Eksik bilgi!");
-  const simdi = new Date();
-  const history = JSON.parse(localStorage.getItem("orderHistory")) || [];
-  history.push({
-    tarih: simdi.toLocaleDateString("tr-TR"),
-    saat: simdi.toLocaleTimeString("tr-TR", {hour:"2-digit",minute:"2-digit"}),
-    toplamTutar: tutar,
-    urunler: [{isim:urun, quantity:1}]
-  });
-  localStorage.setItem("orderHistory", JSON.stringify(history));
-  loadOrders();
-}
-
-function logout() {
-  fetch("/api/logout", {method:"POST"}).then(() => window.location.href = "/login.html");
-}
-
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
-
-
-// ══════════════════════════════════════════
-// MOOD YÖNETİMİ
-// ══════════════════════════════════════════
-let currentMoodsData = JSON.parse(localStorage.getItem('moodsDB')) || [
-  { id: 1, isim: "Enerjik Hissetmek", emoji: "⚡", etiketler: ["enerjik", "kafein", "uyandirici"] },
-  { id: 2, isim: "Rahatlamak İstiyorum", emoji: "🧘‍♀️", etiketler: ["rahatlatici", "kafeinsiz", "sicak"] },
-  { id: 3, isim: "Tatlı Krizi", emoji: "🍫", etiketler: ["tatli", "cikolatali", "kremali"] }
-];
-let editingMoodId = null;
-
-function loadAdminMoods() {
-  localStorage.setItem('moodsDB', JSON.stringify(currentMoodsData));
-  
-  const tbody = document.getElementById("admin-mood-list");
-  if(!tbody) return;
-  tbody.innerHTML = "";
-  
-  currentMoodsData.forEach(mood => {
-    tbody.innerHTML += `<tr>
-      <td>#${mood.id}</td>
-      <td><strong>${mood.isim}</strong></td>
-      <td>${mood.emoji}</td>
-      <td><span style="background:#e3f2fd; padding:4px 8px; border-radius:4px; font-size:12px; color:#1565c0;">${mood.etiketler.join(", ")}</span></td>
-      <td>
-        <button class="btn-submit" style="padding:8px 12px; font-size:12px; background:#2196f3; margin-right:4px;" onclick="editMood(${mood.id})">✏️</button>
-        <button class="btn-delete" onclick="deleteMood(${mood.id})">Sil</button>
-      </td>
-    </tr>`;
-  });
-}
-
-function addNewMood() {
-  const isim = document.getElementById("add-mood-isim").value.trim();
-  const emoji = document.getElementById("add-mood-emoji").value.trim() || "✨";
-  const etiketInput = document.getElementById("add-mood-etiketler").value.trim();
-  
-  if (!isim || !etiketInput) { alert("⚠️ İsim ve etiketler zorunludur!"); return; }
-  
-  const etiketler = etiketInput.split(",").map(e => e.trim().toLowerCase());
-  const newId = currentMoodsData.length > 0 ? Math.max(...currentMoodsData.map(m => m.id)) + 1 : 1;
-
-  currentMoodsData.push({ id: newId, isim, emoji, etiketler });
-  
-  alert("✅ Ruh hali başarıyla eklendi!");
-  document.getElementById("add-mood-isim").value = "";
-  document.getElementById("add-mood-emoji").value = "";
-  document.getElementById("add-mood-etiketler").value = "";
-  
-  loadAdminMoods();
-}
-
-function editMood(id) {
-  const mood = currentMoodsData.find(m => m.id === id);
-  if (!mood) return;
-  
-  editingMoodId = id;
-  document.getElementById("add-mood-isim").value = mood.isim;
-  document.getElementById("add-mood-emoji").value = mood.emoji;
-  document.getElementById("add-mood-etiketler").value = mood.etiketler.join(", ");
-  
-  document.querySelector("#mood-add-form h3").innerText = "✏️ Ruh Halini Düzenle";
-  const btnSubmit = document.querySelector("#mood-add-form .btn-submit");
-  btnSubmit.innerText = "💾 Kaydet";
-  btnSubmit.setAttribute("onclick", "saveMood()");
-  
-  if (!document.getElementById("cancel-mood-btn")) {
-    const cancelBtn = document.createElement("button");
-    cancelBtn.id = "cancel-mood-btn";
-    cancelBtn.className = "btn-delete";
-    cancelBtn.style.marginLeft = "10px";
-    cancelBtn.style.background = "#999";
-    cancelBtn.innerText = "İptal";
-    cancelBtn.onclick = resetMoodForm;
-    btnSubmit.parentNode.insertBefore(cancelBtn, btnSubmit.nextSibling);
-  }
-}
-
-function saveMood() {
-  const isim = document.getElementById("add-mood-isim").value.trim();
-  const emoji = document.getElementById("add-mood-emoji").value.trim() || "✨";
-  const etiketInput = document.getElementById("add-mood-etiketler").value.trim();
-  
-  if (!isim || !etiketInput) { alert("⚠️ İsim ve etiketler zorunludur!"); return; }
-  
-  const idx = currentMoodsData.findIndex(m => m.id === editingMoodId);
-  if (idx !== -1) {
-    currentMoodsData[idx] = {
-      id: editingMoodId,
-      isim,
-      emoji,
-      etiketler: etiketInput.split(",").map(e => e.trim().toLowerCase())
-    };
-  }
-  
-  alert("✅ Ruh hali başarıyla güncellendi!");
-  resetMoodForm();
-  loadAdminMoods();
-}
-
-function resetMoodForm() {
-  editingMoodId = null;
-  document.getElementById("add-mood-isim").value = "";
-  document.getElementById("add-mood-emoji").value = "";
-  document.getElementById("add-mood-etiketler").value = "";
-  
-  document.querySelector("#mood-add-form h3").innerText = "Yeni Ruh Hali Ekle";
-  const btnSubmit = document.querySelector("#mood-add-form .btn-submit");
-  btnSubmit.innerText = "✅ Ruh Hali Ekle";
-  btnSubmit.setAttribute("onclick", "addNewMood()");
-  
-  const cancelBtn = document.getElementById("cancel-mood-btn");
-  if (cancelBtn) cancelBtn.remove();
-}
-
-function deleteMood(id) {
-  if (confirm("Bu ruh halini silmek istediğinize emin misiniz?")) {
-    currentMoodsData = currentMoodsData.filter(m => m.id !== id);
-    loadAdminMoods();
-  }
-}
-
-// ══════════════════════════════════════════
-// OTOMATİK ÇIKIŞ (Hareketsizlik ve Sekme Kapatma)
-// ══════════════════════════════════════════
-
-// 1. 5 Dakikalık Hareketsizlik Kontrolü
-let inactivityTimer;
-const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 dakika (milisaniye cinsinden)
-
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  // Süre dolduğunda mevcut logout() fonksiyonunu çağırır
-  inactivityTimer = setTimeout(logout, INACTIVITY_LIMIT);
-}
-
-// Kullanıcı hareketlerini dinleyerek sayacı sıfırlıyoruz
-['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
-  document.addEventListener(event, resetInactivityTimer, true);
-});
-
-// Sayfa yüklendiğinde sayacı başlat
-resetInactivityTimer();
-
-// 2. Paneli Kapatma Kontrolü (Sekme veya Tarayıcıyı Kapatma)
-window.addEventListener('pagehide', function() {
-  // Sayfa kapanırken fetch istekleri iptal edilebileceği için sendBeacon kullanmak en güvenli yoldur.
-  // Mevcut logout sisteminiz /api/logout endpoint'ine POST attığı için aynı adresi kullanıyoruz.
-  navigator.sendBeacon('/api/logout');
+window.addEventListener("pagehide", function() {
+    navigator.sendBeacon("/api/logout");
 });

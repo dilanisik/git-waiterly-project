@@ -51,7 +51,7 @@
       .btn-logout { background:#e53935; color:white; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:background 0.2s; }
       .btn-logout:hover { background:#b71c1c; }
 
-      /* NAV CARDS (Updated to 5 columns for Moods) */
+      /* NAV CARDS */
       .admin-nav {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -198,12 +198,13 @@
           <div class="nav-thumb-wrap"><img class="nav-card-thumb" src="/images/workers_.jpg" alt="Çalışanlar" /></div>
           <div class="nav-card-label">👥 Çalışan Yönetimi</div>
         </div>
-        <div id="btn-moods" class="nav-card" onclick="switchPanel('moods')">
-          <div class="nav-thumb-wrap" style="background:#f3e5f5; color:#9c27b0;">🎭</div>
-          <div class="nav-card-label">Ruh Hali Modülü</div>
+        <div id="btn-algorithms" class="nav-card" onclick="switchPanel('algorithms')">
+          <div class="nav-thumb-wrap" style="background:#e3f2fd; color:#1976d2;">⚙️</div>
+          <div class="nav-card-label">Algoritmaları Yönet</div>
         </div>
       </div>
 
+      <!-- 📋 MENÜ PANELİ -->
       <div id="panel-menu" class="admin-panel">
         <img class="panel-hero" src="/images/menu_admin.jpg" alt="Menü" />
         <div class="panel-body">
@@ -211,7 +212,7 @@
           <div class="panel-title">🍴 Mevcut Menü</div>
           <table>
             <thead>
-              <tr><th>Resim</th><th>ID</th><th>İsim</th><th>Fiyat</th><th>Açıklama</th><th>Alerjenler</th><th>Admin Etiketleri</th><th>İşlem</th></tr>
+              <tr><th>Resim</th><th>ID</th><th>İsim</th><th>Fiyat</th><th>Ayrıntılar</th><th>Alerjenler</th><th>Admin Etiketleri</th><th>İşlem</th></tr>
             </thead>
             <tbody id="admin-menu-list"></tbody>
           </table>
@@ -226,17 +227,12 @@
                 <div class="upload-inner" id="upload-placeholder">
                   <div class="upload-icon">📷</div>
                   <div class="upload-text">Resim seçmek için tıklayın<br><strong>veya sürükleyip bırakın</strong></div>
-                  <div class="upload-text" style="margin-top:5px;font-size:11px;color:#bbb;">JPG, PNG · Maks 5MB</div>
                 </div>
                 <div id="upload-preview-wrap" style="display:none;" class="upload-inner">
                   <img id="upload-preview-img" class="image-upload-preview" src="" alt="Önizleme" />
-                  <div class="upload-text">Değiştirmek için tıklayın</div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-                <span style="font-size:12px;color:#aaa;">Ya da</span>
-                <input type="text" id="add-resim" placeholder="/images/urun.jpg dosya yolu" style="flex:1;" />
-              </div>
+              <input type="text" id="add-resim" placeholder="Veya manuel dosya yolu: /images/urun.jpg" style="margin-top:8px;"/>
             </div>
 
             <div class="grid-2">
@@ -249,18 +245,34 @@
                 <input type="number" id="add-fiyat" placeholder="130" />
               </div>
             </div>
+            
             <div class="form-group">
-              <label>İçindekiler / Açıklama</label>
-              <input type="text" id="add-aciklama" placeholder="Örn: Süt, Espresso ve yoğun köpük" />
+              <label>İçerik (Malzemeler, virgülle ayırın) *</label>
+              <input type="text" id="add-icerik" placeholder="Örn: Espresso, Süt, Köpük" />
             </div>
+
             <div class="form-group">
-              <label>Alerjenler (Virgülle ayırın)</label>
-              <input type="text" id="add-alerjenler" placeholder="Örn: Süt, Laktoz, Kafein" />
+              <label>Açıklama (Saf Karamel vb. - İsteğe Bağlı)</label>
+              <input type="text" id="add-aciklama" placeholder="Örn: Özel çekirdeklerimizden gelen yoğun aroma." />
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Vegan mı?</label>
+                <select id="add-vegan">
+                  <option value="false">Hayır</option>
+                  <option value="true">Evet</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Alerjenler (Virgülle ayırın)</label>
+                <input type="text" id="add-alerjenler" placeholder="Örn: Süt, Kafein" />
+              </div>
             </div>
             
             <div class="form-group">
-              <label>Gizli Etiketler (Ruh hali için, virgülle ayırın)</label>
-              <input type="text" id="add-etiketler" placeholder="Örn: rahatlatici, enerjik, tatli_krizi" />
+              <label>Gizli Etiketler (Ruh hali/Tags, virgülle ayırın)</label>
+              <input type="text" id="add-etiketler" placeholder="Örn: enerjik, tatli, sicak_icecek" />
             </div>
 
             <button class="btn-submit" onclick="addNewItem()">✅ Menüye Ekle</button>
@@ -268,6 +280,7 @@
         </div>
       </div>
 
+      <!-- 🔔 SİPARİŞ GEÇMİŞİ PANELİ -->
       <div id="panel-orders" class="admin-panel">
         <img class="panel-hero" src="/images/order_history.jpg" alt="Siparişler" />
         <div class="panel-body">
@@ -289,6 +302,7 @@
         </div>
       </div>
 
+      <!-- 💬 İSTEK PANELİ -->
       <div id="panel-requests" class="admin-panel">
         <img class="panel-hero" src="/images/server-providing-service-at-restaurant.jpg" alt="İstekler" />
         <div class="panel-body">
@@ -311,6 +325,7 @@
         </div>
       </div>
 
+      <!-- 👥 ÇALIŞAN PANELİ -->
       <div id="panel-employees" class="admin-panel">
         <img class="panel-hero" src="/images/workers_.jpg" alt="Çalışanlar" style="object-position:center 30%;" />
         <div class="panel-body">
@@ -354,10 +369,32 @@
         </div>
       </div>
 
+      <!-- ⚙️ ALGORİTMALARI YÖNET PANELİ -->
+      <div id="panel-algorithms" class="admin-panel">
+        <div style="width:100%; height:220px; background:linear-gradient(135deg, #e3f2fd, #bbdefb); display:flex; align-items:center; justify-content:center; font-size:80px;">⚙️</div>
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
+          <div class="panel-title">⚙️ Algoritmaları Yönet</div>
+          <p style="color:#666; font-size:14px; margin-bottom:24px;">Düzenlemek istediğiniz algoritmayı seçin.</p>
+
+          <div class="admin-nav" style="padding:0; grid-template-columns: repeat(2, 1fr); max-width: 600px; gap: 20px;">
+            <div class="nav-card" onclick="switchPanel('moods')">
+              <div class="nav-thumb-wrap" style="background:#f3e5f5; color:#9c27b0;">🎭</div>
+              <div class="nav-card-label">Ruh Hali Algoritması</div>
+            </div>
+            <div class="nav-card" onclick="switchPanel('ingredients')">
+              <div class="nav-thumb-wrap" style="background:#e8f5e9; color:#388e3c;">🥗</div>
+              <div class="nav-card-label">Malzeme Dışlama Algoritması</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎭 RUH HALİ PANELİ -->
       <div id="panel-moods" class="admin-panel">
         <div style="width:100%; height:220px; background:linear-gradient(135deg, #f3e5f5, #e1bee7); display:flex; align-items:center; justify-content:center; font-size:80px;">🎭</div>
         <div class="panel-body">
-          <button class="back-btn" onclick="goBackToNav()">⬅️ Seçim Ekranına Dön</button>
+          <button class="back-btn" onclick="switchPanel('algorithms')">⬅️ Algoritmalara Dön</button>
           <div class="panel-title">🎭 Ruh Hali Algoritması Yönetimi</div>
           <p style="color:#666; font-size:14px; margin-bottom:16px;">Müşterilerin seçeceği ruh hallerini ve bu ruh halleriyle eşleşecek ürün etiketlerini belirleyin.</p>
           
@@ -381,16 +418,56 @@
               </div>
             </div>
             <div class="form-group">
-              <label>Eşleşecek Etiketler (Virgülle ayırın, menüdeki etiketlerle aynı olmalı) *</label>
-              <input type="text" id="add-mood-etiketler" placeholder="Örn: enerjik, kafein_bombasi, canlandirici" />
+              <label>Eşleşecek Etiketler (Virgülle ayırın) *</label>
+              <input type="text" id="add-mood-etiketler" placeholder="Örn: enerjik, kafein_bombasi" />
             </div>
             <button class="btn-submit" onclick="addNewMood()">✅ Ruh Hali Ekle</button>
           </div>
         </div>
       </div>
 
+      <!-- 🥗 MALZEME DIŞLAMA PANELİ -->
+      <div id="panel-ingredients" class="admin-panel">
+        <div style="width:100%; height:220px; background:linear-gradient(135deg, #e8f5e9, #c8e6c9); display:flex; align-items:center; justify-content:center; font-size:80px;">🥗</div>
+        <div class="panel-body">
+          <button class="back-btn" onclick="switchPanel('algorithms')">⬅️ Algoritmalara Dön</button>
+          <div class="panel-title">🥗 İstenmeyen Malzeme / Kısıtlama Yönetimi</div>
+          <p style="color:#666; font-size:14px; margin-bottom:16px;">Müşterilerin filtrelemek isteyebileceği içerikleri (alerjen, diyet vb.) belirleyin.</p>
+          
+          <table>
+            <thead>
+              <tr><th>ID</th><th>İçerik Adı</th><th>Emoji</th><th>Aranacak Etiketler</th><th>İşlem</th></tr>
+            </thead>
+            <tbody id="admin-ingredient-list"></tbody>
+          </table>
+
+          <div class="add-form" id="ingredient-add-form">
+            <h3>Yeni İçerik Kısıtlaması Ekle</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>İçerik Adı (Menüden Seçin) *</label>
+                <!-- DİKKAT: Burası dinamik dropdown yapıldı -->
+                <select id="add-ing-isim">
+                  <option value="">-- Yükleniyor --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Emoji</label>
+                <input type="text" id="add-ing-emoji" placeholder="Örn: 🚫" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Eşleşecek Etiketler (Virgülle ayırın, İsteğe Bağlı)</label>
+              <input type="text" id="add-ing-etiketler" placeholder="Örn: laktoz, sut" />
+            </div>
+            <button class="btn-submit" onclick="addNewIngredient()">✅ Kısıtlama Ekle</button>
+          </div>
+        </div>
+      </div>
+
     </div>
     
+    <!-- ÇALIŞAN DÜZENLEME MODALI -->
     <div class="modal-overlay" id="emp-modal">
       <div class="modal">
         <div class="modal-header">

@@ -20,11 +20,13 @@ function menuyuGoster() {
     });
 }
 
+// GÜNCELLENMİŞ SEPET FONKSİYONLARI
 function getSafeCart() {
     try {
         let cart = JSON.parse(localStorage.getItem("cart"));
         if (!Array.isArray(cart)) return [];
-        return cart;
+        // Eski bug'dan kalan bozuk/isimsiz verileri temizle
+        return cart.filter(item => item && item.isim);
     } catch (e) {
         return [];
     }
@@ -32,41 +34,50 @@ function getSafeCart() {
 
 function getCartQuantity(id) {
     let cart = getSafeCart();
-    let item = cart.find(c => c.id === id);
+    // ID'leri garanti olsun diye string olarak karşılaştırıyoruz
+    let item = cart.find(c => String(c.id) === String(id));
     return item ? item.quantity : 0;
 }
 
 function sepeteEkle(id, change) {
     let cart = getSafeCart();
-    let existingItem = cart.find(c => c.id === id);
+    let existingItem = cart.find(c => String(c.id) === String(id));
 
     if (change > 0) {
         if (existingItem) {
             existingItem.quantity += 1;
         } else {
-            let menuItem = menu.find(m => m.id === id);
-            cart.push({ ...menuItem, quantity: 1 });
+            let menuItem = menu.find(m => String(m.id) === String(id));
+            if (menuItem) {
+                cart.push({ ...menuItem, quantity: 1 });
+            } else {
+                console.error("HATA: Menüde bu ürün bulunamadı! ID:", id);
+            }
         }
     } else if (change < 0 && existingItem) {
         existingItem.quantity -= 1;
         if (existingItem.quantity <= 0) {
-            cart = cart.filter(c => c.id !== id);
+            cart = cart.filter(c => String(c.id) !== String(id));
         }
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    document.getElementById(`qty-${id}`).innerText = getCartQuantity(id);
+    
+    // Ekranda adeti güncelle
+    let qtyLabel = document.getElementById(`qty-${id}`);
+    if (qtyLabel) {
+        qtyLabel.innerText = getCartQuantity(id);
+    }
 }
 
+// GÜNCELLENMİŞ RENDER FONKSİYONU
 function rendermenu() {
   const menuList = document.getElementById("menu-list");
   menuList.innerHTML = "";
 
   menu.forEach((item) => {
-    // Vegan Filtresi Kontrolü
     if (isVeganOnly && !item.vegan) return;
 
-    // Alerjen Filtresi Kontrolü
     if (activeAllergensToAvoid.length > 0) {
         let hasAllergen = false;
         if (item.alerjenler) {
@@ -99,9 +110,10 @@ function rendermenu() {
        </div>
        
        <div class="item-controls" onclick="event.stopPropagation()">
-           <button onclick="sepeteEkle(${item.id}, -1)" style="padding: 5px 20px; font-size: 18px; border-color: #ff4c4c; color: #ff4c4c; font-weight:bold; cursor:pointer;">-</button>
+           <!-- DİKKAT: sepeteEkle fonksiyonundaki ID'leri tırnak içine aldık ('${item.id}') -->
+           <button onclick="event.stopPropagation(); sepeteEkle('${item.id}', -1)" style="padding: 5px 20px; font-size: 18px; border-color: #ff4c4c; color: #ff4c4c; font-weight:bold; cursor:pointer;">-</button>
            <span id="qty-${item.id}" style="font-weight: bold; font-size: 18px; width: 30px; text-align: center; color: #333;">${guncelMiktar}</span>
-           <button onclick="sepeteEkle(${item.id}, 1)" style="padding: 5px 20px; font-size: 18px; border-color: #4CAF50; color: #4CAF50; font-weight:bold; cursor:pointer;">+</button>
+           <button onclick="event.stopPropagation(); sepeteEkle('${item.id}', 1)" style="padding: 5px 20px; font-size: 18px; border-color: #4CAF50; color: #4CAF50; font-weight:bold; cursor:pointer;">+</button>
        </div>
        ${veganBadge}
     `;
@@ -163,7 +175,7 @@ function clearFilters() {
 
 // --- MODAL (BİLGİ EKRANI) FONKSİYONU ---
 function openItemModal(id) {
-  const item = menu.find((m) => m.id === id);
+  const item = menu.find((m) => String(m.id) === String(id));
   if (!item) return;
 
   let veganModalIcon = item.vegan ? " 🌱" : "";

@@ -15,72 +15,24 @@
         .mood-btn.active { background: #9c27b0; color: white; border-color: #9c27b0; }
         .results-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
         .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); text-align: left; transition: transform 0.2s; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .product-img { width: 100%; height: 180px; object-fit: cover; }
         .product-info { padding: 20px; }
         .product-title { font-family: 'Playfair Display', serif; font-size: 18px; margin: 0 0 10px; }
-        .product-desc { font-size: 13px; color: #666; margin-bottom: 15px; line-height: 1.4; }
         .product-price { font-weight: bold; color: #4CAF50; font-size: 16px; }
-        .back-link { display: inline-block; margin-top: 40px; color: #666; text-decoration: none; font-weight: bold; }
-        .back-link:hover { color: #111; }
-
-        /* FLOATING CART BUTTON (SEPET BUTONU) */
-        .floating-cart-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            z-index: 9000;
-        }
-
-        /* KART BUTONLARI (ITEM CONTROLS) */
-        .item-controls {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding-top: 10px;
-            border-top: 1px dashed #eee;
-        }
-        .item-controls button {
-            padding: 5px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: white;
-            transition: 0.2s;
-        }
-        .item-controls button:active { background-color: #e0e0e0; }
-        .btn-minus { border-color: #ff4c4c !important; color: #ff4c4c; }
-        .btn-plus { border-color: #4CAF50 !important; color: #4CAF50; }
-        .item-qty { font-weight: bold; font-size: 18px; width: 30px; text-align: center; color: #333; }
+        .floating-cart-btn { position: fixed; bottom: 20px; right: 20px; background-color: #ff9800; color: white; border: none; border-radius: 50px; padding: 15px 25px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
+        .item-controls { margin-top: 15px; display: flex; align-items: center; gap: 15px; }
     </style>
 </head>
 <body>
-
     <h1>Şu an nasıl hissediyorsun?</h1>
     <p>Ruh halini seç, sana en uygun ürünleri önerelim.</p>
 
-    <div class="mood-container" id="mood-buttons-container">
-        </div>
+    <div class="mood-container" id="mood-buttons-container"></div>
 
     <h2 id="results-title" style="display:none; font-family:'Playfair Display',serif; margin-bottom:20px;">Senin İçin Önerilerimiz</h2>
-    
-    <div class="results-container" id="results-container">
-        </div>
+    <div class="results-container" id="results-container"></div>
 
-    <a href="real.html" class="back-link">← Ana Menüye Dön</a>
-
+    <a href="real.html" style="display:inline-block; margin-top:40px; color:#666; text-decoration:none;">← Ana Menüye Dön</a>
     <button class="floating-cart-btn" onclick="window.location.href='/cart.html'">🛒 Sepete Git</button>
 
     <script src="mood.js"></script>

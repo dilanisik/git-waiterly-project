@@ -240,96 +240,100 @@
     </button>
     <br /><br />
 
-<style>
-    .recommendation-section {
-        text-align: center; 
-        margin: 40px auto; 
-        padding: 40px 20px; 
-        background: #fdfdfd; 
-        border-radius: 16px; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+    <style>
+      .recommendation-section {
+        text-align: center;
+        margin: 40px auto;
+        padding: 40px 20px;
+        background: #fdfdfd;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         max-width: 800px;
         border: 1px solid #eee;
-    }
-    .recommendation-section h2 {
-        font-family: 'Playfair Display', serif; 
-        font-size: 28px; 
-        color: #111; 
+      }
+      .recommendation-section h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: #111;
         margin-bottom: 10px;
-    }
-    .recommendation-section p {
-        color: #666; 
-        font-size: 15px; 
-        margin-bottom: 30px; 
-        font-family: 'DM Sans', sans-serif;
-    }
-    .algo-btn-container {
-        display: flex; 
-        gap: 20px; 
-        justify-content: center; 
+      }
+      .recommendation-section p {
+        color: #666;
+        font-size: 15px;
+        margin-bottom: 30px;
+        font-family: "DM Sans", sans-serif;
+      }
+      .algo-btn-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
         flex-wrap: wrap;
-    }
-    .algo-btn {
-        flex: 1; 
-        min-width: 250px; 
-        padding: 18px 24px; 
-        border-radius: 12px; 
-        text-decoration: none; 
-        font-weight: bold; 
-        font-family: 'DM Sans', sans-serif; 
-        font-size: 16px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        gap: 10px; 
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-    .algo-btn:hover {
+      }
+      .algo-btn {
+        flex: 1;
+        min-width: 250px;
+        padding: 18px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: bold;
+        font-family: "DM Sans", sans-serif;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+      }
+      .algo-btn:hover {
         transform: translateY(-4px);
-    }
-    .btn-ingredient { 
-        background: #ff9800; 
-        color: white; 
-        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3); 
-    }
-    .btn-ingredient:hover { 
-        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.5); 
-        background: #f57c00; 
-    }
-    .btn-mood { 
-        background: #9c27b0; 
-        color: white; 
-        box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); 
-    }
-    .btn-mood:hover { 
-        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.5); 
-        background: #7b1fa2; 
-    }
-</style>
+      }
+      .btn-ingredient {
+        background: #ff9800;
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+      }
+      .btn-ingredient:hover {
+        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.5);
+        background: #f57c00;
+      }
+      .btn-mood {
+        background: #9c27b0;
+        color: white;
+        box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+      }
+      .btn-mood:hover {
+        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.5);
+        background: #7b1fa2;
+      }
+    </style>
 
-<div class="recommendation-section">
-    <h2>Kararsız mısın?</h2>
-    <p>Ne içeceğine karar veremediysen sana en uygun ürünü bulmak için iki farklı yolumuz var. Hemen seçimini yap!</p>
-    
-    <div class="algo-btn-container">
+    <div class="recommendation-section">
+      <h2>Kararsız mısın?</h2>
+      <p>
+        Ne içeceğine karar veremediysen sana en uygun ürünü bulmak için iki
+        farklı yolumuz var. Hemen seçimini yap!
+      </p>
+
+      <div class="algo-btn-container">
         <a href="ingredients.html" class="algo-btn btn-ingredient">
-            <span style="font-size: 24px;">🧪</span> İçeriğe Göre Seç
+          <span style="font-size: 24px">🧪</span> İçeriğe Göre Seç
         </a>
-        
+
         <a href="mood.html" class="algo-btn btn-mood">
-            <span style="font-size: 24px;">🎭</span> Ruh Haline Göre Seç
+          <span style="font-size: 24px">🎭</span> Ruh Haline Göre Seç
         </a>
+      </div>
     </div>
-</div>
 
     <button onclick="window.location.href = '/requests.html'">
       Bir İsteğim Var 🙋‍♂️
     </button>
     <br /><br />
 
-    <button>
-      mademokadarşeyistiyonkendinyaptuşu
-    </button>
+    <button>mademokadarşeyistiyonkendinyaptuşu</button>
     <br /><br />
 
     <button onclick="window.location.href = '/cart.html'">Sepete git 🛒</button>
@@ -647,7 +651,10 @@
           bodyAlan.appendChild(grupBaslik);
 
           siparis.urunler.forEach((urun) => {
-            let itemName = typeof urun === "string" ? urun : urun.quantity + "x " + urun.isim;
+            let itemName =
+              typeof urun === "string"
+                ? urun
+                : urun.quantity + "x " + urun.isim;
             let itemPrice =
               typeof urun === "string" ? "" : urun.fiyat.toFixed(2) + " TL";
 
@@ -694,6 +701,28 @@
         fisDinamikDoldur();
         console.log("Order history wiped!");
       }
+    </script>
+    <script>
+      // Oturum kontrolü ve Karşılama Ekranı
+      window.addEventListener("load", () => {
+        const masaNo = localStorage.getItem("masaNo");
+        const sessionHash = localStorage.getItem("sessionHash");
+        const header = document.querySelector("h1");
+
+        if (masaNo && sessionHash) {
+          // Oturum varsa masayı göster
+          header.innerHTML = `Waiterly'ye Hoş Geldiniz<br><span style="color:#4CAF50; font-size: 20px;">(Masa ${masaNo})</span> 🍔`;
+        } else {
+          // Oturum yoksa QR okutması için uyar ve butonları gizle
+          header.innerHTML = `Waiterly 🍔 <br><span style="color:red; font-size: 16px;">Lütfen sipariş vermek için masanızdaki QR kodu okutun.</span>`;
+
+          // Opsiyonel: Oturum yoksa sipariş/sepet butonlarını tıklanamaz yapabilirsiniz
+          const cartBtn = document.querySelector(
+            "button[onclick=\"window.location.href = '/cart.html'\"]",
+          );
+          if (cartBtn) cartBtn.style.display = "none";
+        }
+      });
     </script>
   </body>
 </html>

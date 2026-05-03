@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Personel Paneli - Waiterly</title>
+  <style>
+    body { font-family: 'Arial', sans-serif; background: #f4f4f2; margin:0; padding:20px; text-align:center;}
+    .header { background: #4caf50; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;}
+    .btn-logout { background: #e53935; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; float: right; margin-top: -35px; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: inline-block; width: 45%; margin: 10px; vertical-align: top;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>👨‍🍳 Waiterly Personel Paneli</h1>
+    <button class="btn-logout" onclick="logout()">Çıkış Yap</button>
+  </div>
+  
+  <div class="card">
+    <h3>🔔 Bekleyen Siparişler</h3>
+    <p style="color:#888;">Geliştirme aşamasında...</p>
+  </div>
+  
+  <div class="card">
+    <h3>💬 Gelen İstekler</h3>
+    <p style="color:#888;">Geliştirme aşamasında...</p>
+  </div>
+
+  <script>
+    function logout() {
+      fetch("/api/logout", {method:"POST"}).then(() => window.location.href = "/login.html");
+    }
+  </script>
+</body>
+</html>

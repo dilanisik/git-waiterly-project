@@ -244,3 +244,13 @@ function handleAddToCartFromIngredients(id, change) {
     localStorage.setItem("cart", JSON.stringify(cart));
     document.getElementById(`qty-ing-${id}`).innerText = getCartQuantity(id);
 }
+
+// Conditional Export for Testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        fetchInitialData, extractIngredients, renderIngredients,
+        toggleIngredient, showMatchingProducts, closeProductsModal,
+        openItemModal, closeItemModal, handleAddToCartFromIngredients,
+        getSafeCart, getCartQuantity
+    };
+}

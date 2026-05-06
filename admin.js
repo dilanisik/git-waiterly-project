@@ -651,3 +651,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Conditional Export for Testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        switchPanel, goBackToNav, openDeleteModal, closeDeleteModal,
+        loadAdminEmployees, renderEmployees, openEditModal, closeModal, saveEmployee, previewNewEmpPhoto, addNewEmployee, deleteEmployee,
+        loadAdminIngredients, addNewIngredient, deleteIngredient, resetIngredientForm,
+        loadAdminRequests, addNewRequest, deleteRequest,
+        loadAdminMoods, addNewMood, editMood, saveMood, deleteMood, resetMoodForm,
+        loadAdminMenu, editMenu, saveMenuItem, addNewItem, previewMenuImage, resetMenuForm, deleteItem,
+        loadOrders, addManualOrder, deleteOrder,
+        logout
+    };
+}

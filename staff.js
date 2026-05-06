@@ -209,3 +209,10 @@ async function logout() {
   // Her halükarda login sayfasına yönlendir
   window.location.href = "/login.html";
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { 
+        fetchData, renderTables, openModal, confirmOrder, // for staff.js
+        fetchInitialData, toggleIngredient, renderIngredients // for ingredients.js
+    };
+}

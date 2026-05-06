@@ -378,3 +378,11 @@ async function oturumuKapat(hash, yontem) {
 window.addEventListener("load", () => {
   renderCart();
 });
+
+// Conditional Export for Testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        getSafeCart, addToCart, removeFromCart, clearCart, siparisVer,
+        baslatOdemeSureci, handlePaymentSelection, submitReviews, oturumuKapat, renderCart
+    };
+}

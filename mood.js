@@ -170,3 +170,15 @@ function renderResults(products) {
         resultsContainer.appendChild(card);
     });
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        getSafeCart, getCartQuantity, sepeteEkle,
+        renderMoodButtons, selectMood, renderResults,
+        // Export internal data for testing purposes
+        getMenuData: () => menuData,
+        setMenuData: (data) => { menuData = data; },
+        getMoodsData: () => moodsData,
+        setMoodsData: (data) => { moodsData = data; }
+    };
+}

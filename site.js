@@ -236,11 +236,8 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
-  // --- YENİ: SİPARİŞİ ONAYLAMA (Sipariş Alındı) ---
   else if (req.url === "/api/orders/confirm" && req.method === "POST") {
     const data = await getBody(req);
-
-    // session içindeki siparisler dizisinden sadece ilgili index'in durumunu güncelle
     const setQuery = {};
     setQuery[`siparisler.${data.orderIndex}.durum`] = "onaylandı";
 
@@ -250,10 +247,8 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
-  // --- YENİ: MÜŞTERİDEN GARSONA TALEP GÖNDERME ---
   else if (req.url === "/api/session/request" && req.method === "POST") {
     const data = await getBody(req);
-
     console.log("🔔 [TEST] Müşteriden talep geldi! Veri:", data);
 
     const result = await db
@@ -271,14 +266,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
-  // --- YENİ: GARSONUN TALEBİ ONAYLAMASI (Tamamlandı) ---
   else if (
     req.url === "/api/session/request/confirm" &&
     req.method === "POST"
   ) {
     const data = await getBody(req);
-
-    // MongoDB'nin $pull komutu, belirtilen metni diziden siler
     await db
       .collection("sessions")
       .updateOne(
@@ -289,14 +281,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
-
-  // --- BURASI ÇOK ÖNEMLİ: API ENDPOINTLERİ ---
   else if (req.url.startsWith("/api/")) {
     const parts = req.url.split("/");
     const collectionName = parts[2];
     const itemId = parts[3] ? parseInt(parts[3]) : null;
 
-    // ingredients'i buraya ekledik ki 404 dönmesin
     const validCollectionsAPI = [
       "menu",
       "users",
@@ -336,13 +325,10 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ success: true }));
       }
     } else {
-      // Eğer izin verilmeyen bir API'ye istek atılırsa
       res.writeHead(404);
       res.end(JSON.stringify({ error: "Endpoint not found" }));
     }
   }
-
-  // --- IMAGES ---
   else if (req.url.startsWith("/images/")) {
     const fileName = req.url.replace("/images/", "");
     fs.readFile(path.join(__dirname, "images", fileName), (err, data) => {
@@ -366,6 +352,10 @@ const server = http.createServer(async (req, res) => {
     res.end("404 Not Found");
   }
 });
+
+async function connectForTesting(testDb) {
+  db = testDb;
+}
 
 async function startApp() {
   try {
@@ -456,4 +446,10 @@ async function startApp() {
   }
 }
 
-startApp();
+// Only run automatically if executed directly via Node
+if (require.main === module) {
+  startApp();
+}
+
+// Export for Jest
+module.exports = { server, startApp, connectForTesting };

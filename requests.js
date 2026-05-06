@@ -122,3 +122,13 @@ window.addEventListener("load", function () {
     istekleriGoster();
   }
 });
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    bildirimGoster,
+    bildirimiKapat,
+    sendRequestToServer,
+    istekleriGoster,
+    renderRequests
+  };
+}

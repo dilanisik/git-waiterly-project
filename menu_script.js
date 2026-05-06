@@ -256,3 +256,12 @@ function clearFilters() {
 
   renderMenu();
 }
+
+// Conditional Export for Testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        renderCategories, selectCategory, renderMenu, 
+        toggleVegan, toggleAllergen, clearFilters,
+        sepeteEkle, openItemModal, closeItemModal 
+    };
+}

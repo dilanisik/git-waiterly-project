@@ -4,238 +4,328 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menü - Waiterly</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin-top: 50px;
-        background-color: #f9f9f9;
-        overflow-x: hidden;
-        padding-bottom: 80px; 
+      /* COLOR PALETTE & VARIABLES */
+      :root {
+        --bg-color: #FDFBF7;
+        --text-dark: #2C2A29;
+        --text-muted: #6B6561;
+        --accent-green: #2E7D32;
+        --accent-green-hover: #1B5E20;
+        --accent-orange: #F39C12;
+        --accent-orange-hover: #E67E22;
+        --accent-blue: #2980B9;
+        --card-bg: #FFFFFF;
+        --border-color: rgba(0, 0, 0, 0.08);
       }
 
-      button {
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        background-color: white;
+      body {
+        font-family: 'DM Sans', Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(circle at top right, rgba(46, 125, 50, 0.03), transparent 50%);
+        color: var(--text-dark);
+        overflow-x: hidden;
+        padding: 80px 20px 100px; 
+      }
+
+      /* TYPOGRAPHY */
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 20px;
+        margin-top: 0;
+      }
+
+      /* FLOATING BACK BUTTON (ANA MENÜYE DÖN) */
+      .floating-back-btn {
+        position: fixed;
+        top: 25px;
+        left: 25px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--text-dark);
+        padding: 12px 24px;
+        font-size: 15px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         cursor: pointer;
-        transition: 0.2s;
+        z-index: 9000;
+        transition: all 0.3s ease;
+      }
+      .floating-back-btn:hover {
+        background: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      }
+
+      /* FILTER & ACTION BUTTONS */
+      .btn-secondary {
+        background: var(--card-bg);
+        color: var(--text-dark);
+        padding: 14px 32px;
+        font-size: 16px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
+        border: 2px solid var(--border-color);
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      }
+      .btn-secondary:hover {
+        border-color: rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+      }
+
+      /* CONNECTED CATEGORY BUTTONS (SEGMENTED CONTROL) */
+      .category-bar {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0;
+        margin: 30px auto 20px;
+        max-width: 900px;
+        background: var(--card-bg);
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        border: 1px solid var(--border-color);
+        padding: 6px;
+        /* Hide scrollbar for clean look */
+        -ms-overflow-style: none;  
+        scrollbar-width: none;  
+      }
+      .category-bar::-webkit-scrollbar { 
+        display: none; 
+      }
+      .category-tab {
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        border: none;
+        background: transparent;
         -webkit-tap-highlight-color: transparent;
       }
-      
-      @media (hover: hover) { button:hover { background-color: #f0f0f0; } }
-      button:active { background-color: #e0e0e0; }
+      .category-tab:hover {
+        color: var(--text-dark);
+      }
+      .category-tab.active {
+        background: var(--text-dark);
+        color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
 
       /* FLOATING CART BUTTON (SEPET BUTONU) */
       .floating-cart-btn {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #ff9800;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-hover));
         color: white;
         border: none;
         border-radius: 50px;
-        padding: 15px 25px;
+        padding: 16px 28px;
         font-size: 16px;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        font-weight: 700;
+        font-family: 'DM Sans', sans-serif;
+        box-shadow: 0 8px 20px rgba(243, 156, 18, 0.3), 0 4px 10px rgba(243, 156, 18, 0.2);
         cursor: pointer;
         z-index: 9000;
+        transition: all 0.3s ease;
       }
 
-      /* MENÜ LİSTESİ VE KART TASARIMI */
+      /* MENU LIST & GRID DESIGN */
+      #menu-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 20px;
+        max-width: 900px;
+        margin: 0 auto 30px;
+        padding: 0 10px;
+      }
+      
       .menu-item {
-        margin: 15px auto;
-        padding: 15px;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 450px;
-        background: white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         display: flex;
         flex-direction: column;
         text-align: left;
         cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
-      .menu-item-top { display: flex; justify-content: space-between; align-items: center; }
+      .menu-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      }
+      .menu-item-top { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start; 
+      }
       .item-thumbnail {
-        width: 70px;
-        height: 70px;
-        border-radius: 8px;
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
         object-fit: cover;
         margin-left: 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
       }
-      .item-controls {
-        margin-top: 15px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding-top: 10px;
-        border-top: 1px dashed #eee; 
+      .item-info { flex-grow: 1; }
+      .item-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: var(--text-dark); }
+      .item-price { font-weight: 700; color: var(--accent-green); font-size: 16px; }
+      .item-controls { margin-top: auto; display: flex; align-items: center; gap: 15px; padding-top: 15px; border-top: 1px dashed #E0E0E0; }
+
+      @media (max-width: 600px) {
+        #menu-list { grid-template-columns: 1fr; }
       }
 
-      /* MODAL STYLES (BİLGİ EKRANI) */
-      .item-modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 9998;
-        backdrop-filter: blur(3px);
-        overflow-y: auto;
-      }
-      .item-modal-card {
-        background: #fff;
-        width: 90%;
-        max-width: 400px;
-        border-radius: 12px;
-        margin: 50px auto;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        position: relative;
-        overflow: hidden;
-      }
-      .modal-close-btn {
-        position: absolute;
-        top: 10px; right: 10px;
-        width: 35px; height: 35px;
-        background: rgba(255, 255, 255, 0.9);
-        border: none; border-radius: 50%;
-        cursor: pointer; font-weight: bold; font-size: 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      }
-      .product-info-img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-      }
-
-      /* FİLTRE ÇEKMECESİ VE YENİ KUTUCUK TASARIMI */
+      /* FİLTRE ÇEKMECESİ (FILTER DRAWER) */
       .filter-drawer {
         position: fixed;
         top: 0;
-        right: -320px;
-        width: 280px;
+        right: -360px;
+        width: 320px;
         height: 100%;
-        background-color: white;
-        box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-        transition: right 0.3s ease;
+        background-color: var(--bg-color);
+        box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+        transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         z-index: 9999;
         display: flex;
         flex-direction: column;
-        padding: 20px;
+        padding: 30px;
         text-align: left;
         overflow-y: auto;
       }
       .filter-drawer.open { right: 0; }
       .filter-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.4);
-        z-index: 9998;
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(44, 42, 41, 0.4); backdrop-filter: blur(4px); z-index: 9998;
       }
-      .drawer-footer { margin-top: 20px; display: flex; justify-content: space-between; padding-bottom: 20px;}
+      .drawer-title { font-family: 'Playfair Display', serif; font-size: 24px; margin-top: 0; margin-bottom: 20px; color: var(--text-dark); }
+      .drawer-section-title { font-size: 15px; font-weight: 700; color: var(--text-muted); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 25px; }
+      .drawer-footer { margin-top: auto; display: flex; gap: 15px; padding-top: 30px; padding-bottom: 20px; }
       
-      /* YENİ GRID YAPISI */
-      .filter-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
+      /* FILTER GRID STRUCTURE */
+      .filter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .filter-card {
-        background: white;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        padding: 12px 5px;
-        flex: 1 1 calc(50% - 10px);
-        cursor: pointer;
-        transition: 0.2s;
-        text-align: center;
-        font-size: 13px;
-        font-weight: bold;
-        box-sizing: border-box;
-        color: #555;
-        -webkit-tap-highlight-color: transparent;
+        background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 12px;
+        padding: 12px 10px; cursor: pointer; transition: all 0.2s ease; text-align: center;
+        font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 700; color: var(--text-dark);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02); -webkit-tap-highlight-color: transparent;
       }
-      .filter-card:active { transform: scale(0.95); }
-      
-      /* Seçili Vegan Kartı Stili */
-      .filter-card.vegan-selected {
-        border-color: #4CAF50;
-        background-color: #e8f5e9;
-        color: #2e7d32;
-      }
-      
-      /* Seçili Alerjen Kartı Stili (İstenmeyen) */
-      .filter-card.allergen-selected {
-        border-color: #f44336;
-        background-color: #ffebee;
-        color: #d32f2f;
-      }
+      .filter-card:hover { border-color: rgba(0,0,0,0.2); transform: translateY(-2px); }
+      .filter-card.vegan-selected { border-color: #4CAF50; background-color: #F1F8E9; color: #2E7D32; }
+      .filter-card.allergen-selected { border-color: #E74C3C; background-color: #FDEDEC; color: #C0392B; }
+
+      .drawer-btn { flex: 1; padding: 14px 0; border-radius: 50px; font-weight: 700; font-family: 'DM Sans', sans-serif; font-size: 16px; border: none; cursor: pointer; }
+      .btn-clear { background: #E0E0E0; color: var(--text-dark); }
+      .btn-apply { background: linear-gradient(135deg, #4CAF50, var(--accent-green)); color: white; }
+
+      /* MODAL STYLES */
+      .item-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 42, 41, 0.4); z-index: 9998; backdrop-filter: blur(8px); overflow-y: auto; }
+      .item-modal-card { background: var(--card-bg); width: 100%; max-width: 450px; border-radius: 24px; margin: 50px auto; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden; }
+      .modal-close-btn { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 24px; color: var(--text-dark); display: flex; align-items: center; justify-content: center; }
+      .product-info-img { width: 100%; height: 250px; object-fit: cover; }
     </style>
   </head>
   <body>
+    
+    <a href="real.html" class="floating-back-btn">← Ana Menüye Dön</a>
+
     <h1>Menü 🍽️</h1>
 
-    <button onclick="window.location.href='/'">Anasayfaya Dön 🏠</button>
-    <button onclick="openFilterDrawer()">Filtrele 🔍</button>
-    <br><br>
+    <button class="btn-secondary" onclick="openFilterDrawer()">Filtrele 🔍</button>
 
+    <!-- DİNAMİK KATEGORİ BAR (SEGMENTED BUTTONS) -->
+    <div class="category-bar" id="category-bar"></div>
+
+    <!-- MENÜ LİSTESİ -->
     <div id="menu-list"></div>
 
     <button class="floating-cart-btn" onclick="window.location.href='/cart.html'">🛒 Sepete Git</button>
 
+    <!-- FİLTRE ÇEKMECESİ (Kategoriler Çıkarıldı) -->
     <div id="filter-overlay" class="filter-overlay" onclick="closeFilterDrawer()"></div>
     <div id="filter-drawer" class="filter-drawer">
-      <h3 style="margin-top: 0;">Filtreler</h3>
+      <h3 class="drawer-title">Filtreler</h3>
       
-      <div class="filter-grid" style="margin-bottom: 20px;">
-        <div id="vegan-btn" class="filter-card" style="flex: 1 1 100%; font-size: 15px;" onclick="toggleVegan(this)">
+      <h4 class="drawer-section-title">Beslenme Tipi</h4>
+      <div class="filter-grid" style="grid-template-columns: 1fr;">
+        <div id="vegan-btn" class="filter-card" onclick="toggleVegan(this)">
           🌱 Sadece Vegan
         </div>
       </div>
       
-      <h4 style="margin-bottom: 10px; border-top: 1px dashed #ccc; padding-top: 15px;">İstemediğiniz Alerjenler</h4>
-      
+      <h4 class="drawer-section-title">İstemediğiniz Alerjenler</h4>
       <div class="filter-grid" id="allergen-grid">
-        <div class="filter-card" onclick="toggleAllergen('Gluten', this)">🍞 Gluten</div>
-        <div class="filter-card" onclick="toggleAllergen('Süt/Laktoz', this)">🥛 Süt/Laktoz</div>
-        <div class="filter-card" onclick="toggleAllergen('Yumurta', this)">🥚 Yumurta</div>
-        <div class="filter-card" onclick="toggleAllergen('Kuruyemiş', this)">🌰 Kuruyemiş</div>
-        <div class="filter-card" onclick="toggleAllergen('Yer Fıstığı', this)">🥜 Yer Fıstığı</div>
-        <div class="filter-card" onclick="toggleAllergen('Soya', this)">🫘 Soya</div>
-        <div class="filter-card" onclick="toggleAllergen('Susam', this)">🥯 Susam</div>
-        <div class="filter-card" onclick="toggleAllergen('Deniz Ürünleri', this)">🍤 Deniz Ürn.</div>
-        <div class="filter-card" onclick="toggleAllergen('Kereviz', this)">🥬 Kereviz</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Gluten', this)">🍞 Gluten</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Süt/Laktoz', this)">🥛 Süt/Laktoz</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Yumurta', this)">🥚 Yumurta</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Kuruyemiş', this)">🌰 Kuruyemiş</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Yer Fıstığı', this)">🥜 Yer Fıstığı</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Soya', this)">🫘 Soya</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Susam', this)">🥯 Susam</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Deniz Ürünleri', this)">🍤 Deniz Ürn.</div>
+        <div class="filter-card allergen-card" onclick="toggleAllergen('Kereviz', this)">🥬 Kereviz</div>
       </div>
 
       <div class="drawer-footer">
-        <button onclick="clearFilters()" style="background-color: #f44336; color: white;">Temizle</button>
-        <button onclick="closeFilterDrawer()" style="background-color: #4CAF50; color: white;">Tamam</button>
+        <button class="drawer-btn btn-clear" onclick="clearFilters()">Temizle</button>
+        <button class="drawer-btn btn-apply" onclick="closeFilterDrawer()">Tamam</button>
       </div>
     </div>
 
+    <!-- ÜRÜN DETAY MODALI -->
     <div id="item-modal-overlay" class="item-modal-overlay" onclick="closeItemModal(event)">
+      <!-- Modal Content remains unchanged -->
       <div class="item-modal-card" onclick="event.stopPropagation()">
         <button class="modal-close-btn" onclick="closeItemModal()">&times;</button>
         <img id="modal-img" class="product-info-img" src="" alt="">
-        <div style="padding: 20px; text-align: left;">
-          <h2 id="modal-title" style="margin-top: 0; margin-bottom: 5px;"></h2>
-          <div style="color: #ff9800; font-weight: bold; margin-bottom: 10px;">⭐ <span id="modal-rating"></span></div>
-          <div id="modal-price" style="font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 15px;"></div>
-          <p id="modal-text" style="color: #555; font-size: 14px; line-height: 1.4;"></p>
+        <div style="padding: 25px; text-align: left;">
+          <h2 id="modal-title" style="font-family: 'Playfair Display', serif; font-size: 26px; margin-top: 0; margin-bottom: 8px;"></h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div style="color: #F39C12; font-weight: 700; font-size: 16px;">⭐ <span id="modal-rating"></span></div>
+            <div id="modal-price" style="font-size: 20px; font-weight: 700; color: #2E7D32;"></div>
+          </div>
+          <p id="modal-text" style="color: #6B6561; font-size: 15px; line-height: 1.6; margin-bottom: 20px;"></p>
           
-          <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 15px;">
-            <strong style="font-size: 13px;">İçindekiler:</strong>
-            <div id="modal-ingredients" style="font-size: 13px; color: #666; margin-top: 5px;"></div>
+          <div style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; margin-top: 15px;">
+            <strong style="font-size: 14px; color: var(--text-dark);">İçindekiler:</strong>
+            <div id="modal-ingredients" style="font-size: 14px; color: var(--text-muted); margin-top: 5px; line-height: 1.5;"></div>
           </div>
 
-          <div id="modal-allergens-container" style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-top: 10px; display: none;">
-            <strong style="font-size: 13px; color: #856404;">⚠️ Alerjen Uyarısı:</strong>
-            <div id="modal-allergens" style="font-size: 13px; color: #856404; margin-top: 5px;"></div>
+          <div id="modal-allergens-container" style="background: #FFF8E1; border: 1px solid #FFE082; padding: 15px; border-radius: 12px; margin-top: 15px; display: none;">
+            <strong style="font-size: 14px; color: #D35400;">⚠️ Alerjen Uyarısı:</strong>
+            <div id="modal-allergens" style="font-size: 14px; color: #E67E22; margin-top: 5px; line-height: 1.5;"></div>
           </div>
         </div>
       </div>

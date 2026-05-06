@@ -210,9 +210,13 @@ async function logout() {
   window.location.href = "/login.html";
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { 
-        fetchData, renderTables, openModal, confirmOrder, // for staff.js
-        fetchInitialData, toggleIngredient, renderIngredients // for ingredients.js
-    };
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    fetchData,
+    renderTables,
+    openModal,
+    confirmOrder, // for staff.js
+    toggleIngredient,
+    renderIngredients, // for ingredients.js
+  };
 }

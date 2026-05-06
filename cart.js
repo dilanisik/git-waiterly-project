@@ -302,17 +302,24 @@ async function puanGuncelle(urunIsmi, verilenPuan) {
   try {
     const res = await fetch("/api/menu");
     const menu = await res.json();
-    const item = menu.find((m) => m.isim === urunIsmi);
+
+    // .trim() ekleyerek boşluklardan kaynaklanan eşleşmeme sorununu çözüyoruz
+    const item = menu.find((m) => m.isim && m.isim.trim() === urunIsmi.trim());
 
     if (item) {
       let eskiPuan = parseFloat(item.puan) || 0;
       let yeniPuan = ((eskiPuan + verilenPuan) / 2).toFixed(1);
 
-      await fetch(`/api/menu/${item.id}`, {
+      // MongoDB'nin _id yapısını da destekleyecek şekilde ID'yi alıyoruz
+      const itemId = item._id || item.id;
+
+      await fetch(`/api/menu/${itemId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puan: yeniPuan }),
       });
+    } else {
+      console.warn(`Test/Uygulama: "${urunIsmi}" adlı ürün menüde bulunamadı!`);
     }
   } catch (e) {
     console.error("Puan güncellenemedi:", e);
@@ -324,7 +331,8 @@ async function submitReviews() {
   const items = listDiv.querySelectorAll(".review-item");
 
   for (let i = 0; i < items.length; i++) {
-    const urunIsmi = items[i].querySelector("strong").innerText;
+    // .trim() ekliyoruz ki HTML'deki boşluklar veya enter tuşları hataya sebep olmasın
+    const urunIsmi = items[i].querySelector("strong").innerText.trim();
     const checkedStar = items[i].querySelector(
       `input[name="rating-${i}"]:checked`,
     );
@@ -343,7 +351,6 @@ async function submitReviews() {
     finalCloseSession();
   }, 1500);
 }
-
 async function finalCloseSession() {
   const sessionHash = localStorage.getItem("sessionHash");
   await oturumuKapat(sessionHash, secilenOdemeYontemi);
@@ -380,9 +387,17 @@ window.addEventListener("load", () => {
 });
 
 // Conditional Export for Testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        getSafeCart, addToCart, removeFromCart, clearCart, siparisVer,
-        baslatOdemeSureci, handlePaymentSelection, submitReviews, oturumuKapat, renderCart
-    };
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    getSafeCart,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    siparisVer,
+    baslatOdemeSureci,
+    handlePaymentSelection,
+    submitReviews,
+    oturumuKapat,
+    renderCart,
+  };
 }

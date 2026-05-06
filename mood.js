@@ -46,37 +46,53 @@ function sepeteEkle(id, change) {
 }
 // -----------------------------------------------------
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Load Moods created by Admin
-    // Since we don't have a DB yet, we grab it from localStorage where admin.js saved it, 
-    // or use defaults if empty.
-    const defaultMoods = [
-        { id: 1, isim: "Enerjik Hissetmek", emoji: "⚡", tags: ["enerjik", "soguk", "kafein"] },
-        { id: 2, isim: "Rahatlamak İstiyorum", emoji: "🧘‍♀️", tags: ["rahatlatici", "sicak"] }
-    ];
-    const moodsData = JSON.parse(localStorage.getItem('moodsDB')) || defaultMoods;
-    
-    const container = document.getElementById('mood-buttons-container');
+let menuData = [];
+let moodsData = [];
 
-    // Render Mood Buttons
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Fetch menu data from your backend API
+    fetch('/api/menu')
+        .then(res => res.json())
+        .then(data => {
+            menuData = data;
+        })
+        .catch(err => console.error("Menü yüklenemedi:", err));
+
+    // 2. Fetch moods from MongoDB database via your API
+    fetch('/api/moods')
+        .then(res => res.json())
+        .then(data => {
+            moodsData = data;
+            renderMoodButtons();
+        })
+        .catch(err => {
+            console.error("Ruh halleri veritabanından yüklenemedi:", err);
+            // Fallback in case of server error
+            const container = document.getElementById('mood-buttons-container');
+            container.innerHTML = '<p style="color:#888;">Ruh halleri yüklenirken bir hata oluştu.</p>';
+        });
+});
+
+function renderMoodButtons() {
+    const container = document.getElementById('mood-buttons-container');
+    container.innerHTML = ''; // Clear container before rendering
+
+    if (moodsData.length === 0) {
+        container.innerHTML = '<p style="color:#888;">Şu an için kayıtlı bir ruh hali bulunmuyor.</p>';
+        return;
+    }
+
     moodsData.forEach(mood => {
         const btn = document.createElement('button');
         btn.className = 'mood-btn';
-        btn.innerHTML = `<span>${mood.emoji}</span> ${mood.isim}`;
+        // Check if database provides _id (MongoDB) or id
+        const moodId = mood._id || mood.id; 
+        
+        btn.innerHTML = `<span>${mood.emoji || '✨'}</span> ${mood.isim}`;
         btn.onclick = () => selectMood(mood, btn);
         container.appendChild(btn);
     });
-});
-
-let menuData = [];
-
-// Fetch menu data from your existing backend API
-fetch('/api/menu')
-    .then(res => res.json())
-    .then(data => {
-        menuData = data;
-    })
-    .catch(err => console.error("Menü yüklenemedi:", err));
+}
 
 function selectMood(mood, clickedBtn) {
     // Check if the button is already active
@@ -127,12 +143,14 @@ function renderResults(products) {
 
     products.forEach(product => {
         const imgSrc = product.resim || "/images/americano.jpg";
-        let guncelMiktar = getCartQuantity(product.id);
+        // Check if MongoDB _id is being used
+        const productId = product._id || product.id;
+        let guncelMiktar = getCartQuantity(productId);
         
         const card = document.createElement('div');
         card.className = 'product-card';
         
-        // Vegan etiketi (opsiyonel olarak menu_scriptteki gibi ekleyebilirsiniz)
+        // Vegan etiketi
         let veganBadge = product.vegan ? `<span style="font-size: 12px; background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid #a5d6a7; margin-left: 10px;">🌱 Vegan</span>` : "";
 
         card.innerHTML = `
@@ -143,9 +161,9 @@ function renderResults(products) {
                 <div class="product-price">${product.fiyat} TL</div>
                 
                 <div class="item-controls" onclick="event.stopPropagation()">
-                    <button class="btn-minus" onclick="sepeteEkle(${product.id}, -1)">-</button>
-                    <span id="qty-${product.id}" class="item-qty">${guncelMiktar}</span>
-                    <button class="btn-plus" onclick="sepeteEkle(${product.id}, 1)">+</button>
+                    <button class="btn-minus" onclick="sepeteEkle('${productId}', -1)">-</button>
+                    <span id="qty-${productId}" class="item-qty">${guncelMiktar}</span>
+                    <button class="btn-plus" onclick="sepeteEkle('${productId}', 1)">+</button>
                 </div>
             </div>
         `;

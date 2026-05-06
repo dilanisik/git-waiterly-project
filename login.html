@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giriş Yap - Waiterly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --green: #2ecc71;
+        --green-dark: #27ae60;
+        --text-main: #2c3e50;
+        --text-muted: #7f8c8d;
+        --border-color: #eef2f5;
+        --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.08);
+      }
+
+      body { 
+        font-family: 'DM Sans', sans-serif; 
+        background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('/images/admin_bgrnd.jpg') no-repeat center center fixed;
+        background-size: cover;
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        height: 100vh; 
+        margin: 0; 
+        color: var(--text-main);
+      }
+
+      .login-box { 
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        padding: 48px 40px; 
+        border-radius: 24px; 
+        border: 1px solid rgba(255, 255, 255, 0.4); 
+        box-shadow: var(--shadow-soft); 
+        width: 100%; 
+        max-width: 380px; 
+        text-align: center; 
+      }
+
+      h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        margin-top: 0;
+        margin-bottom: 24px;
+        color: #1a1a1a;
+      }
+
+      .form-group { margin-bottom: 20px; text-align: left; }
+      label { display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+      
+      input { 
+        width: 100%; 
+        padding: 14px 16px; 
+        border: 2px solid var(--border-color); 
+        border-radius: 12px; 
+        font-size: 15px; 
+        font-family: 'DM Sans', sans-serif; 
+        background: #fcfcfc;
+        transition: all 0.2s ease;
+        box-sizing: border-box; 
+      }
+      input:focus { border-color: var(--green); outline: none; background: #fff; box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1); }
+      
+      .btn-login { 
+        width: 100%; 
+        padding: 16px; 
+        background: linear-gradient(135deg, var(--green), var(--green-dark)); 
+        color: white; 
+        border: none; 
+        border-radius: 12px; 
+        font-size: 16px; 
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700; 
+        cursor: pointer; 
+        margin-top: 10px; 
+        transition: all 0.2s ease; 
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+      }
+      .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3); }
+      
+      .error-msg { color: #e74c3c; font-size: 14px; font-weight: 600; margin-top: 15px; display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="login-box">
+      <h2>🔒 Personel Girişi</h2>
+      <div class="form-group">
+        <label>Kullanıcı Adı / E-posta</label>
+        <input type="text" id="username" placeholder="admin veya e-posta" />
+      </div>
+      <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="password" placeholder="1234" />
+      </div>
+      <button class="btn-login" onclick="login()">Giriş Yap</button>
+      <p id="error-msg" class="error-msg">Hatalı kullanıcı adı veya şifre!</p>
+    </div>
+
+    <script>
+      document.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') login();
+      });
+
+      function login() {
+        const u = document.getElementById("username").value;
+        const p = document.getElementById("password").value;
+
+        fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.href = data.role === "admin" ? "/admin" : "/staff.html";
+            } else {
+              document.getElementById("error-msg").style.display = "block";
+            }
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1507 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Paneli - Waiterly</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --green: #2ecc71;
+        --green-dark: #27ae60;
+        --green-light: #e8f8f5;
+        --black: #1a1a1a;
+        --text-main: #2c3e50;
+        --text-muted: #7f8c8d;
+        --bg-gray: #f8f9fa;
+        --border-color: #eef2f5;
+        --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 15px 50px rgba(46, 204, 113, 0.15);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)),
+          url("/images/admin_bgrnd.jpg") no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        padding: 40px 24px;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        border-radius: 24px;
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+
+        /* EKLENECEK KISIM: */
+        display: flex;
+        flex-direction: column; /* İçeriği yukarıdan aşağıya doğru sıralar */
+      }
+
+      /* HEADER */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 32px 48px 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: #ffffff;
+      }
+      .header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 32px;
+        color: var(--black);
+        letter-spacing: -0.5px;
+      }
+      .btn-logout {
+        background: #fff;
+        color: #e74c3c;
+        border: 2px solid #feece9;
+        padding: 10px 24px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      .btn-logout:hover {
+        background: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(231, 76, 60, 0.15);
+      }
+
+      /* NAV CARDS */
+      .admin-nav {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        padding: 40px 48px;
+        gap: 20px;
+        background: var(--bg-gray);
+      }
+      .nav-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      }
+      .nav-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+      }
+      .nav-card.active {
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        color: white;
+        box-shadow: 0 12px 30px rgba(46, 204, 113, 0.3);
+      }
+      .nav-thumb-wrap {
+        width: 100%;
+        height: 120px;
+        overflow: hidden;
+        background: #f4f6f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 44px;
+      }
+      .nav-card-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s ease;
+      }
+      .nav-card:hover .nav-card-thumb {
+        transform: scale(1.1);
+      }
+      .nav-card-label {
+        width: 100%;
+        padding: 16px 10px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+      }
+      .nav-card.active .nav-card-label {
+        color: white;
+      }
+
+      /* PANELS */
+      .admin-panel {
+        display: none;
+        background: #fff;
+      }
+      .admin-panel.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .panel-hero {
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+        display: block;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .panel-body {
+        padding: 40px 48px 48px;
+      }
+      .back-btn {
+        background: #f1f3f5;
+        color: var(--text-main);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 32px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+      .back-btn:hover {
+        background: #e2e6ea;
+        transform: translateX(-4px);
+      }
+      .panel-title {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        margin-bottom: 8px;
+        color: var(--black);
+      }
+
+      /* TABLES */
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid var(--border-color);
+      }
+      th {
+        background: #fbfbfc;
+        color: var(--text-muted) !important;
+        text-align: left;
+        padding: 18px 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid var(--border-color);
+      }
+      td {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        color: var(--text-main);
+        font-size: 14px;
+      }
+      td strong {
+        color: var(--black);
+        font-size: 15px;
+        font-weight: 700;
+      }
+      tbody tr {
+        transition: background 0.2s ease;
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover {
+        background: var(--bg-gray) !important;
+      }
+      .menu-thumb {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      /* BUTTONS */
+      .btn-delete {
+        background: #fff;
+        color: #e74c3c;
+        border: 1px solid #ffdbd7;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+        transition: all 0.2s ease;
+      }
+      .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
+      }
+
+      /* FORMS */
+      .add-form {
+        background: #ffffff;
+        padding: 36px;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        margin-top: 40px;
+        display: grid;
+        gap: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+      }
+      .add-form h3 {
+        margin: 0;
+        font-size: 20px;
+        font-family: "Playfair Display", serif;
+        color: var(--black);
+        border-bottom: 2px solid var(--green-light);
+        padding-bottom: 12px;
+        display: inline-block;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .form-group label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      input,
+      textarea,
+      select {
+        padding: 14px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: "DM Sans", sans-serif;
+        transition: all 0.2s ease;
+        background: #fcfcfc;
+        color: var(--text-main);
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--green);
+        outline: none;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+      }
+      .btn-submit {
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        margin-top: 10px;
+      }
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      /* IMAGE UPLOAD AREA */
+      .image-upload-area {
+        border: 2px dashed #d1d8e0;
+        border-radius: 16px;
+        padding: 32px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #f8f9fa;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .image-upload-area:hover {
+        border-color: var(--green);
+        background: var(--green-light);
+      }
+      .upload-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+      .upload-text {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .upload-text strong {
+        color: var(--green);
+        font-weight: 600;
+      }
+      .image-upload-preview {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin: 0 auto 12px;
+        display: block;
+        border: 3px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      /* EMPLOYEES */
+      .employees-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 16px;
+      }
+      .employee-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        position: relative;
+      }
+      .employee-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--green-light);
+      }
+      .employee-edit-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 2;
+      }
+      .employee-card:hover .employee-edit-overlay {
+        opacity: 1;
+      }
+      .employee-edit-btn {
+        background: var(--black);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s;
+      }
+      .employee-edit-btn:hover {
+        transform: scale(1.05);
+      }
+      .employee-photo-wrap {
+        width: 100%;
+        height: 220px;
+        background: #f0f2f5;
+        overflow: hidden;
+        position: relative;
+      }
+      .employee-photo-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+      .employee-card:hover .employee-photo-wrap img {
+        transform: scale(1.08);
+      }
+      .employee-photo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 72px;
+        background: linear-gradient(135deg, var(--green-light), #c8e6c9);
+      }
+      .employee-role-badge {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(4px);
+        color: var(--black);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 1;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .employee-info {
+        padding: 24px;
+      }
+      .employee-name {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        color: var(--black);
+        margin-bottom: 4px;
+      }
+      .employee-meta {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+      }
+      .employee-details {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 16px;
+        margin-bottom: 16px;
+      }
+      .employee-detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: var(--text-main);
+      }
+      .employee-detail-row .icon {
+        font-size: 16px;
+        opacity: 0.7;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .status-active {
+        background: var(--green-light);
+        color: var(--green-dark);
+      }
+      .status-inactive {
+        background: #fce4ec;
+        color: #c62828;
+      }
+
+      /* MODAL */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        width: 560px;
+        max-width: 95vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+        transform: translateY(30px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .modal-overlay.open .modal {
+        transform: translateY(0) scale(1);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .modal-title {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        color: var(--black);
+      }
+      .modal-close {
+        background: #f1f3f5;
+        color: var(--text-main);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+      .modal-close:hover {
+        background: #ffdbd7;
+        color: #e74c3c;
+        transform: rotate(90deg);
+      }
+      .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .modal-photo-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 16px;
+        border: 1px dashed #d1d8e0;
+      }
+      .modal-photo-display {
+        width: 88px;
+        height: 88px;
+        border-radius: 16px;
+        border: 3px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        background: #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .modal-photo-display img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .modal-photo-info {
+        flex: 1;
+      }
+      .modal-photo-info span {
+        display: block;
+        font-weight: 700;
+        font-size: 15px;
+        margin-bottom: 4px;
+        color: var(--black);
+      }
+      .modal-photo-info small {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+      .btn-upload-photo {
+        margin-top: 12px;
+        background: white;
+        color: var(--black);
+        border: 1px solid var(--border-color);
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s;
+      }
+      .btn-upload-photo:hover {
+        border-color: var(--green);
+        color: var(--green);
+      }
+      .btn-upload-photo input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        font-size: 0;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .btn-modal-save {
+        flex: 2;
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+      }
+      .btn-modal-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+      }
+      .btn-modal-cancel {
+        flex: 1;
+        background: #f1f3f5;
+        color: var(--text-main);
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-modal-cancel:hover {
+        background: #e2e6ea;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="header">
+        <h1>👨‍🍳 Waiterly Yönetim</h1>
+        <button class="btn-logout" onclick="logout()">Çıkış Yap</button>
+      </div>
+
+      <div class="admin-nav" id="admin-nav">
+        <div id="btn-menu" class="nav-card" onclick="switchPanel('menu')">
+          <div class="nav-thumb-wrap">
+            <img
+              class="nav-card-thumb"
+              src="/images/menu_admin.jpg"
+              alt="Menü"
+            />
+          </div>
+          <div class="nav-card-label">📋 Menü Düzenleme</div>
+        </div>
+        <div id="btn-orders" class="nav-card" onclick="switchPanel('orders')">
+          <div class="nav-thumb-wrap">
+            <img
+              class="nav-card-thumb"
+              src="/images/order_history.jpg"
+              alt="Sipariş"
+            />
+          </div>
+          <div class="nav-card-label">🔔 Sipariş Geçmişi</div>
+        </div>
+        <div
+          id="btn-requests"
+          class="nav-card"
+          onclick="switchPanel('requests')"
+        >
+          <div class="nav-thumb-wrap">
+            <img
+              class="nav-card-thumb"
+              src="/images/server-providing-service-at-restaurant.jpg"
+              alt="İstek"
+            />
+          </div>
+          <div class="nav-card-label">💬 İstek Ayarları</div>
+        </div>
+        <div
+          id="btn-employees"
+          class="nav-card"
+          onclick="switchPanel('employees')"
+        >
+          <div class="nav-thumb-wrap">
+            <img
+              class="nav-card-thumb"
+              src="/images/workers_.jpg"
+              alt="Çalışanlar"
+            />
+          </div>
+          <div class="nav-card-label">👥 Çalışan Yönetimi</div>
+        </div>
+        <div
+          id="btn-algorithms"
+          class="nav-card"
+          onclick="switchPanel('algorithms')"
+        >
+          <div
+            class="nav-thumb-wrap"
+            style="
+              background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+              color: #1976d2;
+            "
+          >
+            ⚙️
+          </div>
+          <div class="nav-card-label">Algoritmaları Yönet</div>
+        </div>
+      </div>
+
+      <!-- 📋 MENÜ PANELİ -->
+      <div id="panel-menu" class="admin-panel">
+        <img class="panel-hero" src="/images/menu_admin.jpg" alt="Menü" />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">
+            ⬅ Seçim Ekranına Dön
+          </button>
+          <div class="panel-title">🍴 Mevcut Menü</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Resim</th>
+                <th>ID</th>
+                <th>İsim</th>
+                <th>Kategori</th>
+                <th>Fiyat</th>
+                <th>Ayrıntılar</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="admin-menu-list"></tbody>
+          </table>
+
+          <div class="add-form">
+            <h3>Yeni Ürün Ekle</h3>
+
+            <div class="form-group">
+              <label>Ürün Görseli</label>
+              <div
+                class="image-upload-area"
+                id="upload-area"
+                onclick="document.getElementById('add-resim-file').click()"
+              >
+                <input
+                  type="file"
+                  id="add-resim-file"
+                  accept="image/*"
+                  style="display: none"
+                  onchange="previewMenuImage(event)"
+                />
+                <div class="upload-inner" id="upload-placeholder">
+                  <div class="upload-icon">📷</div>
+                  <div class="upload-text">
+                    Resim seçmek için tıklayın<br /><strong
+                      >veya sürükleyip bırakın</strong
+                    >
+                  </div>
+                </div>
+                <div
+                  id="upload-preview-wrap"
+                  style="display: none"
+                  class="upload-inner"
+                >
+                  <img
+                    id="upload-preview-img"
+                    class="image-upload-preview"
+                    src=""
+                    alt="Önizleme"
+                  />
+                </div>
+              </div>
+              <input
+                type="text"
+                id="add-resim"
+                placeholder="Veya manuel dosya yolu: /images/urun.jpg"
+                style="margin-top: 8px"
+              />
+            </div>
+
+            <div class="grid-3">
+              <div class="form-group">
+                <label>Ürün Adı *</label>
+                <input type="text" id="add-isim" placeholder="Örn: Latte" />
+              </div>
+              <div class="form-group">
+                <label>Kategori *</label>
+                <input
+                  type="text"
+                  id="add-kategori"
+                  placeholder="Örn: Sıcak İçecekler"
+                />
+              </div>
+              <div class="form-group">
+                <label>Fiyat (TL) *</label>
+                <input type="number" id="add-fiyat" placeholder="130" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>İçerik (Malzemeler, virgülle ayırın) *</label>
+              <input
+                type="text"
+                id="add-icerik"
+                placeholder="Örn: Espresso, Süt, Köpük"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Açıklama (Saf Karamel vb. - İsteğe Bağlı)</label>
+              <input
+                type="text"
+                id="add-aciklama"
+                placeholder="Örn: Özel çekirdeklerimizden gelen yoğun aroma."
+              />
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Vegan mı?</label>
+                <select id="add-vegan">
+                  <option value="false">Hayır</option>
+                  <option value="true">Evet</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Alerjenler (Virgülle ayırın)</label>
+                <input
+                  type="text"
+                  id="add-alerjenler"
+                  placeholder="Örn: Süt, Kafein"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Gizli Etiketler (Ruh hali/Tags, virgülle ayırın)</label>
+              <input
+                type="text"
+                id="add-etiketler"
+                placeholder="Örn: enerjik, tatli, sicak_icecek"
+              />
+            </div>
+
+            <button class="btn-submit" onclick="addNewItem()">
+              ✅ Menüye Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔔 SİPARİŞ GEÇMİŞİ PANELİ -->
+      <div id="panel-orders" class="admin-panel">
+        <img
+          class="panel-hero"
+          src="/images/order_history.jpg"
+          alt="Siparişler"
+        />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">
+            ⬅ Seçim Ekranına Dön
+          </button>
+          <div class="panel-title">✅ Sipariş Kayıtları</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Ürünler</th>
+                <th>Toplam</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="admin-order-list"></tbody>
+          </table>
+
+          <div class="add-form" style="margin-top: 40px">
+            <h3>📝 Manuel Sipariş Oluştur</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Ürünler</label
+                ><input
+                  type="text"
+                  id="manual-urunler"
+                  placeholder="2x Latte, 1x Brownie"
+                />
+              </div>
+              <div class="form-group">
+                <label>Tutar (TL)</label
+                ><input type="number" id="manual-tutar" placeholder="230" />
+              </div>
+            </div>
+            <button class="btn-submit" onclick="addManualOrder()">
+              Siparişi Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 💬 İSTEK PANELİ -->
+      <div id="panel-requests" class="admin-panel">
+        <img
+          class="panel-hero"
+          src="/images/server-providing-service-at-restaurant.jpg"
+          alt="İstekler"
+        />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">
+            ⬅ Seçim Ekranına Dön
+          </button>
+          <div class="panel-title" style="margin-bottom: 24px">
+            💬 Hazır İstek Listesi
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>İstek Metni</th>
+                <th style="text-align: right">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="admin-request-list"></tbody>
+          </table>
+          <div class="add-form">
+            <h3>Yeni Hazır İstek Ekle</h3>
+            <div class="form-group">
+              <label>İstek Cümlesi</label>
+              <input
+                type="text"
+                id="add-request-text"
+                placeholder="Örn: Tuz alabilir miyiz?"
+              />
+            </div>
+            <button class="btn-submit" onclick="addNewRequest()">
+              Listeye Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 👥 ÇALIŞAN PANELİ -->
+      <div id="panel-employees" class="admin-panel">
+        <img
+          class="panel-hero"
+          src="/images/workers_.jpg"
+          alt="Çalışanlar"
+          style="object-position: center 30%"
+        />
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">
+            ⬅ Seçim Ekranına Dön
+          </button>
+          <div class="panel-title" style="margin-bottom: 20px">
+            👥 Çalışan Listesi
+            <span
+              style="
+                font-family: &quot;DM Sans&quot;, sans-serif;
+                font-size: 14px;
+                color: var(--text-muted);
+                font-weight: 500;
+              "
+              >(Karta tıklayarak düzenleyin)</span
+            >
+          </div>
+          <div class="employees-grid" id="employees-grid"></div>
+
+          <div class="add-form">
+            <h3>Yeni Çalışan Ekle</h3>
+
+            <div class="modal-photo-section">
+              <div class="modal-photo-display" id="new-emp-photo-display">
+                👤
+              </div>
+              <div class="modal-photo-info">
+                <span>Profil Fotoğrafı</span>
+                <small>JPG veya PNG, maks 5MB</small><br />
+                <label class="btn-upload-photo">
+                  📁 Fotoğraf Seç
+                  <input
+                    type="file"
+                    id="new-emp-photo-file"
+                    accept="image/*"
+                    onchange="previewNewEmpPhoto(event)"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div class="modal-grid-2">
+              <div class="form-group">
+                <label>Ad Soyad *</label
+                ><input type="text" id="new-emp-ad" placeholder="Ad Soyad" />
+              </div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group">
+                <label>Rol / Pozisyon *</label
+                ><input
+                  type="text"
+                  id="new-emp-rol"
+                  placeholder="Örn: Garson"
+                />
+              </div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group">
+                <label>Telefon</label
+                ><input
+                  type="text"
+                  id="new-emp-telefon"
+                  placeholder="+90 5xx xxx xx xx"
+                />
+              </div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group">
+                <label>Başlangıç Tarihi</label
+                ><input
+                  type="text"
+                  id="new-emp-baslangic"
+                  placeholder="Örn: Nisan 2025"
+                />
+              </div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group">
+                <label>E-posta</label
+                ><input
+                  type="email"
+                  id="new-emp-email"
+                  placeholder="ad.soyad@waiterly.com"
+                />
+              </div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group">
+                <label>Şifre *</label
+                ><input
+                  type="password"
+                  id="new-emp-password"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Durum</label>
+              <select id="new-emp-durum">
+                <option value="active">✅ Aktif</option>
+                <option value="inactive">⏸️ İzinli</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Notlar</label
+              ><textarea
+                id="new-emp-notlar"
+                rows="2"
+                placeholder="Ek bilgi veya notlar..."
+              ></textarea>
+            </div>
+            <button class="btn-submit" onclick="addNewEmployee()">
+              👤 Çalışanı Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⚙️ ALGORİTMALARI YÖNET PANELİ -->
+      <div id="panel-algorithms" class="admin-panel">
+        <div
+          style="
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            border-bottom: 1px solid var(--border-color);
+          "
+        >
+          ⚙️
+        </div>
+        <div class="panel-body">
+          <button class="back-btn" onclick="goBackToNav()">
+            ⬅ Seçim Ekranına Dön
+          </button>
+          <div class="panel-title" style="text-align: center">
+            ⚙️ Algoritmaları Yönet
+          </div>
+          <p
+            style="
+              color: var(--text-muted);
+              font-size: 15px;
+              margin-bottom: 32px;
+              text-align: center;
+            "
+          >
+            Düzenlemek istediğiniz algoritmayı seçin.
+          </p>
+
+          <div
+            class="admin-nav"
+            style="
+              padding: 0;
+              background: transparent;
+              grid-template-columns: repeat(2, 1fr);
+              max-width: 600px;
+              gap: 24px;
+              margin: 0 auto;
+            "
+          >
+            <div class="nav-card" onclick="switchPanel('moods')">
+              <div
+                class="nav-thumb-wrap"
+                style="
+                  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+                  color: #8e24aa;
+                "
+              >
+                🎭
+              </div>
+              <div class="nav-card-label">Ruh Hali Algoritması</div>
+            </div>
+            <div class="nav-card" onclick="switchPanel('ingredients')">
+              <div
+                class="nav-thumb-wrap"
+                style="
+                  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+                  color: #2e7d32;
+                "
+              >
+                🥗
+              </div>
+              <div class="nav-card-label">Malzeme Dışlama</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎭 RUH HALİ PANELİ -->
+      <div id="panel-moods" class="admin-panel">
+        <div
+          style="
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            border-bottom: 1px solid var(--border-color);
+          "
+        >
+          🎭
+        </div>
+        <div class="panel-body">
+          <button class="back-btn" onclick="switchPanel('algorithms')">
+            ⬅ Algoritmalara Dön
+          </button>
+          <div class="panel-title">🎭 Ruh Hali Algoritması Yönetimi</div>
+          <p
+            style="
+              color: var(--text-muted);
+              font-size: 15px;
+              margin-bottom: 24px;
+            "
+          >
+            Müşterilerin seçeceği ruh hallerini ve bu ruh halleriyle eşleşecek
+            ürün etiketlerini belirleyin.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Ruh Hali Adı</th>
+                <th>Emoji</th>
+                <th>Aranacak Etiketler (Ürünlerdeki)</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="admin-mood-list"></tbody>
+          </table>
+
+          <div class="add-form" id="mood-add-form">
+            <h3>Yeni Ruh Hali Ekle</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Ruh Hali Adı *</label>
+                <input
+                  type="text"
+                  id="add-mood-isim"
+                  placeholder="Örn: Enerjik Hissetmek İstiyorum"
+                />
+              </div>
+              <div class="form-group">
+                <label>Emoji</label>
+                <input type="text" id="add-mood-emoji" placeholder="Örn: ⚡" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Eşleşecek Etiketler (Virgülle ayırın) *</label>
+              <input
+                type="text"
+                id="add-mood-etiketler"
+                placeholder="Örn: enerjik, kafein_bombasi"
+              />
+            </div>
+            <button class="btn-submit" onclick="addNewMood()">
+              ✅ Ruh Hali Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🥗 MALZEME DIŞLAMA PANELİ -->
+      <div id="panel-ingredients" class="admin-panel">
+        <div
+          style="
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            border-bottom: 1px solid var(--border-color);
+          "
+        >
+          🥗
+        </div>
+        <div class="panel-body">
+          <button class="back-btn" onclick="switchPanel('algorithms')">
+            ⬅ Algoritmalara Dön
+          </button>
+          <div class="panel-title">
+            🥗 İstenmeyen Malzeme / Kısıtlama Yönetimi
+          </div>
+          <p
+            style="
+              color: var(--text-muted);
+              font-size: 15px;
+              margin-bottom: 24px;
+            "
+          >
+            Müşterilerin filtrelemek isteyebileceği içerikleri belirleyin.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>İçerik Adı</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="admin-ingredient-list"></tbody>
+          </table>
+
+          <div class="add-form" id="ingredient-add-form">
+            <h3>Yeni İçerik Kısıtlaması Ekle</h3>
+            <div class="form-group">
+              <label>İçerik Adı (Menüden Seçin) *</label>
+              <select id="add-ing-isim">
+                <option value="">-- Yükleniyor --</option>
+              </select>
+            </div>
+            <button class="btn-submit" onclick="addNewIngredient()">
+              ✅ Kısıtlama Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÇALIŞAN DÜZENLEME MODALI -->
+    <div class="modal-overlay" id="emp-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">✏️ Çalışan Düzenle</div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-form">
+          <div class="modal-photo-section">
+            <div class="modal-photo-display" id="modal-photo-display">👤</div>
+            <div class="modal-photo-info">
+              <span>Profil Fotoğrafı</span>
+              <small>JPG veya PNG, maks 5MB</small><br />
+              <label class="btn-upload-photo">
+                📁 Fotoğraf Seç
+                <input
+                  type="file"
+                  id="modal-photo-file"
+                  accept="image/*"
+                  onchange="previewModalPhoto(event)"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-grid-2">
+            <div class="form-group">
+              <label>Ad Soyad *</label
+              ><input type="text" id="modal-ad" placeholder="Ad Soyad" />
+            </div>
+          </div>
+          <div class="modal-grid-2">
+            <div class="form-group">
+              <label>Rol / Pozisyon *</label
+              ><input type="text" id="modal-rol" placeholder="Örn: Garson" />
+            </div>
+          </div>
+          <div class="modal-grid-2">
+            <div class="form-group">
+              <label>Telefon</label
+              ><input
+                type="text"
+                id="modal-telefon"
+                placeholder="+90 5xx xxx xx xx"
+              />
+            </div>
+          </div>
+          <div class="modal-grid-2">
+            <div class="form-group">
+              <label>Başlangıç Tarihi</label
+              ><input
+                type="text"
+                id="modal-baslangic"
+                placeholder="Örn: Mart 2021"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>E-posta</label
+            ><input
+              type="email"
+              id="modal-email"
+              placeholder="ad.soyad@waiterly.com"
+            />
+          </div>
+          <div class="form-group">
+            <label>Durum</label>
+            <select id="modal-durum">
+              <option value="active">✅ Aktif</option>
+              <option value="inactive">⏸️ İzinli</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+            <input
+              type="password"
+              id="modal-password"
+              placeholder="Yeni şifre girin"
+            />
+          </div>
+          <div class="form-group">
+            <label>Notlar</label
+            ><textarea
+              id="modal-notlar"
+              rows="2"
+              placeholder="Ek bilgi veya notlar..."
+            ></textarea>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal()">
+              İptal
+            </button>
+            <button class="btn-modal-save" onclick="saveEmployee()">
+              💾 Kaydet
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SİLME ONAY MODALI -->
+    <div class="modal-overlay" id="delete-modal">
+      <div
+        class="modal"
+        style="width: 400px; text-align: center; padding: 32px"
+      >
+        <div style="font-size: 48px; margin-bottom: 16px">⚠️</div>
+        <div class="modal-title" style="margin-bottom: 12px; font-size: 22px">
+          Emin misiniz?
+        </div>
+        <p
+          style="color: var(--text-muted); font-size: 15px; margin-bottom: 24px"
+        >
+          Bu öğeyi silmek istediğinize emin misiniz? Bu işlem kalıcıdır ve geri
+          alınamaz.
+        </p>
+        <div class="modal-actions" style="margin-top: 0">
+          <button class="btn-modal-cancel" onclick="closeDeleteModal()">
+            İptal
+          </button>
+          <button
+            class="btn-modal-save"
+            id="btn-confirm-delete"
+            onclick="confirmDelete()"
+            style="
+              background: #e74c3c;
+              box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+            "
+          >
+            🗑️ Sil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

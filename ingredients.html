@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>İçeriğe Göre Bul - Waiterly</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <style>
+      /* COLOR PALETTE & VARIABLES */
+      :root {
+        --bg-color: #FDFBF7;
+        --text-dark: #2C2A29;
+        --text-muted: #6B6561;
+        --accent-green: #2E7D32;
+        --accent-green-hover: #1B5E20;
+        --accent-orange: #F39C12;
+        --accent-orange-hover: #E67E22;
+        --card-bg: #FFFFFF;
+        --border-color: rgba(0, 0, 0, 0.08);
+      }
+
+      body {
+        font-family: 'DM Sans', Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(circle at top left, rgba(46, 125, 50, 0.03), transparent 50%);
+        color: var(--text-dark);
+        overflow-x: hidden;
+        padding: 80px 20px 160px; /* Increased padding to avoid overlapping floating buttons */
+      }
+
+      /* TYPOGRAPHY */
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+        margin-top: 0;
+      }
+      p {
+        color: var(--text-muted);
+        font-size: 16px;
+        margin-bottom: 30px;
+      }
+
+      button {
+        font-family: 'DM Sans', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* FLOATING BACK BUTTON (ANA MENÜYE DÖN) */
+      .floating-back-btn {
+        position: fixed;
+        top: 25px;
+        left: 25px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--text-dark);
+        padding: 12px 24px;
+        font-size: 15px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        cursor: pointer;
+        z-index: 9000;
+        transition: all 0.3s ease;
+      }
+      .floating-back-btn:hover {
+        background: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      }
+      
+      /* FLOATING SUBMIT BUTTON (TAMAM) */
+      .floating-submit-btn {
+        position: fixed;
+        bottom: 90px; /* Placed just above the cart button */
+        right: 25px;
+        background: linear-gradient(135deg, #4CAF50, var(--accent-green));
+        color: white;
+        font-weight: 700;
+        padding: 16px 40px;
+        font-size: 18px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.25), 0 4px 10px rgba(46, 125, 50, 0.15);
+        z-index: 9000;
+        transition: all 0.3s ease;
+      }
+      .floating-submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(46, 125, 50, 0.35), 0 6px 15px rgba(46, 125, 50, 0.2);
+        background: linear-gradient(135deg, #43A047, var(--accent-green-hover));
+      }
+
+      /* FLOATING CART BUTTON (SEPET BUTONU) */
+      .floating-cart-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-hover));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 16px 28px;
+        font-size: 16px;
+        font-weight: 700;
+        box-shadow: 0 8px 20px rgba(243, 156, 18, 0.3), 0 4px 10px rgba(243, 156, 18, 0.2);
+        cursor: pointer;
+        z-index: 9000;
+        transition: all 0.3s ease;
+      }
+      .floating-cart-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(243, 156, 18, 0.4), 0 6px 15px rgba(243, 156, 18, 0.25);
+      }
+
+      /* INGREDIENT GRID STYLES */
+      #ingredients-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 20px;
+        max-width: 650px;
+        margin: 30px auto 40px;
+        padding: 10px;
+      }
+      .ingredient-card {
+        background: var(--card-bg);
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 20px 10px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .ingredient-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06), 0 2px 5px rgba(0,0,0,0.03);
+      }
+      .ingredient-card:active { 
+        transform: scale(0.96); 
+      }
+      .ingredient-card.selected {
+        border-color: #4CAF50;
+        background-color: #F1F8E9;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.15);
+      }
+      .ingredient-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      }
+      .ingredient-name {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-dark);
+        word-wrap: break-word;
+      }
+
+      /* MENU ITEM STYLES */
+      .menu-item {
+        margin: 15px auto;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--card-bg);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .menu-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      }
+      .menu-item-top { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+      }
+      .item-thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-left: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      }
+      .item-controls {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed #E0E0E0; 
+      }
+
+      /* MODAL OVERLAYS */
+      .item-modal-overlay, .product-info-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(44, 42, 41, 0.4);
+        z-index: 9998;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .product-info-overlay {
+        z-index: 9999; 
+      }
+
+      /* MODAL CARDS */
+      .item-modal-card, .product-info-card {
+        background: var(--card-bg);
+        width: 100%;
+        max-width: 500px;
+        border-radius: 24px;
+        margin: 40px auto;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      .item-modal-card {
+        padding: 30px;
+      }
+
+      .modal-header-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+      }
+      .modal-header-desc {
+        color: var(--text-muted); 
+        font-size: 15px; 
+        border-bottom: 1px solid #eee; 
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+
+      .product-info-img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+      }
+
+      .modal-close-btn {
+        position: absolute;
+        top: 15px; right: 15px;
+        width: 40px; height: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text-dark);
+        border: none; border-radius: 50%;
+        cursor: pointer; 
+        font-weight: bold; 
+        font-size: 24px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease, transform 0.2s ease;
+        z-index: 10;
+      }
+      .modal-close-btn:hover {
+        background: #fff;
+        transform: scale(1.05);
+      }
+
+      /* PRODUCT INFO DETAILS */
+      .product-details-container {
+        padding: 25px; 
+        text-align: left;
+      }
+      #modal-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        margin-top: 0; 
+        margin-bottom: 8px;
+      }
+      .rating-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .modal-rating {
+        color: #F39C12; 
+        font-weight: 700; 
+        font-size: 16px;
+      }
+      #modal-price {
+        font-size: 20px; 
+        font-weight: 700; 
+        color: var(--accent-green); 
+      }
+      #modal-text {
+        color: var(--text-muted); 
+        font-size: 15px; 
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      
+      .info-box {
+        background: var(--bg-color); 
+        padding: 15px; 
+        border-radius: 12px; 
+        margin-top: 15px;
+        border: 1px solid var(--border-color);
+      }
+      .info-box-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 6px;
+      }
+      #modal-ingredients {
+        font-size: 14px; 
+        color: var(--text-muted); 
+        line-height: 1.5;
+      }
+
+      .allergen-box {
+        background: #FFF8E1;
+        padding: 15px; 
+        border-radius: 12px; 
+        margin-top: 15px; 
+        display: none;
+        border: 1px solid #FFE082;
+      }
+      .allergen-title {
+        font-size: 14px; 
+        font-weight: 700;
+        color: #D35400;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      #modal-allergens {
+        font-size: 14px; 
+        color: #E67E22; 
+        line-height: 1.5;
+      }
+
+      /* RESPONSIVE ADJUSTMENTS */
+      @media (max-width: 768px) {
+        .floating-back-btn { top: 15px; left: 15px; padding: 10px 18px; font-size: 14px; }
+        .floating-submit-btn { bottom: 85px; right: 15px; padding: 14px 30px; font-size: 16px; }
+        .floating-cart-btn { bottom: 15px; right: 15px; padding: 14px 22px; }
+      }
+    </style>
+  </head>
+  <body>
+    
+    <a href="real.html" class="floating-back-btn">← Ana Menüye Dön</a>
+
+    <h1>İçeriğe Göre Bul 🥑</h1>
+    <p>Canınız ne çekiyor? İstediğiniz malzemeleri seçin.</p>
+
+    <div id="ingredients-grid"></div>
+
+    <button class="floating-submit-btn" onclick="showMatchingProducts()">Tamam ✅</button>
+
+    <button class="floating-cart-btn" onclick="window.location.href='/cart.html'">🛒 Sepete Git</button>
+
+    <!-- ÜRÜN LİSTESİ MODALI -->
+    <div id="products-modal-overlay" class="item-modal-overlay" onclick="closeProductsModal(event)">
+      <div class="item-modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeProductsModal()">&times;</button>
+        <h2 class="modal-header-title">Sizin İçin Seçtiklerimiz</h2>
+        <p class="modal-header-desc">Seçtiğiniz malzemeleri içeren ürünler aşağıdadır.</p>
+        
+        <div id="matched-menu-list"></div>
+      </div>
+    </div>
+
+    <!-- ÜRÜN BİLGİ MODALI -->
+    <div id="product-info-overlay" class="product-info-overlay" onclick="closeItemModal(event)">
+      <div class="product-info-card" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeItemModal()">&times;</button>
+        <img id="modal-img" class="product-info-img" src="" alt="">
+        <div class="product-details-container">
+          <h2 id="modal-title"></h2>
+          
+          <div class="rating-price-row">
+            <div class="modal-rating">⭐ <span id="modal-rating"></span></div>
+            <div id="modal-price"></div>
+          </div>
+          
+          <p id="modal-text"></p>
+          
+          <div class="info-box">
+            <div class="info-box-title">İçindekiler:</div>
+            <div id="modal-ingredients"></div>
+          </div>
+
+          <div id="modal-allergens-container" class="allergen-box">
+            <div class="allergen-title">⚠️ Alerjen Uyarısı:</div>
+            <div id="modal-allergens"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="ingredients.js"></script>
+  </body>
+</html>

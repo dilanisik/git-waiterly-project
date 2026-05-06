@@ -236,8 +236,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
+  // --- YENİ: SİPARİŞİ ONAYLAMA (Sipariş Alındı) ---
   else if (req.url === "/api/orders/confirm" && req.method === "POST") {
     const data = await getBody(req);
+
+    // session içindeki siparisler dizisinden sadece ilgili index'in durumunu güncelle
     const setQuery = {};
     setQuery[`siparisler.${data.orderIndex}.durum`] = "onaylandı";
 
@@ -247,8 +250,10 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
+  // --- YENİ: MÜŞTERİDEN GARSONA TALEP GÖNDERME ---
   else if (req.url === "/api/session/request" && req.method === "POST") {
     const data = await getBody(req);
+
     console.log("🔔 [TEST] Müşteriden talep geldi! Veri:", data);
 
     const result = await db
@@ -266,11 +271,14 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
+  // --- YENİ: GARSONUN TALEBİ ONAYLAMASI (Tamamlandı) ---
   else if (
     req.url === "/api/session/request/confirm" &&
     req.method === "POST"
   ) {
     const data = await getBody(req);
+
+    // MongoDB'nin $pull komutu, belirtilen metni diziden siler
     await db
       .collection("sessions")
       .updateOne(
@@ -281,10 +289,29 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
-  else if (req.url.startsWith("/api/")) {
+  // --- YENİ: MENÜDEN ÜRÜN SİLME ---
+  else if (req.url === "/api/menu/delete" && req.method === "POST") {
+    const data = await getBody(req);
+
+    // Veritabanından gelen ID ile eşleşen ürünü sil
+    await db.collection("menu").deleteOne({ id: data.id });
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true }));
+  } else if (req.url.startsWith("/api/")) {
     const parts = req.url.split("/");
     const collectionName = parts[2];
-    const itemId = parts[3] ? parseInt(parts[3]) : null;
+    const rawId = parts[3];
+
+    // YENİ: Hem MongoDB'nin karmaşık _id'sini hem de basit id'yi anlayan mantık
+    let query = null;
+    if (rawId) {
+      if (rawId.length === 24) {
+        query = { _id: new ObjectId(rawId) }; // Compass'tan manuel eklenenler için
+      } else {
+        query = { id: parseInt(rawId) }; // Sistem içinden eklenenler için
+      }
+    }
 
     const validCollectionsAPI = [
       "menu",
@@ -294,6 +321,7 @@ const server = http.createServer(async (req, res) => {
       "ingredients",
       "tables",
       "sessions",
+      "order_history",
     ];
 
     if (validCollectionsAPI.includes(collectionName)) {
@@ -313,14 +341,14 @@ const server = http.createServer(async (req, res) => {
         await col.insertOne(newItem);
         res.writeHead(201, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, item: newItem }));
-      } else if (req.method === "PUT" && itemId) {
+      } else if (req.method === "PUT" && query) {
         const updateData = await getBody(req);
-        delete updateData._id;
-        await col.updateOne({ id: itemId }, { $set: updateData });
+        delete updateData._id; // _id'nin güncellenmesini engelle
+        await col.updateOne(query, { $set: updateData });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true }));
-      } else if (req.method === "DELETE" && itemId) {
-        await col.deleteOne({ id: itemId });
+      } else if (req.method === "DELETE" && query) {
+        await col.deleteOne(query);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true }));
       }
@@ -329,6 +357,7 @@ const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify({ error: "Endpoint not found" }));
     }
   }
+  // --- IMAGES ---
   else if (req.url.startsWith("/images/")) {
     const fileName = req.url.replace("/images/", "");
     fs.readFile(path.join(__dirname, "images", fileName), (err, data) => {
@@ -352,10 +381,6 @@ const server = http.createServer(async (req, res) => {
     res.end("404 Not Found");
   }
 });
-
-async function connectForTesting(testDb) {
-  db = testDb;
-}
 
 async function startApp() {
   try {
@@ -446,10 +471,4 @@ async function startApp() {
   }
 }
 
-// Only run automatically if executed directly via Node
-if (require.main === module) {
-  startApp();
-}
-
-// Export for Jest
-module.exports = { server, startApp, connectForTesting };
+startApp();

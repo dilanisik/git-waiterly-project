@@ -4,37 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sepetim - Waiterly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 30px;
+            background-color: #f9f9f9;
+            padding-bottom: 100px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: white;
+            transition: background-color 0.2s;
+            margin: 5px;
+        }
+        button:hover { background-color: #f0f0f0; }
+
+        /* FİŞ (RECEIPT) TASARIMI */
+        .fis-konteynir {
+            background-color: transparent !important;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 500px;
+            filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.2));
+            font-family: "Roboto Mono", monospace;
+            font-weight: 700;
+            color: #222;
+            text-align: left;
+        }
+
+        .arkaplan-sandwich {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+        }
+        .bg-top { height: 150px; background: url("/images/top.png") no-repeat center top; background-size: 100% 100%; }
+        .bg-mid { flex-grow: 1; background: url("/images/middle.png") repeat-y center top; background-size: 100% auto; }
+        .bg-bot { height: 100px; background: url("/images/bottom.png") no-repeat center bottom; background-size: 100% 100%; }
+
+        #fis-icerik {
+            position: relative;
+            z-index: 10;
+            padding: 100px 30px 40px 30px; /* Üstteki grafik için boşluk */
+        }
+
+        .kategori-baslik {
+            text-align: center;
+            border-bottom: 2px solid #dcd0b9;
+            margin: 25px 0 10px 0;
+            font-size: 13px;
+            letter-spacing: 1px;
+            color: #8b7d6b;
+            padding-bottom: 5px;
+        }
+
+        .fis-satir {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 14px;
+            padding: 5px 0;
+            flex-wrap: wrap;
+        }
+        .fis-item-name { flex-shrink: 0; }
+        .fis-dots {
+            flex-grow: 1;
+            border-bottom: 2px dotted #ccc;
+            margin: 0 10px;
+            position: relative;
+            top: -4px;
+        }
+        .fis-item-price { flex-shrink: 0; text-align: right; }
+        
+        .cart-controls {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+            align-items: center;
+        }
+        .cart-controls button {
+            padding: 2px 12px;
+            font-size: 16px;
+            border-radius: 4px;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+    </style>
 </head>
-<body style="font-family: Arial; text-align: center; margin-top: 50px;">
-    <div id="history-section" style="display:none; background-color: #f8f9fa; padding: 15px; margin:0 auto 30px auto; width: 80%; max-width: 400px; border-radius: 8px; border: 2px solid #ddd;"> 
-        <h2 style="color:#555; margin-top:0; font-size: 18px;">📜 Önceki Siparişleriniz</h2>
-        <div id="history-list"></div>
-        <hr style="border: 1px solid #ccc;">
-        <h3 style="margin-bottom: 0; color: #d9534f;">Toplam Harcama: <span id="total-spent">0</span> TL</h3>
+<body>
+    <h2>Sepetim ve Adisyon</h2>
+
+    <!-- FİŞ GÖRÜNÜMÜNDE SEPET VE SİPARİŞ LİSTESİ -->
+    <div class="fis-konteynir">
+        <div class="arkaplan-sandwich">
+            <div class="bg-top"></div>
+            <div class="bg-mid"></div>
+            <div class="bg-bot"></div>
+        </div>
+        <div id="fis-icerik">
+            <div id="cart-list">
+                <p style="text-align:center;">Yükleniyor...</p>
+            </div>
+        </div>
     </div>
-    
-    <div id="cart-list"></div>
 
     <br>
-
-    <button onclick="siparisVer()">Sipariş Ver 🛎️</button>
-    <button onclick="clearCart()">Sepeti Temizle</button>
-    <button onclick="window.location.href='/'">Anasayfaya Dön 🏠</button>
+    
+    <!-- YÖNETİM VE AKSİYON BUTONLARI -->
+    <button onclick="siparisVer()" style="background-color: #4CAF50; color: white; border-color: #4CAF50;">Sipariş Ver 🛎️</button>
+    <br><br>
+    
+    <!-- EKLENEN ÖDEME BUTONU -->
+    <!-- cart.html snippet -->
+    <button id="odeme" onclick="baslatOdemeSureci()" 
+            style="background-color: #ff9800; color: white; border-color: #ff9800; font-weight: bold;">
+        Ödeme Yapmak İstiyorum 💳
+    </button>
+    
+    <button onclick="clearCart()">Sepeti Temizle 🗑️</button>
     <button onclick="window.location.href='/menu_script.html'">Menüye Dön 🍕</button>
+    <button onclick="window.location.href='/'">Anasayfaya Dön 🏠</button>
+    
 
-    <div id="onayKutusu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); text-align: center;">
+    <!-- ONAY VE BİLDİRİM KUTULARI -->
+    <div id="onayKutusu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); z-index: 1000;">
         <p>Sepeti tamamen temizlemek istediğinize emin misiniz?</p>
-        <button onclick="sepetiSilEvet()" style="background: rgb(0, 0, 0); color: white; padding: 10px 20px; border: none; border-radius: 5px;">Evet, Sil</button>
-        <button onclick="sepetiSilHayir()" style="background: rgb(242, 0, 0); color: white; padding: 10px 20px; border: none; border-radius: 5px;">Hayır, Vazgeç</button>
+        <button onclick="sepetiSilEvet()" style="background: rgb(0, 0, 0); color: white;">Evet, Sil</button>
+        <button onclick="sepetiSilHayir()" style="background: rgb(242, 0, 0); color: white;">Hayır, Vazgeç</button>
     </div>
 
     <div id="bildirimKutusu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
-        <div style="background-color: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 90%; width: 400px; box-shadow: 0px 5px 15px rgba(0,0,0,0.3);">
+        <div style="background-color: white; padding: 30px; border-radius: 10px; width: 350px;">
             <h3 style="margin-top: 0; color: #4CAF50;">✅ İletildi!</h3>
-            <p id="bildirimMesaji" style="font-size: 16px; margin: 20px 0; line-height: 1.5; text-align: center;">Mesaj</p>
-            <button onclick="bildirimiKapat()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%;">Harika!</button>
+            <p id="bildirimMesaji" style="font-size: 16px; margin: 20px 0;">Mesaj</p>
+            <button onclick="bildirimiKapat()" style="background-color: #4CAF50; color: white; width: 100%;">Harika!</button>
         </div>
     </div>
+
+    <!-- Payment & Review Modal -->
+  <div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center;">
+      <div style="background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 450px; text-align: center; font-family: sans-serif;">
+          <div id="paymentStep">
+              <h3>Ödeme Yöntemi Seçin</h3>
+              <p>Lütfen tercih ettiğiniz ödeme yöntemini seçiniz:</p>
+              <button onclick="handlePaymentSelection('Nakit')" style="background: #4CAF50; color: white; margin: 10px;">💵 Nakit</button>
+              <button onclick="handlePaymentSelection('Kredi Kartı')" style="background: #2196F3; color: white; margin: 10px;">💳 Kredi Kartı</button>
+          </div>
+
+          <div id="reviewStep" style="display: none;">
+              <h3>Deneyiminizi Puanlayın</h3>
+              <p>Sipariş ettiğiniz ürünleri değerlendirmek ister misiniz?</p>
+              <div id="reviewProductList" style="max-height: 200px; overflow-y: auto; margin: 15px 0; text-align: left; border: 1px solid #eee; padding: 10px;">
+                  <!-- Ürünler buraya yüklenecek -->
+              </div>
+              <button onclick="submitReviews()" style="background: #4CAF50; color: white; width: 100%; padding: 10px; margin-top: 10px;">Değerlendirmeyi Tamamla</button>
+              <button onclick="finalCloseSession()" style="background: #ccc; width: 100%; padding: 10px; margin-top: 5px; border: none;">Değerlendirme Yapmadan Kapat</button>
+          </div>
+      </div>
+  </div>
 
     <script src="cart.js"></script>
 </body>

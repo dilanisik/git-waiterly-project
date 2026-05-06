@@ -43,6 +43,8 @@ function bildirimiKapat() {
 // YENİ: Hem DB siparişlerini hem Local sepeti Fiş Tasarımıyla çizer
 async function renderCart() {
   const list = document.getElementById("cart-list");
+  if (!list) return; // 👈 EĞER SAYFADA SEPET YOKSA ÇÖKMEYİ ENGELLER, DURUR.
+
   list.innerHTML = "<p style='text-align: center;'>Adisyon Yükleniyor...</p>";
 
   let cart = getSafeCart();
@@ -99,9 +101,9 @@ async function renderCart() {
                 
                 <!-- Sepet Kontrolleri -->
                 <div class="cart-controls">
-                    <button onclick="removeFromCart(${item.id})" style="border-color: #ff4c4c; color: #ff4c4c;">-</button>
-                    <span style="font-size: 16px; width: 25px; text-align: center; color:#333;">${item.quantity}</span>
-                    <button onclick="addToCart(${item.id})" style="border-color: #4CAF50; color: #4CAF50;">+</button>
+                    <button onclick="removeFromCart('${item._id || item.id}')" style="border-color: #ff4c4c; color: #ff4c4c;">-</button>
+<span style="font-size: 16px; width: 25px; text-align: center; color:#333;">${item.quantity}</span>
+<button onclick="addToCart('${item._id || item.id}')" style="border-color: #4CAF50; color: #4CAF50;">+</button>
                 </div>
             </div>`;
     });
@@ -175,7 +177,9 @@ async function siparisVer() {
 
 function addToCart(id) {
   let cart = getSafeCart();
-  let item = cart.find((c) => String(c.id) === String(id)); // String çevrimi garantiye almak için
+  let item = cart.find(
+    (c) => String(c._id) === String(id) || String(c.id) === String(id),
+  );
   if (item) {
     item.quantity++;
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -185,16 +189,19 @@ function addToCart(id) {
 
 function removeFromCart(id) {
   let cart = getSafeCart();
-  let item = cart.find((c) => String(c.id) === String(id));
+  let item = cart.find(
+    (c) => String(c._id) === String(id) || String(c.id) === String(id),
+  );
   if (item) {
     item.quantity--;
     if (item.quantity <= 0)
-      cart = cart.filter((c) => String(c.id) !== String(id));
+      cart = cart.filter(
+        (c) => String(c._id) !== String(id) && String(c.id) !== String(id),
+      );
     localStorage.setItem("cart", JSON.stringify(cart));
     renderCart();
   }
 }
-
 function clearCart() {
   let cart = getSafeCart();
   if (cart.length === 0) {

@@ -1,159 +1,178 @@
 // --- SEPET İŞLEMLERİ (Menü Script ile Birebir Aynı) ---
 function getSafeCart() {
-    try {
-        let cart = JSON.parse(localStorage.getItem("cart"));
-        if (!Array.isArray(cart)) return [];
-        return cart;
-    } catch (e) {
-        return [];
-    }
+  try {
+    let cart = JSON.parse(localStorage.getItem("cart"));
+    if (!Array.isArray(cart)) return [];
+    return cart;
+  } catch (e) {
+    return [];
+  }
 }
-
 function getCartQuantity(id) {
-    let cart = getSafeCart();
-    let item = cart.find(c => c.id === id);
-    return item ? item.quantity : 0;
+  let cart = getSafeCart();
+  // Hem _id hem de id alanlarını açıkça kontrol ediyoruz
+  let item = cart.find(
+    (c) => String(c._id) === String(id) || String(c.id) === String(id),
+  );
+  return item ? item.quantity : 0;
 }
 
 function sepeteEkle(id, change) {
-    let cart = getSafeCart();
-    let existingItem = cart.find(c => c.id === id);
+  let cart = getSafeCart();
+  let existingItem = cart.find(
+    (c) => String(c._id) === String(id) || String(c.id) === String(id),
+  );
 
-    if (change > 0) {
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            // menuData üzerinden ürünü bul
-            let menuItem = menuData.find(m => m.id === id);
-            if (menuItem) {
-                cart.push({ ...menuItem, quantity: 1 });
-            }
-        }
-    } else if (change < 0 && existingItem) {
-        existingItem.quantity -= 1;
-        if (existingItem.quantity <= 0) {
-            cart = cart.filter(c => c.id !== id);
-        }
+  if (change > 0) {
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      // menuData içinde ararken de iki ID türüne de bakıyoruz
+      let menuItem = menuData.find(
+        (m) => String(m._id) === String(id) || String(m.id) === String(id),
+      );
+      if (menuItem) {
+        cart.push({ ...menuItem, quantity: 1 });
+      } else {
+        console.warn("Hata: Ürün veritabanında bulunamadı!", id);
+      }
     }
+  } else if (change < 0 && existingItem) {
+    existingItem.quantity -= 1;
+    if (existingItem.quantity <= 0) {
+      // Çıkarırken her iki ID türüyle de eşleşMEYENLERİ tutuyoruz
+      cart = cart.filter(
+        (c) => String(c._id) !== String(id) && String(c.id) !== String(id),
+      );
+    }
+  }
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    
-    // UI'daki miktarı dinamik olarak güncelle
-    const qtyElement = document.getElementById(`qty-${id}`);
-    if (qtyElement) {
-        qtyElement.innerText = getCartQuantity(id);
-    }
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  // UI Güncellemesi (Ekranda sayıyı anında değiştirmek için)
+  const qtyElement = document.getElementById(`qty-${id}`);
+  if (qtyElement) {
+    qtyElement.innerText = getCartQuantity(id);
+  }
 }
 // -----------------------------------------------------
 
 let menuData = [];
 let moodsData = [];
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Fetch menu data from your backend API
-    fetch('/api/menu')
-        .then(res => res.json())
-        .then(data => {
-            menuData = data;
-        })
-        .catch(err => console.error("Menü yüklenemedi:", err));
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Fetch menu data from your backend API
+  fetch("/api/menu")
+    .then((res) => res.json())
+    .then((data) => {
+      menuData = data;
+    })
+    .catch((err) => console.error("Menü yüklenemedi:", err));
 
-    // 2. Fetch moods from MongoDB database via your API
-    fetch('/api/moods')
-        .then(res => res.json())
-        .then(data => {
-            moodsData = data;
-            renderMoodButtons();
-        })
-        .catch(err => {
-            console.error("Ruh halleri veritabanından yüklenemedi:", err);
-            // Fallback in case of server error
-            const container = document.getElementById('mood-buttons-container');
-            container.innerHTML = '<p style="color:#888;">Ruh halleri yüklenirken bir hata oluştu.</p>';
-        });
+  // 2. Fetch moods from MongoDB database via your API
+  fetch("/api/moods")
+    .then((res) => res.json())
+    .then((data) => {
+      moodsData = data;
+      renderMoodButtons();
+    })
+    .catch((err) => {
+      console.error("Ruh halleri veritabanından yüklenemedi:", err);
+      // Fallback in case of server error
+      const container = document.getElementById("mood-buttons-container");
+      container.innerHTML =
+        '<p style="color:#888;">Ruh halleri yüklenirken bir hata oluştu.</p>';
+    });
 });
 
 function renderMoodButtons() {
-    const container = document.getElementById('mood-buttons-container');
-    container.innerHTML = ''; // Clear container before rendering
+  const container = document.getElementById("mood-buttons-container");
+  container.innerHTML = ""; // Clear container before rendering
 
-    if (moodsData.length === 0) {
-        container.innerHTML = '<p style="color:#888;">Şu an için kayıtlı bir ruh hali bulunmuyor.</p>';
-        return;
-    }
+  if (moodsData.length === 0) {
+    container.innerHTML =
+      '<p style="color:#888;">Şu an için kayıtlı bir ruh hali bulunmuyor.</p>';
+    return;
+  }
 
-    moodsData.forEach(mood => {
-        const btn = document.createElement('button');
-        btn.className = 'mood-btn';
-        // Check if database provides _id (MongoDB) or id
-        const moodId = mood._id || mood.id; 
-        
-        btn.innerHTML = `<span>${mood.emoji || '✨'}</span> ${mood.isim}`;
-        btn.onclick = () => selectMood(mood, btn);
-        container.appendChild(btn);
-    });
+  moodsData.forEach((mood) => {
+    const btn = document.createElement("button");
+    btn.className = "mood-btn";
+    // Check if database provides _id (MongoDB) or id
+    const moodId = mood._id || mood.id;
+
+    btn.innerHTML = `<span>${mood.emoji || "✨"}</span> ${mood.isim}`;
+    btn.onclick = () => selectMood(mood, btn);
+    container.appendChild(btn);
+  });
 }
 
 function selectMood(mood, clickedBtn) {
-    // Check if the button is already active
-    const isActive = clickedBtn.classList.contains('active');
-    
-    // UI Update: Remove active class from all buttons
-    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  // Check if the button is already active
+  const isActive = clickedBtn.classList.contains("active");
 
-    const resultsContainer = document.getElementById('results-container');
-    const title = document.getElementById('results-title');
+  // UI Update: Remove active class from all buttons
+  document
+    .querySelectorAll(".mood-btn")
+    .forEach((b) => b.classList.remove("active"));
 
-    // If it was already active, we unselect it and clear the page
-    if (isActive) {
-        resultsContainer.innerHTML = '<p style="grid-column: 1/-1; color:#888;">Lütfen bir ruh hali seçin.</p>';
-        title.style.display = 'none';
-        return; 
-    }
+  const resultsContainer = document.getElementById("results-container");
+  const title = document.getElementById("results-title");
 
-    // Otherwise, activate the clicked button
-    clickedBtn.classList.add('active');
+  // If it was already active, we unselect it and clear the page
+  if (isActive) {
+    resultsContainer.innerHTML =
+      '<p style="grid-column: 1/-1; color:#888;">Lütfen bir ruh hali seçin.</p>';
+    title.style.display = "none";
+    return;
+  }
 
-    // Filter Logic
-    const moodTagsArray = mood.tags || mood.etiketler || [];
-    const targetTags = moodTagsArray.map(t => t.toLowerCase());
-    
-    const matchedProducts = menuData.filter(product => {
-        const productTagsArray = product.tags || product.etiketler;
-        if (!productTagsArray || !Array.isArray(productTagsArray)) return false;
-        
-        const productTags = productTagsArray.map(t => t.toLowerCase());
-        return productTags.some(tag => targetTags.includes(tag));
-    });
+  // Otherwise, activate the clicked button
+  clickedBtn.classList.add("active");
 
-    renderResults(matchedProducts);
+  // Filter Logic
+  const moodTagsArray = mood.tags || mood.etiketler || [];
+  const targetTags = moodTagsArray.map((t) => t.toLowerCase());
+
+  const matchedProducts = menuData.filter((product) => {
+    const productTagsArray = product.tags || product.etiketler;
+    if (!productTagsArray || !Array.isArray(productTagsArray)) return false;
+
+    const productTags = productTagsArray.map((t) => t.toLowerCase());
+    return productTags.some((tag) => targetTags.includes(tag));
+  });
+
+  renderResults(matchedProducts);
 }
 
 function renderResults(products) {
-    const resultsContainer = document.getElementById('results-container');
-    const title = document.getElementById('results-title');
-    
-    resultsContainer.innerHTML = '';
-    title.style.display = 'block';
+  const resultsContainer = document.getElementById("results-container");
+  const title = document.getElementById("results-title");
 
-    if (products.length === 0) {
-        resultsContainer.innerHTML = '<p style="grid-column: 1/-1; color:#888;">Bu ruh haline uygun ürün bulunamadı. Lütfen başka bir ruh hali seçin.</p>';
-        return;
-    }
+  resultsContainer.innerHTML = "";
+  title.style.display = "block";
 
-    products.forEach(product => {
-        const imgSrc = product.resim || "/images/americano.jpg";
-        // Check if MongoDB _id is being used
-        const productId = product._id || product.id;
-        let guncelMiktar = getCartQuantity(productId);
-        
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        
-        // Vegan etiketi
-        let veganBadge = product.vegan ? `<span style="font-size: 12px; background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid #a5d6a7; margin-left: 10px;">🌱 Vegan</span>` : "";
+  if (products.length === 0) {
+    resultsContainer.innerHTML =
+      '<p style="grid-column: 1/-1; color:#888;">Bu ruh haline uygun ürün bulunamadı. Lütfen başka bir ruh hali seçin.</p>';
+    return;
+  }
 
-        card.innerHTML = `
+  products.forEach((product) => {
+    const imgSrc = product.resim || "/images/americano.jpg";
+    // Check if MongoDB _id is being used
+    const productId = product._id || product.id;
+    let guncelMiktar = getCartQuantity(productId);
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    // Vegan etiketi
+    let veganBadge = product.vegan
+      ? `<span style="font-size: 12px; background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid #a5d6a7; margin-left: 10px;">🌱 Vegan</span>`
+      : "";
+
+    card.innerHTML = `
             <img src="${imgSrc}" class="product-img" alt="${product.isim}" onerror="this.src='/images/americano.jpg'">
             <div class="product-info">
                 <h3 class="product-title">${product.isim} ${veganBadge}</h3>
@@ -167,18 +186,26 @@ function renderResults(products) {
                 </div>
             </div>
         `;
-        resultsContainer.appendChild(card);
-    });
+    resultsContainer.appendChild(card);
+  });
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        getSafeCart, getCartQuantity, sepeteEkle,
-        renderMoodButtons, selectMood, renderResults,
-        // Export internal data for testing purposes
-        getMenuData: () => menuData,
-        setMenuData: (data) => { menuData = data; },
-        getMoodsData: () => moodsData,
-        setMoodsData: (data) => { moodsData = data; }
-    };
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    getSafeCart,
+    getCartQuantity,
+    sepeteEkle,
+    renderMoodButtons,
+    selectMood,
+    renderResults,
+    // Export internal data for testing purposes
+    getMenuData: () => menuData,
+    setMenuData: (data) => {
+      menuData = data;
+    },
+    getMoodsData: () => moodsData,
+    setMoodsData: (data) => {
+      moodsData = data;
+    },
+  };
 }

@@ -2,24 +2,48 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [yaldır-yaldır]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    
+    # Optional: Add a MongoDB service if your tests are integration-based
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Or your specific version
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --save-dev jest supertest mongodb-memory-server cypress jest-environment-jsdom
+      
+
       - name: Run tests
-        run: echo "Tests passed"
+        run: npx jest --coverage
+        env:
+          # Match these to your test configuration
+          MONGODB_URI: mongodb://localhost:27017/waiterly_test
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

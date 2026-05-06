@@ -235,6 +235,59 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true }));
   }
+  // --- YENİ: SİPARİŞİ ONAYLAMA (Sipariş Alındı) ---
+  else if (req.url === "/api/orders/confirm" && req.method === "POST") {
+    const data = await getBody(req);
+
+    // session içindeki siparisler dizisinden sadece ilgili index'in durumunu güncelle
+    const setQuery = {};
+    setQuery[`siparisler.${data.orderIndex}.durum`] = "onaylandı";
+
+    await db
+      .collection("sessions")
+      .updateOne({ hashcode: data.hashcode }, { $set: setQuery });
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true }));
+  }
+  // --- YENİ: MÜŞTERİDEN GARSONA TALEP GÖNDERME ---
+  else if (req.url === "/api/session/request" && req.method === "POST") {
+    const data = await getBody(req);
+
+    console.log("🔔 [TEST] Müşteriden talep geldi! Veri:", data);
+
+    const result = await db
+      .collection("sessions")
+      .updateOne(
+        { hashcode: data.hashcode, durum: "aktif" },
+        { $push: { talepler: data.talep } },
+      );
+
+    console.log(
+      "💾 [TEST] Veritabanı güncellendi! Değişen kayıt sayısı:",
+      result.modifiedCount,
+    );
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true }));
+  }
+  // --- YENİ: GARSONUN TALEBİ ONAYLAMASI (Tamamlandı) ---
+  else if (
+    req.url === "/api/session/request/confirm" &&
+    req.method === "POST"
+  ) {
+    const data = await getBody(req);
+
+    // MongoDB'nin $pull komutu, belirtilen metni diziden siler
+    await db
+      .collection("sessions")
+      .updateOne(
+        { hashcode: data.hashcode, durum: "aktif" },
+        { $pull: { talepler: data.talep } },
+      );
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true }));
+  }
 
   // --- BURASI ÇOK ÖNEMLİ: API ENDPOINTLERİ ---
   else if (req.url.startsWith("/api/")) {
@@ -249,6 +302,8 @@ const server = http.createServer(async (req, res) => {
       "requests",
       "moods",
       "ingredients",
+      "tables",
+      "sessions",
     ];
 
     if (validCollectionsAPI.includes(collectionName)) {

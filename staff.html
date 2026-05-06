@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waiterly - Garson Paneli</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --green: #2ecc71;
+        --green-dark: #27ae60;
+        --green-light: #e8f8f5;
+        --black: #1a1a1a;
+        --text-main: #2c3e50;
+        --text-muted: #7f8c8d;
+        --bg-gray: #f8f9fa;
+        --border-color: #eef2f5;
+        --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 20px 50px rgba(0, 0, 0, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)),
+          url("/images/admin_bgrnd.jpg") no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        padding: 40px 24px;
+        color: var(--text-main);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        border-radius: 24px;
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 32px 48px 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: #ffffff;
+      }
+      .header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 32px;
+        color: var(--black);
+        letter-spacing: -0.5px;
+      }
+
+      .btn-logout {
+        background: #fff;
+        color: #e74c3c;
+        border: 2px solid #feece9;
+        padding: 10px 24px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      .btn-logout:hover {
+        background: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+        transform: translateY(-2px);
+      }
+
+      .panel-body {
+        padding: 60px 48px;
+        background: var(--bg-gray);
+        min-height: 600px;
+      }
+
+      /* YENİ: Top-Down Restoran Izgarası */
+      .table-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 50px; /* Sandalyeler için daha fazla boşluk */
+        justify-items: center;
+      }
+
+      /* YENİ: Masa Tasarımı (Yuvarlak Hatlı) */
+      .table-card {
+        background: white;
+        border-radius: 40px; /* Masayı yuvarlak/modern yapar */
+        width: 100%;
+        max-width: 220px;
+        min-height: 200px;
+        padding: 30px 20px;
+        text-align: center;
+        box-shadow:
+          0 10px 30px rgba(0, 0, 0, 0.06),
+          inset 0 -4px 0 rgba(0, 0, 0, 0.03);
+        cursor: pointer;
+        position: relative;
+        transition:
+          transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.4s;
+        border: 3px solid transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 2; /* Masayı sandalyelerin üstünde tutar */
+      }
+      .table-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: var(--shadow-hover);
+      }
+      .table-card h2 {
+        font-family: "Playfair Display", serif;
+        margin: 0 0 8px 0;
+        font-size: 32px;
+        color: var(--black);
+      }
+
+      /* YENİ: Sandalye Mekaniği */
+      .chair {
+        position: absolute;
+        background: #e2e8f0;
+        border-radius: 20px;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: -1; /* Masanın altına saklanırlar */
+      }
+      .chair-v {
+        width: 60px;
+        height: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+      } /* Dikey */
+      .chair-h {
+        width: 25px;
+        height: 60px;
+        top: 50%;
+        transform: translateY(-50%);
+      } /* Yatay */
+
+      .chair-top {
+        top: -10px;
+      }
+      .chair-bottom {
+        bottom: -10px;
+      }
+      .chair-left {
+        left: -10px;
+      }
+      .chair-right {
+        right: -10px;
+      }
+
+      /* BOŞ MASA (Sandalyeler itili) */
+      .status-empty {
+        background: #fbfbfc;
+        border-color: #e2e8f0;
+        border-style: dashed;
+      }
+
+      /* DOLU MASA (Sandalyeler çekilmiş ve dolu) */
+      .status-active {
+        background: #ffffff;
+        border-color: var(--green);
+      }
+      .status-active .chair {
+        background: var(--text-main);
+      } /* Müşteri oturdu, sandalyeler karardı */
+      .status-active .chair-top {
+        top: -22px;
+      } /* Sandalye geriye çekildi */
+      .status-active .chair-bottom {
+        bottom: -22px;
+      }
+      .status-active .chair-left {
+        left: -22px;
+      }
+      .status-active .chair-right {
+        right: -22px;
+      }
+
+      /* Kırmızı Ping */
+      .ping {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 22px;
+        height: 22px;
+        background-color: #e74c3c;
+        border-radius: 50%;
+        display: none;
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 1);
+        animation: pulse-red 2s infinite;
+      }
+      .has-request .ping {
+        display: block;
+      }
+      @keyframes pulse-red {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+        }
+        70% {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+        }
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+        }
+      }
+
+      /* İstek Rozetleri */
+      .card-requests {
+        margin-top: 16px;
+        width: 100%;
+        font-size: 13px;
+        color: #e74c3c;
+        background: #fff;
+        padding: 10px;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid #feece9;
+        border-top: 3px solid #e74c3c;
+      }
+      .req-badge {
+        display: inline-block;
+        background: #e74c3c;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: 4px;
+      }
+
+      /* MODAL (Hiç değişmedi) */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        width: 800px;
+        max-width: 95vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+        transform: translateY(30px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .modal-overlay.open .modal {
+        transform: translateY(0) scale(1);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .modal-title {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: var(--black);
+      }
+      .modal-close {
+        background: #f1f3f5;
+        color: var(--text-main);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+      .modal-close:hover {
+        background: #ffdbd7;
+        color: #e74c3c;
+        transform: rotate(90deg);
+      }
+      .orders-split-view {
+        display: flex;
+        gap: 24px;
+      }
+      .orders-col {
+        flex: 1;
+        background: #fbfbfc;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+      }
+      .orders-col h3 {
+        font-family: "DM Sans", sans-serif;
+        font-size: 16px;
+        border-bottom: 2px solid;
+        padding-bottom: 12px;
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+      .order-item {
+        background: white;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      }
+      .confirm-btn {
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 12px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2);
+      }
+      .confirm-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="header">
+        <h1>👨‍🍳 Waiterly Garson Paneli</h1>
+        <button class="btn-logout" onclick="logout()">Çıkış Yap</button>
+      </div>
+
+      <div class="panel-body">
+        <div class="table-grid" id="table-grid">
+          <!-- Tables will be injected here by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- The Popup Modal -->
+    <div
+      class="modal-overlay"
+      id="order-modal"
+      onclick="if (event.target === this) closeModal();"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modal-table-title">Masa Detayı</h2>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div id="modal-requests" style="margin-bottom: 24px"></div>
+
+        <div class="orders-split-view">
+          <div class="orders-col">
+            <h3 style="color: #e74c3c; border-color: #ffdbd7">
+              🔴 Yeni Siparişler
+            </h3>
+            <div id="unconfirmed-orders"></div>
+          </div>
+          <div class="orders-col">
+            <h3
+              style="color: var(--green-dark); border-color: var(--green-light)"
+            >
+              🟢 Hazırlananlar
+            </h3>
+            <div id="confirmed-orders"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/staff.js"></script>
+    <script>
+      function closeModal() {
+        document.getElementById("order-modal").classList.remove("open");
+      }
+      const originalOpenModal = openModal;
+      openModal = function (masaNo, session) {
+        originalOpenModal(masaNo, session);
+        document.getElementById("order-modal").style.display = "";
+        document.getElementById("order-modal").classList.add("open");
+      };
+    </script>
+  </body>
+</html>

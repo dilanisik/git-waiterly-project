@@ -78,8 +78,10 @@ function renderEmployees() {
 
     grid.innerHTML += `
       <div class="employee-card" onclick="openEditModal('${empId}')">
-        <div class="employee-edit-overlay"><button class="employee-edit-btn">✏️ Düzenle</button></div>
-        <div class="employee-photo-wrap">${photoHtml}<span class="employee-role-badge">${emp.rol}</span></div>
+        <div class="employee-photo-wrap">
+          <div class="employee-edit-overlay"><button class="employee-edit-btn">✏️ Düzenle</button></div>
+          ${photoHtml}<span class="employee-role-badge">${emp.rol}</span>
+        </div>
         <div class="employee-info">
           <div class="employee-name">${emp.ad}</div>
           <div class="employee-meta">ID #${empId} · Başlangıç: ${emp.baslangic || "-"}</div>
@@ -93,7 +95,6 @@ function renderEmployees() {
       </div>`;
   });
 }
-
 function openEditModal(id) {
   const emp = employeesData.find(
     (e) => String(e.id) === String(id) || String(e._id) === String(id),
@@ -123,9 +124,16 @@ function closeModal() {
 
 function saveEmployee() {
   const password = document.getElementById("modal-password").value;
+
+  // Eksik olan tüm verileri (telefon, başlangıç, vb.) objeye ekledik
   const updatedData = {
     ad: document.getElementById("modal-ad").value.trim(),
     rol: document.getElementById("modal-rol").value.trim(),
+    telefon: document.getElementById("modal-telefon").value.trim(),
+    email: document.getElementById("modal-email").value.trim(),
+    baslangic: document.getElementById("modal-baslangic").value.trim(),
+    durum: document.getElementById("modal-durum").value,
+    notlar: document.getElementById("modal-notlar").value.trim(),
   };
 
   if (password) updatedData.password = password;
@@ -156,16 +164,20 @@ function previewNewEmpPhoto(event) {
 function addNewEmployee() {
   const ad = document.getElementById("new-emp-ad").value.trim();
   const rol = document.getElementById("new-emp-rol").value.trim();
-  const password = document.getElementById("new-emp-password").value; // Added
+  const password = document.getElementById("new-emp-password").value;
 
   if (!ad || !rol || !password) return alert("Ad, Rol ve Şifre zorunludur!");
 
+  // Eksik olan tüm kutucuk verilerini çekiyoruz
   const newEmp = {
     ad,
     rol,
+    password,
+    telefon: document.getElementById("new-emp-telefon").value.trim(),
     email: document.getElementById("new-emp-email").value.trim(),
-    password, // Added
-    // ... rest of your existing properties
+    baslangic: document.getElementById("new-emp-baslangic").value.trim(),
+    durum: document.getElementById("new-emp-durum").value,
+    notlar: document.getElementById("new-emp-notlar").value.trim(),
     foto: newEmpPhotoBase64 || null,
   };
 
@@ -175,10 +187,18 @@ function addNewEmployee() {
     body: JSON.stringify(newEmp),
   }).then(() => {
     alert("✅ Çalışan eklendi!");
+    // Formu temizle
+    document
+      .querySelectorAll(
+        "#panel-employees .add-form input, #panel-employees .add-form textarea",
+      )
+      .forEach((input) => (input.value = ""));
+    document.getElementById("new-emp-photo-display").innerHTML = "👤";
+    newEmpPhotoBase64 = null;
+
     loadAdminEmployees();
   });
 }
-
 function deleteEmployee(id) {
   openDeleteModal(id, (targetId) => {
     fetch(`/api/users/${targetId}`, { method: "DELETE" }).then(() =>

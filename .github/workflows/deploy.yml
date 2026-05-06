@@ -30,7 +30,7 @@ jobs:
       
 
       - name: Run tests
-        run: npm test
+        run: npx jest --coverage
         env:
           # Match these to your test configuration
           MONGODB_URI: mongodb://localhost:27017/waiterly_test

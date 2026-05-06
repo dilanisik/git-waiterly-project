@@ -23,7 +23,6 @@
 
       body {
         font-family: 'DM Sans', sans-serif;
-        /* Added a dark gradient overlay to make the foreground pop */
         background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('/images/admin_bgrnd.jpg') no-repeat center center fixed;
         background-size: cover;
         min-height: 100vh;
@@ -44,6 +43,10 @@
         overflow: hidden;
         width: 100%;
         border: 1px solid rgba(255, 255, 255, 0.4);
+        
+        /* EKLENECEK KISIM: */
+        display: flex;
+        flex-direction: column; /* İçeriği yukarıdan aşağıya doğru sıralar */
       }
 
       /* HEADER */
@@ -286,6 +289,7 @@
           <div class="nav-thumb-wrap" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); color:#1976d2;">⚙️</div>
           <div class="nav-card-label">Algoritmaları Yönet</div>
         </div>
+
       </div>
 
       <!-- 📋 MENÜ PANELİ -->
@@ -436,13 +440,22 @@
 
             <div class="modal-grid-2">
               <div class="form-group"><label>Ad Soyad *</label><input type="text" id="new-emp-ad" placeholder="Ad Soyad" /></div>
+            </div>
+            <div class="modal-grid-2">
               <div class="form-group"><label>Rol / Pozisyon *</label><input type="text" id="new-emp-rol" placeholder="Örn: Garson" /></div>
             </div>
             <div class="modal-grid-2">
               <div class="form-group"><label>Telefon</label><input type="text" id="new-emp-telefon" placeholder="+90 5xx xxx xx xx" /></div>
+            </div>
+            <div class="modal-grid-2">
               <div class="form-group"><label>Başlangıç Tarihi</label><input type="text" id="new-emp-baslangic" placeholder="Örn: Nisan 2025" /></div>
             </div>
-            <div class="form-group"><label>E-posta</label><input type="email" id="new-emp-email" placeholder="ad.soyad@waiterly.com" /></div>
+            <div class="modal-grid-2">
+              <div class="form-group"><label>E-posta</label><input type="email" id="new-emp-email" placeholder="ad.soyad@waiterly.com" /></div>
+            </div>
+            <div class="modal-grid-2">
+              <div class="form-group"><label>Şifre *</label><input type="password" id="new-emp-password" placeholder="••••••••" /></div>
+            </div>
             <div class="form-group">
               <label>Durum</label>
               <select id="new-emp-durum">
@@ -565,10 +578,14 @@
 
           <div class="modal-grid-2">
             <div class="form-group"><label>Ad Soyad *</label><input type="text" id="modal-ad" placeholder="Ad Soyad" /></div>
+          </div>
+          <div class="modal-grid-2">
             <div class="form-group"><label>Rol / Pozisyon *</label><input type="text" id="modal-rol" placeholder="Örn: Garson" /></div>
           </div>
           <div class="modal-grid-2">
             <div class="form-group"><label>Telefon</label><input type="text" id="modal-telefon" placeholder="+90 5xx xxx xx xx" /></div>
+          </div>
+          <div class="modal-grid-2">
             <div class="form-group"><label>Başlangıç Tarihi</label><input type="text" id="modal-baslangic" placeholder="Örn: Mart 2021" /></div>
           </div>
           <div class="form-group"><label>E-posta</label><input type="email" id="modal-email" placeholder="ad.soyad@waiterly.com" /></div>
@@ -579,11 +596,28 @@
               <option value="inactive">⏸️ İzinli</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+            <input type="password" id="modal-password" placeholder="Yeni şifre girin" />
+          </div>
           <div class="form-group"><label>Notlar</label><textarea id="modal-notlar" rows="2" placeholder="Ek bilgi veya notlar..."></textarea></div>
           <div class="modal-actions">
             <button class="btn-modal-cancel" onclick="closeModal()">İptal</button>
             <button class="btn-modal-save" onclick="saveEmployee()">💾 Kaydet</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SİLME ONAY MODALI -->
+    <div class="modal-overlay" id="delete-modal">
+      <div class="modal" style="width: 400px; text-align: center; padding: 32px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+        <div class="modal-title" style="margin-bottom: 12px; font-size: 22px;">Emin misiniz?</div>
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 24px;">Bu öğeyi silmek istediğinize emin misiniz? Bu işlem kalıcıdır ve geri alınamaz.</p>
+        <div class="modal-actions" style="margin-top: 0;">
+          <button class="btn-modal-cancel" onclick="closeDeleteModal()">İptal</button>
+          <button class="btn-modal-save" id="btn-confirm-delete" style="background: #e74c3c; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);">🗑️ Sil</button>
         </div>
       </div>
     </div>

@@ -1,11 +1,62 @@
+// Global Variables //
 let employeesData = [];
 let editingEmpId = null;
 let modalPhotoBase64 = null;
 let menuImageBase64 = null;
+let itemToDeleteId = null;
+let currentDeleteAction = null;
+let newEmpPhotoBase64 = null;
+let currentMoodsData = [];
+let editingMoodId = null;
 
-// ══════════════════════════════════════════
-// RENDER EMPLOYEES
-// ══════════════════════════════════════════
+
+// PANEL LOGIC //
+function switchPanel(name) {
+  document.getElementById("admin-nav").style.display = "none";
+  document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
+  
+  const targetPanel = document.getElementById(`panel-${name}`);
+  if(targetPanel) targetPanel.classList.add("active");
+  
+  if (name === "menu") loadAdminMenu();
+  else if (name === "orders") loadOrders();
+  else if (name === "requests") loadAdminRequests();
+  else if (name === "employees") loadAdminEmployees();
+  else if (name === "moods") loadAdminMoods();
+  else if (name === "ingredients") loadAdminIngredients();
+}
+
+function goBackToNav() {
+  document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("admin-nav").style.display = "grid";
+}
+
+function openDeleteModal(id, deleteCallback) {
+  itemToDeleteId = id;
+  currentDeleteAction = deleteCallback;
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  itemToDeleteId = null;
+  currentDeleteAction = null;
+  document.getElementById('delete-modal').classList.remove('open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const confirmBtn = document.getElementById('btn-confirm-delete');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (currentDeleteAction && itemToDeleteId !== null) {
+        currentDeleteAction(itemToDeleteId);
+      }
+      closeDeleteModal();
+    });
+  }
+});
+
+
+// ADMIN EMPLOYES PANEL //
 function loadAdminEmployees() {
   fetch("/api/users").then(r => r.json()).then(data => {
       employeesData = data;
@@ -62,26 +113,25 @@ function openEditModal(id) {
 function closeModal() { document.getElementById("emp-modal").classList.remove("open"); editingEmpId = null; }
 
 function saveEmployee() {
-  const ad = document.getElementById("modal-ad").value.trim();
-  const rol = document.getElementById("modal-rol").value.trim();
-  if (!ad || !rol) return alert("Ad ve Rol zorunludur!");
-  
+  const password = document.getElementById("modal-password").value;
   const updatedData = {
-    ad, rol,
-    telefon: document.getElementById("modal-telefon").value.trim(),
-    email: document.getElementById("modal-email").value.trim(),
-    baslangic: document.getElementById("modal-baslangic").value.trim(),
-    durum: document.getElementById("modal-durum").value,
-    notlar: document.getElementById("modal-notlar").value.trim(),
-    foto: modalPhotoBase64
+    ad: document.getElementById("modal-ad").value.trim(),
+    rol: document.getElementById("modal-rol").value.trim(),
   };
 
+  if (password) updatedData.password = password;
+
   fetch(`/api/users/${editingEmpId}`, {
-    method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(updatedData)
-  }).then(() => { closeModal(); loadAdminEmployees(); });
+    method: "PUT", 
+    headers: {"Content-Type":"application/json"}, 
+    body: JSON.stringify(updatedData)
+  }).then(() => { 
+    closeModal(); 
+    loadAdminEmployees(); 
+    document.getElementById("modal-password").value = "";
+  });
 }
 
-let newEmpPhotoBase64 = null;
 function previewNewEmpPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -93,55 +143,38 @@ function previewNewEmpPhoto(event) {
 function addNewEmployee() {
   const ad = document.getElementById("new-emp-ad").value.trim();
   const rol = document.getElementById("new-emp-rol").value.trim();
-  const email = document.getElementById("new-emp-email").value.trim();
-  if (!ad || !rol) return alert("Ad ve Rol zorunludur!");
+  const password = document.getElementById("new-emp-password").value; // Added
+
+  if (!ad || !rol || !password) return alert("Ad, Rol ve Şifre zorunludur!");
 
   const newEmp = {
-    ad, rol, email,
-    telefon: document.getElementById("new-emp-telefon").value.trim(),
-    baslangic: document.getElementById("new-emp-baslangic").value.trim(),
-    durum: document.getElementById("new-emp-durum").value,
-    notlar: document.getElementById("new-emp-notlar").value.trim(),
+    ad, rol, 
+    email: document.getElementById("new-emp-email").value.trim(),
+    password, // Added
+    // ... rest of your existing properties
     foto: newEmpPhotoBase64 || null,
-    password: "1234",
-    emoji: "👤",
   };
 
-  fetch("/api/users", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(newEmp) })
-    .then(() => { alert("✅ Çalışan eklendi!"); loadAdminEmployees(); });
+  fetch("/api/users", { 
+    method: "POST", 
+    headers: {"Content-Type":"application/json"}, 
+    body: JSON.stringify(newEmp) 
+  }).then(() => { 
+    alert("✅ Çalışan eklendi!"); 
+    loadAdminEmployees(); 
+  });
 }
 
 function deleteEmployee(id) {
-    if(confirm("Çalışanı silmek istiyor musunuz?")) fetch(`/api/users/${id}`, {method:"DELETE"}).then(() => loadAdminEmployees());
+  openDeleteModal(id, (targetId) => {
+    fetch(`/api/users/${targetId}`, {method:"DELETE"}).then(() => loadAdminEmployees());
+  });
 }
 
-// ══════════════════════════════════════════
-// PANEL LOGIC
-// ══════════════════════════════════════════
-function switchPanel(name) {
-  document.getElementById("admin-nav").style.display = "none";
-  document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
-  
-  const targetPanel = document.getElementById(`panel-${name}`);
-  if(targetPanel) targetPanel.classList.add("active");
-  
-  if (name === "menu") loadAdminMenu();
-  else if (name === "orders") loadOrders();
-  else if (name === "requests") loadAdminRequests();
-  else if (name === "employees") loadAdminEmployees();
-  else if (name === "moods") loadAdminMoods();
-  else if (name === "ingredients") loadAdminIngredients();
-}
 
-function goBackToNav() {
-  document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
-  document.getElementById("admin-nav").style.display = "grid";
-}
-
-// ══════════════════════════════════════════
-// İÇERİK (INGREDIENT) MANTIĞI
-// ══════════════════════════════════════════
+// Ingredient Algorithm Settings //
 let currentIngredientsData = [];
+
 function loadAdminIngredients() {
   const select = document.getElementById("add-ing-isim");
   if(select) select.innerHTML = '<option value="">-- Yükleniyor... --</option>';
@@ -157,9 +190,10 @@ function loadAdminIngredients() {
         tbody.innerHTML = "";
         ingredientsData.forEach(ing => {
           const ingId = ing._id || ing.id;
-          // Removed Emoji and Tags from the table rendering
+          
           tbody.innerHTML += `<tr>
-            <td>#${ingId}</td><td><strong>${ing.isim}</strong></td>
+            <td>#${ingId}</td>
+            <td><strong>${ing.isim}</strong></td>
             <td>
               <button class="btn-delete" onclick="deleteIngredient('${ingId}')">Sil</button>
             </td>
@@ -200,7 +234,6 @@ function addNewIngredient() {
   
   if (!isim) return alert("⚠️ Menüden kısıtlanacak bir içerik seçmelisiniz!");
   
-  // Hardcode default values so the backend doesn't crash from missing schema fields
   const emoji = "🚫"; 
   const etiketler = [isim.toLowerCase()];
   
@@ -214,13 +247,24 @@ function addNewIngredient() {
   });
 }
 
-function resetIngredientForm() {
-  // Only need to reset the select dropdown now
-  document.getElementById("add-ing-isim").value = "";
+function deleteIngredient(id) {
+  openDeleteModal(id, (targetId) => {
+    fetch(`/api/ingredients/${targetId}`, { method: "DELETE" })
+      .then(res => {
+          if (!res.ok) console.warn("Sunucu işlemi reddetti.");
+          loadAdminIngredients();
+      })
+      .catch(err => console.error("Silme hatası:", err));
+  });
 }
-// ══════════════════════════════════════════
-// REQUESTS
-// ══════════════════════════════════════════
+
+function resetIngredientForm() {
+  const select = document.getElementById("add-ing-isim");
+  if(select) select.value = "";
+}
+
+
+// Special Requests //
 function loadAdminRequests() {
   fetch("/api/requests").then(r => r.json()).then(data => {
     const tbody = document.getElementById("admin-request-list");
@@ -232,22 +276,22 @@ function loadAdminRequests() {
     });
   });
 }
+
 function addNewRequest() {
   const text = document.getElementById("add-request-text").value.trim();
   if (!text) return alert("İstek metni boş olamaz!");
   fetch("/api/requests", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({istek:text}) })
     .then(() => { document.getElementById("add-request-text").value=""; loadAdminRequests(); });
 }
+
 function deleteRequest(id) {
-  if (confirm("Silinsin mi?")) fetch(`/api/requests/${id}`, {method:"DELETE"}).then(() => loadAdminRequests());
+  openDeleteModal(id, (targetId) => {
+    fetch(`/api/requests/${targetId}`, {method:"DELETE"}).then(() => loadAdminRequests());
+  });
 }
 
-// ══════════════════════════════════════════
-// MOOD YÖNETİMİ
-// ══════════════════════════════════════════
-let currentMoodsData = [];
-let editingMoodId = null;
 
+// Mood Algorithm Settings //
 function loadAdminMoods() {
   fetch("/api/moods").then(r=>r.json()).then(data => {
       currentMoodsData = data;
@@ -298,7 +342,9 @@ function saveMood() {
 }
 
 function deleteMood(id) {
-  if (confirm("Silinsin mi?")) fetch(`/api/moods/${id}`, {method:"DELETE"}).then(() => loadAdminMoods());
+  openDeleteModal(id, (targetId) => {
+    fetch(`/api/moods/${targetId}`, {method:"DELETE"}).then(() => loadAdminMoods());
+  });
 }
 
 function resetMoodForm() {
@@ -310,9 +356,8 @@ function resetMoodForm() {
   document.querySelector("#mood-add-form .btn-submit").setAttribute("onclick", "addNewMood()");
 }
 
-// ══════════════════════════════════════════
-// MENU YÖNETİMİ
-// ══════════════════════════════════════════
+
+// Menu Control //
 let currentMenuData = []; 
 let editingMenuId = null; 
 
@@ -361,7 +406,6 @@ function editMenu(id) {
     document.getElementById("add-resim").value = item.resim || "";
   }
   
-  // FIX: Safely override the submit button to trigger the save function
   const btnSubmit = document.querySelector("#panel-menu .add-form .btn-submit");
   btnSubmit.onclick = saveMenuItem;
   btnSubmit.innerText = "💾 Değişiklikleri Kaydet";
@@ -390,7 +434,7 @@ function saveMenuItem() {
     method: "PUT", 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ 
-        _id: editingMenuId, // FIX: Ensure ID is passed in the body
+        _id: editingMenuId,
         isim, 
         kategori, 
         fiyat, 
@@ -400,7 +444,7 @@ function saveMenuItem() {
         resim, 
         vegan, 
         tags,
-        puan: 0 // FIX: Bypass schema strictness for missing required 'puan' field
+        puan: 0 
     }) 
   }).then(() => { loadAdminMenu(); resetMenuForm(); });
 }
@@ -460,7 +504,6 @@ function resetMenuForm() {
   if(previewWrap) previewWrap.style.display = "none";
   if(placeholderWrap) placeholderWrap.style.display = "block";
   
-  // FIX: Revert the submit button safely back to its Add state
   const btnSubmit = document.querySelector("#panel-menu .add-form .btn-submit");
   btnSubmit.onclick = addNewItem;
   btnSubmit.innerText = "✅ Menüye Ekle";
@@ -469,13 +512,13 @@ function resetMenuForm() {
 }
 
 function deleteItem(id) { 
-  if (confirm("Silinsin mi?")) fetch(`/api/menu/${id}`, {method:"DELETE"}).then(() => loadAdminMenu()); 
+  openDeleteModal(id, (targetId) => {
+    fetch(`/api/menu/${targetId}`, {method:"DELETE"}).then(() => loadAdminMenu());
+  });
 }
 
-// ══════════════════════════════════════════
-// ORDERS & OTHERS
-// ══════════════════════════════════════════
-// FIX: Async loadOrders to map IDs back to product names
+
+// Orders Panel //
 async function loadOrders() {
   if (currentMenuData.length === 0) {
       try {
@@ -486,12 +529,26 @@ async function loadOrders() {
       }
   }
 
-  const orders = JSON.parse(localStorage.getItem("orderHistory")) || [];
+  let orders = [];
+  try {
+      const res = await fetch("/api/order_history");
+      orders = await res.json();
+  } catch (e) {
+      console.error("Siparişler çekilemedi:", e);
+  }
+
   const tbody = document.getElementById("admin-order-list");
   tbody.innerHTML = "";
-  
-  [...orders].reverse().forEach((order, index) => {
-    const urunDetay = order.urunler.map(u => {
+
+  const todayStr = new Date().toLocaleDateString("tr-TR");
+  const todaysOrders = orders.filter(order => {
+      if (!order.tarih) return false;
+      const d = new Date(order.tarih);
+      return !isNaN(d.getTime()) && d.toLocaleDateString("tr-TR") === todayStr;
+  });
+
+  [...todaysOrders].reverse().forEach((order) => {
+    const urunDetay = order.urunler && Array.isArray(order.urunler) ? order.urunler.map(u => {
         let urunIsmi = u.isim;
         
         if (!urunIsmi || String(urunIsmi).length >= 20 || u.id) {
@@ -503,7 +560,7 @@ async function loadOrders() {
         }
         
         return `${u.miktar || u.quantity}x ${urunIsmi || "Bilinmeyen Ürün"}`;
-    }).join(", ");
+    }).join(", ") : "Belirtilmemiş";
     
     let formattedDate = "-";
     let formattedTime = order.zaman || "-";
@@ -515,12 +572,14 @@ async function loadOrders() {
         }
     }
 
+    const orderId = order._id || order.id;
+
     tbody.innerHTML += `<tr>
       <td>${formattedDate}</td>
       <td>${formattedTime}</td>
       <td>${urunDetay}</td>
       <td><strong>${order.toplamTutar} TL</strong></td>
-      <td><button class="btn-delete" onclick="deleteOrder(${orders.length-1-index})">Sil</button></td>
+      <td><button class="btn-delete" onclick="deleteOrder('${orderId}')">Sil</button></td>
     </tr>`;
   });
 }
@@ -530,30 +589,65 @@ function addManualOrder() {
   const tutar = parseFloat(document.getElementById("manual-tutar").value) || 0;
   if(!urunlerStr || !tutar) return alert("Ürünler ve Tutar alanları zorunludur!");
   
-  let orders = JSON.parse(localStorage.getItem("orderHistory")) || [];
   const newOrder = {
-      tarih: new Date().toISOString(),
+      tarih: new Date(),
       zaman: new Date().toLocaleTimeString("tr-TR", { hour: '2-digit', minute:'2-digit' }),
       urunler: [{isim: urunlerStr, miktar: 1}],
       toplamTutar: tutar
   };
-  orders.push(newOrder);
-  localStorage.setItem("orderHistory", JSON.stringify(orders));
   
-  document.getElementById("manual-urunler").value = "";
-  document.getElementById("manual-tutar").value = "";
-  loadOrders();
+  fetch("/api/order_history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newOrder)
+  }).then(() => {
+      document.getElementById("manual-urunler").value = "";
+      document.getElementById("manual-tutar").value = "";
+      loadOrders();
+  }).catch(err => console.error("Sipariş ekleme hatası:", err));
 }
 
-function deleteOrder(idx) { 
-  let orders = JSON.parse(localStorage.getItem("orderHistory")) || []; 
-  orders.splice(idx, 1); 
-  localStorage.setItem("orderHistory", JSON.stringify(orders)); 
-  loadOrders(); 
+function deleteOrder(id) { 
+  openDeleteModal(id, (targetId) => {
+    fetch(`/api/order_history/${targetId}`, { method: "DELETE" })
+      .then(() => loadOrders())
+      .catch(err => console.error("Silme hatası:", err));
+  });
 }
 
+
+// Logout //
 function logout() { fetch("/api/logout", {method:"POST"}).then(() => window.location.href = "/login.html"); }
 
 window.addEventListener("pagehide", function() {
     navigator.sendBeacon("/api/logout");
+});
+
+// Drag and Drop //
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadArea = document.getElementById('upload-area');
+    
+    if (uploadArea) {
+        // Prevent default behaviors for drag events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        // Visual feedback
+        uploadArea.addEventListener('dragover', () => uploadArea.classList.add('highlight'));
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('highlight'));
+
+        // Handle the dropped file
+        uploadArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                const eventMock = { target: { files: files } };
+                previewMenuImage(eventMock); // Reuses your existing preview logic
+            }
+        });
+    }
 });

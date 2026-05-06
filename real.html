@@ -8,34 +8,46 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
       /* COLOR PALETTE & VARIABLES */
       :root {
-        --bg-color: #FDFBF7;
-        --text-dark: #2C2A29;
-        --text-muted: #6B6561;
-        --accent-red: #C0392B;
-        --accent-red-hover: #A02D22;
+        --bg-color: #fdfbf7;
+        --text-dark: #2c2a29;
+        --text-muted: #6b6561;
+        --accent-red: #c0392b;
+        --accent-red-hover: #a02d22;
         --card-bg: rgba(255, 255, 255, 0.85);
-        
-        --btn-ingred-start: #F39C12;
-        --btn-ingred-end: #E67E22;
-        --btn-mood-start: #8E44AD;
-        --btn-mood-end: #732D91;
+
+        --btn-ingred-start: #f39c12;
+        --btn-ingred-end: #e67e22;
+        --btn-mood-start: #8e44ad;
+        --btn-mood-end: #732d91;
       }
 
       /* MAIN PAGE STYLES */
       body {
-        font-family: 'DM Sans', Arial, sans-serif;
+        font-family: "DM Sans", Arial, sans-serif;
         text-align: center;
         margin: 0;
         padding: 0;
         min-height: 100vh;
         background-color: var(--bg-color);
-        background-image: radial-gradient(circle at top right, rgba(243, 156, 18, 0.05), transparent 40%),
-                          radial-gradient(circle at bottom left, rgba(142, 68, 173, 0.05), transparent 40%);
+        background-image:
+          radial-gradient(
+            circle at top right,
+            rgba(243, 156, 18, 0.05),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(142, 68, 173, 0.05),
+            transparent 40%
+          );
         color: var(--text-dark);
         display: flex;
         flex-direction: column;
@@ -57,7 +69,7 @@
         max-width: 650px;
       }
       .hero-title {
-        font-family: 'Playfair Display', serif;
+        font-family: "Playfair Display", serif;
         font-size: 48px;
         font-weight: 700;
         color: var(--text-dark);
@@ -74,70 +86,75 @@
 
       /* RECOMMENDATION SECTION (MOVED UP) */
       .recommendation-section {
-        text-align: center; 
-        margin: 0 auto 40px; 
-        padding: 50px 40px; 
-        background: var(--card-bg); 
+        text-align: center;
+        margin: 0 auto 40px;
+        padding: 50px 40px;
+        background: var(--card-bg);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border-radius: 24px; 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.04), 0 4px 15px rgba(0,0,0,0.02); 
+        border-radius: 24px;
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.04),
+          0 4px 15px rgba(0, 0, 0, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.6);
       }
       .recommendation-section h2 {
-        font-family: 'Playfair Display', serif; 
+        font-family: "Playfair Display", serif;
         font-style: italic;
-        font-size: 32px; 
-        color: var(--text-dark); 
+        font-size: 32px;
+        color: var(--text-dark);
         margin-bottom: 12px;
         margin-top: 0;
       }
       .recommendation-section p {
-        color: var(--text-muted); 
-        font-size: 16px; 
-        margin-bottom: 35px; 
+        color: var(--text-muted);
+        font-size: 16px;
+        margin-bottom: 35px;
         max-width: 500px;
         margin-left: auto;
         margin-right: auto;
         line-height: 1.5;
       }
-      
+
       .algo-btn-container {
-        display: flex; 
-        gap: 20px; 
-        justify-content: center; 
+        display: flex;
+        gap: 20px;
+        justify-content: center;
         flex-wrap: wrap;
       }
-      
+
       .algo-btn {
-        flex: 1; 
-        min-width: 240px; 
-        padding: 20px 24px; 
-        border-radius: 16px; 
-        text-decoration: none; 
-        font-weight: 700; 
-        font-size: 16px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        gap: 12px; 
+        flex: 1;
+        min-width: 240px;
+        padding: 20px 24px;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
         color: white;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
         z-index: 1;
       }
-      
+
       .algo-btn::before {
-        content: '';
+        content: "";
         position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         background: rgba(255, 255, 255, 0.1);
         opacity: 0;
         transition: opacity 0.3s ease;
         z-index: -1;
       }
-      
+
       .algo-btn:hover {
         transform: translateY(-5px);
       }
@@ -145,25 +162,33 @@
         opacity: 1;
       }
 
-      .btn-ingredient { 
-        background: linear-gradient(135deg, var(--btn-ingred-start), var(--btn-ingred-end)); 
-        box-shadow: 0 10px 20px rgba(230, 126, 34, 0.25); 
+      .btn-ingredient {
+        background: linear-gradient(
+          135deg,
+          var(--btn-ingred-start),
+          var(--btn-ingred-end)
+        );
+        box-shadow: 0 10px 20px rgba(230, 126, 34, 0.25);
       }
-      .btn-ingredient:hover { 
-        box-shadow: 0 15px 30px rgba(230, 126, 34, 0.4); 
+      .btn-ingredient:hover {
+        box-shadow: 0 15px 30px rgba(230, 126, 34, 0.4);
       }
 
-      .btn-mood { 
-        background: linear-gradient(135deg, var(--btn-mood-start), var(--btn-mood-end)); 
-        box-shadow: 0 10px 20px rgba(142, 68, 173, 0.25); 
+      .btn-mood {
+        background: linear-gradient(
+          135deg,
+          var(--btn-mood-start),
+          var(--btn-mood-end)
+        );
+        box-shadow: 0 10px 20px rgba(142, 68, 173, 0.25);
       }
-      .btn-mood:hover { 
-        box-shadow: 0 15px 30px rgba(142, 68, 173, 0.4); 
+      .btn-mood:hover {
+        box-shadow: 0 15px 30px rgba(142, 68, 173, 0.4);
       }
 
       .btn-icon {
         font-size: 24px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
       }
 
       /* DIRECT MENU ACTION */
@@ -180,17 +205,21 @@
         color: white;
         padding: 18px 48px;
         font-size: 18px;
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
         font-weight: 700;
         border: none;
         border-radius: 50px;
         cursor: pointer;
-        box-shadow: 0 10px 25px rgba(192, 57, 43, 0.25), 0 4px 10px rgba(192, 57, 43, 0.15);
+        box-shadow:
+          0 10px 25px rgba(192, 57, 43, 0.25),
+          0 4px 10px rgba(192, 57, 43, 0.15);
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       }
       .primary-btn:hover {
         transform: translateY(-4px);
-        box-shadow: 0 15px 35px rgba(192, 57, 43, 0.35), 0 6px 15px rgba(192, 57, 43, 0.2);
+        box-shadow:
+          0 15px 35px rgba(192, 57, 43, 0.35),
+          0 6px 15px rgba(192, 57, 43, 0.2);
         background: var(--accent-red-hover);
       }
 
@@ -206,7 +235,7 @@
         color: var(--text-dark);
         padding: 14px 32px;
         font-size: 16px;
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
         font-weight: 700;
         border: 2px solid rgba(0, 0, 0, 0.08);
         border-radius: 50px;
@@ -218,63 +247,82 @@
       }
       .secondary-btn:hover {
         border-color: rgba(0, 0, 0, 0.2);
-        background: rgba(0,0,0,0.02);
+        background: rgba(0, 0, 0, 0.02);
         transform: translateY(-2px);
       }
 
       /* Responsive adjustments */
       @media (max-width: 600px) {
-        .hero-title { font-size: 36px; }
-        .recommendation-section { padding: 40px 20px; }
-        .algo-btn-container { flex-direction: column; }
-        .algo-btn { width: 100%; }
+        .hero-title {
+          font-size: 36px;
+        }
+        .recommendation-section {
+          padding: 40px 20px;
+        }
+        .algo-btn-container {
+          flex-direction: column;
+        }
+        .algo-btn {
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
-
     <div class="container">
-      
       <!-- HEADER SECTION -->
       <div class="header-section">
         <h1 class="hero-title">Waiterly'ye Hoş Geldiniz</h1>
-        <p class="hero-subtitle">Dijital garsonunuz emrinizde! Lezzet dolu bir deneyim için hemen menümüzü keşfedin.</p>
+        <p class="hero-subtitle">
+          Dijital garsonunuz emrinizde! Lezzet dolu bir deneyim için hemen
+          menümüzü keşfedin.
+        </p>
       </div>
 
       <!-- RECOMMENDATION SECTION (MOVED UP) -->
       <div class="recommendation-section">
-          <h2>Kararsız mısın?</h2>
-          <p>Ne içeceğine karar veremediysen sana en uygun ürünü bulmak için iki farklı yolumuz var. Hemen seçimini yap!</p>
-          
-          <div class="algo-btn-container">
-              <a href="ingredients.html" class="algo-btn btn-ingredient">
-                  <span class="btn-icon"></span> İçeriğe Göre Seç
-              </a>
-              <a href="mood.html" class="algo-btn btn-mood">
-                  <span class="btn-icon"></span> Ruh Haline Göre Seç
-              </a>
-          </div>
+        <h2>Kararsız mısın?</h2>
+        <p>
+          Ne içeceğine karar veremediysen sana en uygun ürünü bulmak için iki
+          farklı yolumuz var. Hemen seçimini yap!
+        </p>
+
+        <div class="algo-btn-container">
+          <a href="ingredients.html" class="algo-btn btn-ingredient">
+            <span class="btn-icon"></span> İçeriğe Göre Seç
+          </a>
+          <a href="mood.html" class="algo-btn btn-mood">
+            <span class="btn-icon"></span> Ruh Haline Göre Seç
+          </a>
+        </div>
       </div>
 
       <!-- MAIN MENU ACTION -->
       <div class="menu-action">
         <p class="menu-action-text">Veya tüm lezzetleri bir arada görün</p>
-        <button class="primary-btn" onclick="window.location.href = '/menu_script.html'">
+        <button
+          class="primary-btn"
+          onclick="window.location.href = '/menu_script.html'"
+        >
           Menüye Git 🍔
         </button>
       </div>
 
       <!-- QUICK ACTIONS -->
       <div class="quick-actions">
-        <button class="secondary-btn" onclick="window.location.href = '/requests.html'">
+        <button
+          class="secondary-btn"
+          onclick="window.location.href = '/requests.html'"
+        >
           🙋‍♂️ Bir İsteğim Var
         </button>
-        <button class="secondary-btn" onclick="window.location.href = '/cart.html'">
+        <button
+          class="secondary-btn"
+          onclick="window.location.href = '/cart.html'"
+        >
           🛒 Sepete Git
         </button>
       </div>
-      
     </div>
-
   </body>
 </html>

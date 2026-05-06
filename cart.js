@@ -249,7 +249,8 @@ async function handlePaymentSelection(yontem) {
 
     if (sessionSiparislerInceleme.length > 0) {
         await urunListesiniDoldur();
-        document.getElementById("reviewStep").style.display = "flex";
+        // FIX: Changed "flex" to "block" so items stack top-to-bottom
+        document.getElementById("reviewStep").style.display = "block"; 
     } else {
         await finalCloseSession();
     }

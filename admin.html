@@ -43,6 +43,10 @@
         overflow: hidden;
         width: 100%;
         border: 1px solid rgba(255, 255, 255, 0.4);
+        
+        /* EKLENECEK KISIM: */
+        display: flex;
+        flex-direction: column; /* İçeriği yukarıdan aşağıya doğru sıralar */
       }
 
       /* HEADER */
@@ -452,6 +456,7 @@
             <div class="modal-grid-2">
               <div class="form-group"><label>Şifre *</label><input type="password" id="new-emp-password" placeholder="••••••••" /></div>
             </div>
+            <div class="form-group">
               <label>Durum</label>
               <select id="new-emp-durum">
                 <option value="active">✅ Aktif</option>

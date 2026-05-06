@@ -4,15 +4,14 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+
 const { MongoClient, ObjectId } = require("mongodb");
 const crypto = require("crypto");
 
-// 1. MongoDB Ayarları ve Global 'db' Değişkeni
-const uri = process.env.MONGODB_URI;
+const uri = "mongodb://kurallibora_db_user:eWC6RhAcMpcwOnC0@ac-l2pwc7f-shard-00-00.ihm1jw8.mongodb.net:27017,ac-l2pwc7f-shard-00-01.ihm1jw8.mongodb.net:27017,ac-l2pwc7f-shard-00-02.ihm1jw8.mongodb.net:27017/?ssl=true&replicaSet=atlas-13uw9v-shard-0&authSource=admin&appName=Cluster0";
 const client = new MongoClient(uri);
-const dbName = "waiterly_db"; // <-- Bu satır silinmişti, bunu geri ekliyoruz!
+const dbName = "waiterly_db";
 let db;
-
 
 function isAuth(req) {
   const cookieHeader = req.headers.cookie;

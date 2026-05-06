@@ -117,10 +117,9 @@ function saveEmployee() {
   const updatedData = {
     ad: document.getElementById("modal-ad").value.trim(),
     rol: document.getElementById("modal-rol").value.trim(),
-    // ... other fields
   };
 
-  if (password) updatedData.password = password; // Only send if user typed a new one
+  if (password) updatedData.password = password;
 
   fetch(`/api/users/${editingEmpId}`, {
     method: "PUT", 
@@ -129,7 +128,7 @@ function saveEmployee() {
   }).then(() => { 
     closeModal(); 
     loadAdminEmployees(); 
-    document.getElementById("modal-password").value = ""; // Reset field
+    document.getElementById("modal-password").value = "";
   });
 }
 

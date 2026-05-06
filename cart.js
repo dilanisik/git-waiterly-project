@@ -12,8 +12,27 @@ function getSafeCart() {
     }
 }
 
-function bildirimGoster(mesaj){
+function bildirimGoster(mesaj, tip = 'basari') {
     document.getElementById("bildirimMesaji").innerText = mesaj;
+    
+    const baslik = document.getElementById("bildirimBaslik");
+    const buton = document.getElementById("bildirimButon");
+
+    // Uyarı (Warning) stili
+    if (tip === 'uyari') {
+        baslik.innerHTML = "⚠️ Uyarı";
+        baslik.style.color = "#ff9800"; // Turuncu
+        buton.style.backgroundColor = "#ff9800";
+        buton.innerText = "Tamam";
+    } 
+    // Başarı (Success) stili
+    else {
+        baslik.innerHTML = "✅ Başarılı!";
+        baslik.style.color = "#4CAF50"; // Yeşil
+        buton.style.backgroundColor = "#4CAF50";
+        buton.innerText = "Harika!";
+    }
+
     document.getElementById("bildirimKutusu").style.display = "flex";
 }
 
@@ -105,7 +124,7 @@ async function renderCart() {
 async function siparisVer(){
     let cart = getSafeCart();
     if(cart.length === 0) {
-        alert("Sepetiniz boş! Lütfen menüden ürün ekleyin.");
+        bildirimGoster("Sepetiniz boş! Lütfen menüden ürün ekleyin.", "uyari");
         return;
     }
 
@@ -147,7 +166,7 @@ async function siparisVer(){
     }
 
     localStorage.removeItem("cart");
-    bildirimGoster("Sipariş mutfağa iletildi! 😋");
+    bildirimGoster("Sipariş mutfağa iletildi!");
     
     // DB'deki yeni verileri çekip adisyonu güncellemek için render'ı tetikle
     renderCart();
@@ -177,7 +196,7 @@ function removeFromCart(id) {
 function clearCart() {
     let cart = getSafeCart();
     if (cart.length === 0) {
-        alert("Sepetiniz zaten boş! 🛒");
+        bildirimGoster("Sepetiniz zaten boş! 🛒", "uyari");
     } else {
         document.getElementById("onayKutusu").style.display = "block";
     }
@@ -190,62 +209,95 @@ function sepetiSilEvet() {
     renderCart();
 }
 
-// Updated Payment Logic for Task 1 & 2
-async function baslatOdemeSureci() {
-    // 1. Ask for Payment Method
-    const secim = confirm("Ödemeyi NAKİT olarak yapmak için 'Tamam', KREDİ KARTI için 'İptal' seçiniz.");
-    const odemeYontemi = secim ? "nakit" : "kredi kartı";
+// Global Variables for Payment Modal
+let secilenOdemeYontemi = "";
+let sessionSiparislerInceleme = [];
+let menuVerileriCache = [];
 
-    // 2. Load current orders for review before closing session
-    const sessionHash = localStorage.getItem("sessionHash");
-    let siparisler = [];
+async function baslatOdemeSureci() {
+    // Show custom modal instead of browser confirm
+    document.getElementById("paymentModal").style.display = "flex";
+    document.getElementById("paymentStep").style.display = "block";
+    document.getElementById("reviewStep").style.display = "none";
+}
+
+async function handlePaymentSelection(yontem) {
+    secilenOdemeYontemi = yontem;
+    document.getElementById("paymentStep").style.display = "none";
     
+    // Fetch current session orders
+    const sessionHash = localStorage.getItem("sessionHash");
     try {
         const res = await fetch('/api/session/current?hash=' + sessionHash);
         if (res.ok) {
             const data = await res.json();
-            siparisler = data.siparisler || [];
+            sessionSiparislerInceleme = data.siparisler || [];
         }
     } catch (e) {
         console.error("İnceleme için veriler çekilemedi:", e);
     }
 
-    // 3. Ask for Review (Task 2)
-    if (siparisler.length > 0 && confirm("Deneyiminizi değerlendirmek ister misiniz?")) {
-        await showReviewPopup(siparisler);
+    // Fetch menu to get product photos
+    try {
+        const menuRes = await fetch('/api/menu');
+        if (menuRes.ok) {
+            menuVerileriCache = await menuRes.json();
+        }
+    } catch (e) {
+        console.error("Menü resimleri için veri çekilemedi:", e);
     }
 
-    // 4. Close Session (Task 1)
-    await oturumuKapat(sessionHash, odemeYontemi);
+    if (sessionSiparislerInceleme.length > 0) {
+        await urunListesiniDoldur();
+        document.getElementById("reviewStep").style.display = "flex";
+    } else {
+        await finalCloseSession();
+    }
 }
 
-async function showReviewPopup(siparisler) {
-    // Collect all unique products from orders
+async function urunListesiniDoldur() {
+    const listDiv = document.getElementById("reviewProductList");
+    listDiv.innerHTML = "";
+    
     let uniqueProducts = [];
-    siparisler.forEach(s => {
+    sessionSiparislerInceleme.forEach(s => {
         s.urunler.forEach(u => {
             if(!uniqueProducts.find(p => p.isim === u.isim)) uniqueProducts.push(u);
         });
     });
 
-    for (let product of uniqueProducts) {
-        let yeniPuan = prompt(`${product.isim} için 1-5 arası puan verin:`, "5");
-        if (yeniPuan) {
-            await puanGuncelle(product.isim, parseInt(yeniPuan));
-        }
-    }
-    alert("Değerlendirmeniz için teşekkürler!");
+    uniqueProducts.forEach((product, index) => {
+        // Find photo from menu cache (assumes API returns 'resim' property)
+        const menuItem = menuVerileriCache.find(m => m.isim === product.isim);
+        // Fallback to a placeholder if the image isn't found
+        const photoUrl = (menuItem && menuItem.resim) ? menuItem.resim : '/images/placeholder.png'; 
+
+        const itemHtml = `
+            <div class="review-item">
+                <img src="${photoUrl}" alt="${product.isim}" class="review-img" onerror="this.src='/images/placeholder.png'">
+                <div class="review-info">
+                    <strong>${product.isim}</strong>
+                    <div class="star-rating" id="rating-${index}">
+                        <input type="radio" id="star5-${index}" name="rating-${index}" value="5"><label for="star5-${index}">★</label>
+                        <input type="radio" id="star4-${index}" name="rating-${index}" value="4"><label for="star4-${index}">★</label>
+                        <input type="radio" id="star3-${index}" name="rating-${index}" value="3"><label for="star3-${index}">★</label>
+                        <input type="radio" id="star2-${index}" name="rating-${index}" value="2"><label for="star2-${index}">★</label>
+                        <input type="radio" id="star1-${index}" name="rating-${index}" value="1"><label for="star1-${index}">★</label>
+                    </div>
+                </div>
+            </div>
+        `;
+        listDiv.insertAdjacentHTML('beforeend', itemHtml);
+    });
 }
 
 async function puanGuncelle(urunIsmi, verilenPuan) {
-    // Logic: Fetch menu, find product, calculate new average, then PUT to /api/menu
     try {
         const res = await fetch('/api/menu');
         const menu = await res.json();
         const item = menu.find(m => m.isim === urunIsmi);
         
         if (item) {
-            // Simple moving average or weighted calculation
             let eskiPuan = parseFloat(item.puan) || 0;
             let yeniPuan = ((eskiPuan + verilenPuan) / 2).toFixed(1); 
             
@@ -258,8 +310,35 @@ async function puanGuncelle(urunIsmi, verilenPuan) {
     } catch (e) { console.error("Puan güncellenemedi:", e); }
 }
 
+async function submitReviews() {
+    const listDiv = document.getElementById("reviewProductList");
+    const items = listDiv.querySelectorAll('.review-item');
+    
+    for (let i = 0; i < items.length; i++) {
+        const urunIsmi = items[i].querySelector('strong').innerText;
+        const checkedStar = items[i].querySelector(`input[name="rating-${i}"]:checked`);
+        
+        if (checkedStar) {
+            const verilenPuan = parseInt(checkedStar.value);
+            await puanGuncelle(urunIsmi, verilenPuan);
+        }
+    }
+    
+    document.getElementById("paymentModal").style.display = "none";
+    bildirimGoster("Değerlendirmeniz için teşekkürler! 🌟");
+    
+    // Give user time to see the notification before closing session
+    setTimeout(() => {
+        finalCloseSession();
+    }, 1500);
+}
+
+async function finalCloseSession() {
+    const sessionHash = localStorage.getItem("sessionHash");
+    await oturumuKapat(sessionHash, secilenOdemeYontemi);
+}
+
 async function oturumuKapat(hash, yontem) {
-    // Backend needs a route to set session status to "kapalı"
     try {
         const response = await fetch('/api/session/close', {
             method: 'POST',
@@ -270,10 +349,19 @@ async function oturumuKapat(hash, yontem) {
         if (response.ok) {
             localStorage.removeItem("sessionHash");
             localStorage.removeItem("cart");
-            alert(`Ödeme ${yontem} ile alındı. Oturum kapatıldı. Yine bekleriz!`);
-            window.location.href = "/";
+            
+            document.getElementById("paymentModal").style.display = "none";
+            
+            // Replaced alert() with native notification box
+            bildirimGoster(`Ödeme ${yontem} ile alındı. Yine bekleriz!`);
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 2500);
         }
-    } catch (e) { alert("Bağlantı hatası!"); }
+    } catch (e) { 
+        console.error("Bağlantı hatası!", e); 
+        bildirimGoster("Bağlantı hatası oluştu.", "uyari");
+    }
 }
 
 window.addEventListener("load", () => {

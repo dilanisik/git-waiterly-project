@@ -217,10 +217,15 @@ const server = http.createServer(async (req, res) => {
     const activeSession = await db
       .collection("sessions")
       .findOne({ hashcode: hash, durum: "aktif" });
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(
-      JSON.stringify(activeSession || { siparisler: [], genelToplam: 0 }),
-    );
+
+    // Eğer oturum varsa 200 dön, yoksa kesinlikle 404 dön
+    if (activeSession) {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(activeSession));
+    } else {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: false, error: "Oturum bulunamadı" }));
+    }
   } else if (req.url === "/api/session/close" && req.method === "POST") {
     const data = await getBody(req);
     await db.collection("sessions").updateOne(

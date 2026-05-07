@@ -18,17 +18,14 @@ function bildirimGoster(mesaj, tip = "basari") {
   const baslik = document.getElementById("bildirimBaslik");
   const buton = document.getElementById("bildirimButon");
 
-  // Uyarı (Warning) stili
   if (tip === "uyari") {
     baslik.innerHTML = "⚠️ Uyarı";
-    baslik.style.color = "#ff9800"; // Turuncu
+    baslik.style.color = "#ff9800";
     buton.style.backgroundColor = "#ff9800";
     buton.innerText = "Tamam";
-  }
-  // Başarı (Success) stili
-  else {
+  } else {
     baslik.innerHTML = "✅ Başarılı!";
-    baslik.style.color = "#4CAF50"; // Yeşil
+    baslik.style.color = "#4CAF50";
     buton.style.backgroundColor = "#4CAF50";
     buton.innerText = "Harika!";
   }
@@ -40,10 +37,9 @@ function bildirimiKapat() {
   document.getElementById("bildirimKutusu").style.display = "none";
 }
 
-// YENİ: Hem DB siparişlerini hem Local sepeti Fiş Tasarımıyla çizer
 async function renderCart() {
   const list = document.getElementById("cart-list");
-  if (!list) return; // 👈 EĞER SAYFADA SEPET YOKSA ÇÖKMEYİ ENGELLER, DURUR.
+  if (!list) return;
 
   list.innerHTML = "<p style='text-align: center;'>Adisyon Yükleniyor...</p>";
 
@@ -51,7 +47,6 @@ async function renderCart() {
   let sessionSiparisler = [];
   let dbGenelToplam = 0;
 
-  // 1. Backend'den Aktif Oturum (Session) Siparişlerini Çek
   const sessionHash = localStorage.getItem("sessionHash");
   if (sessionHash) {
     try {
@@ -60,6 +55,9 @@ async function renderCart() {
         const data = await res.json();
         sessionSiparisler = data.siparisler || [];
         dbGenelToplam = data.genelToplam || 0;
+
+        // Değerlendirme ekranı için siparişleri belleğe alıyoruz
+        sessionSiparislerInceleme = sessionSiparisler;
       }
     } catch (e) {
       console.warn("Sipariş geçmişi çekilemedi:", e);
@@ -69,7 +67,6 @@ async function renderCart() {
   let html = "";
   let sepetToplam = 0;
 
-  // KISIM 1: ONAYLANMIŞ SİPARİŞLER (MASADAKİLER)
   if (sessionSiparisler.length > 0) {
     html += `<div class="kategori-baslik">MASADAKİ SİPARİŞLER</div>`;
     sessionSiparisler.forEach((order) => {
@@ -85,7 +82,6 @@ async function renderCart() {
     });
   }
 
-  // KISIM 2: HENÜZ ONAYLANMAMIŞ (SEPETTEKİ) ÜRÜNLER
   if (cart.length > 0) {
     html += `<div class="kategori-baslik" style="color: #d9534f; border-bottom-color: #d9534f;">SEPETTEKİLER (SİPARİŞ VERİLMEDİ)</div>`;
 
@@ -99,24 +95,21 @@ async function renderCart() {
                 <span class="fis-dots"></span>
                 <span class="fis-item-price" style="color: #d9534f; font-weight: bold;">${rowTotal} TL</span>
                 
-                <!-- Sepet Kontrolleri -->
                 <div class="cart-controls">
                     <button onclick="removeFromCart('${item._id || item.id}')" style="border-color: #ff4c4c; color: #ff4c4c;">-</button>
-<span style="font-size: 16px; width: 25px; text-align: center; color:#333;">${item.quantity}</span>
-<button onclick="addToCart('${item._id || item.id}')" style="border-color: #4CAF50; color: #4CAF50;">+</button>
+                    <span style="font-size: 16px; width: 25px; text-align: center; color:#333;">${item.quantity}</span>
+                    <button onclick="addToCart('${item._id || item.id}')" style="border-color: #4CAF50; color: #4CAF50;">+</button>
                 </div>
             </div>`;
     });
   }
 
-  // Boş durum kontrolü
   if (sessionSiparisler.length === 0 && cart.length === 0) {
     list.innerHTML =
       "<p style='color: gray; font-style: italic; text-align: center; margin-top:20px;'>Adisyonunuz şu an boş.</p>";
     return;
   }
 
-  // GENEL TOPLAM
   const genelToplam = dbGenelToplam + sepetToplam;
   html += `<hr style="border: 1px dashed #ccc; margin: 25px 0 15px 0;">`;
   html += `<div style="text-align: right; font-size: 18px; color: #222;">TOPLAM: <span style="color: #4CAF50;">${genelToplam} TL</span></div>`;
@@ -170,8 +163,6 @@ async function siparisVer() {
 
   localStorage.removeItem("cart");
   bildirimGoster("Sipariş mutfağa iletildi!");
-
-  // DB'deki yeni verileri çekip adisyonu güncellemek için render'ı tetikle
   renderCart();
 }
 
@@ -202,6 +193,7 @@ function removeFromCart(id) {
     renderCart();
   }
 }
+
 function clearCart() {
   let cart = getSafeCart();
   if (cart.length === 0) {
@@ -214,6 +206,7 @@ function clearCart() {
 function sepetiSilHayir() {
   document.getElementById("onayKutusu").style.display = "none";
 }
+
 function sepetiSilEvet() {
   localStorage.removeItem("cart");
   document.getElementById("onayKutusu").style.display = "none";
@@ -226,29 +219,21 @@ let sessionSiparislerInceleme = [];
 let menuVerileriCache = [];
 
 async function baslatOdemeSureci() {
-  // Show custom modal instead of browser confirm
   document.getElementById("paymentModal").style.display = "flex";
   document.getElementById("paymentStep").style.display = "block";
-  document.getElementById("reviewStep").style.display = "none";
+
+  // Güvenlik: Puanlama ekranını ve varsa eski dinamik ekranları gizle
+  const reviewStep = document.getElementById("reviewStep");
+  if (reviewStep) reviewStep.style.display = "none";
+  const dynamicScreens = document.getElementById("dynamicScreens");
+  if (dynamicScreens) dynamicScreens.style.display = "none";
 }
 
 async function handlePaymentSelection(yontem) {
   secilenOdemeYontemi = yontem;
   document.getElementById("paymentStep").style.display = "none";
 
-  // Fetch current session orders
-  const sessionHash = localStorage.getItem("sessionHash");
-  try {
-    const res = await fetch("/api/session/current?hash=" + sessionHash);
-    if (res.ok) {
-      const data = await res.json();
-      sessionSiparislerInceleme = data.siparisler || [];
-    }
-  } catch (e) {
-    console.error("İnceleme için veriler çekilemedi:", e);
-  }
-
-  // Fetch menu to get product photos
+  // Değerlendirme ekranında kullanılacak fotoğrafları arka planda çekiyoruz
   try {
     const menuRes = await fetch("/api/menu");
     if (menuRes.ok) {
@@ -258,13 +243,112 @@ async function handlePaymentSelection(yontem) {
     console.error("Menü resimleri için veri çekilemedi:", e);
   }
 
-  if (sessionSiparislerInceleme.length > 0) {
-    await urunListesiniDoldur();
-    // FIX: Changed "flex" to "block" so items stack top-to-bottom
-    document.getElementById("reviewStep").style.display = "block";
-  } else {
-    await finalCloseSession();
+  // Değerlendirme adımını tamamen sona saklıyor, direkt garson bekleme sürecini başlatıyoruz!
+  await finalCloseSession();
+}
+
+async function finalCloseSession() {
+  const sessionHash = localStorage.getItem("sessionHash");
+  const yontem = secilenOdemeYontemi;
+
+  try {
+    // Garsona bildirim iletiyoruz
+    await fetch("/api/session/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hashcode: sessionHash,
+        talep: `${yontem.toUpperCase()} ile ödeme talebi`,
+      }),
+    });
+  } catch (e) {
+    console.error("Bildirim hatası:", e);
   }
+
+  // Direkt bekleme ekranına geçiş yap
+  await oturumuKapat(sessionHash, yontem);
+}
+
+async function oturumuKapat(hash, yontem) {
+  const paymentStep = document.getElementById("paymentStep");
+  if (paymentStep) paymentStep.style.display = "none";
+  const reviewStep = document.getElementById("reviewStep");
+  if (reviewStep) reviewStep.style.display = "none";
+
+  const modalCard = document.querySelector("#paymentModal .modal-card");
+
+  // Önceki HTML yapısını bozmadan (ReviewStep'i silmeden) animasyonlu ekranlarımızı içeri ekliyoruz
+  let dynamicScreens = document.getElementById("dynamicScreens");
+  if (!dynamicScreens) {
+    dynamicScreens = document.createElement("div");
+    dynamicScreens.id = "dynamicScreens";
+    modalCard.appendChild(dynamicScreens);
+  }
+
+  dynamicScreens.style.display = "block";
+  dynamicScreens.innerHTML = `
+    <div id="waitingScreen" style="text-align: center; padding: 20px 0;">
+      <h3 style="color: #ff9800; margin-top: 0; font-size: 24px;">⏳ Garson Bekleniyor...</h3>
+      <p style="color: #666; margin-bottom: 20px;">Lütfen <strong>${yontem}</strong> ödemenizi garsona iletin. Ödeme onaylandığında yönlendirileceksiniz.</p>
+      <div style="margin: 30px auto; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #ff9800; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    </div>
+
+    <div id="successScreen" style="display: none; text-align: center; padding: 20px 0;">
+      <div style="font-size: 72px; margin-bottom: 20px; animation: popIn 0.5s ease-out;">✅</div>
+      <h2 style="color: #4CAF50; margin-top: 0; font-size: 28px;">Ödeme Onaylandı</h2>
+      <p style="color: #666; font-size: 16px;">Bizi tercih ettiğiniz için teşekkür ederiz!</p>
+      <style>@keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }</style>
+    </div>
+  `;
+  document.getElementById("paymentModal").style.display = "flex";
+
+  // Polling süresi: 1.5 saniye (Çok hızlı tepki)
+  const checkInterval = setInterval(async () => {
+    try {
+      const res = await fetch("/api/session/current?hash=" + hash);
+      let data = null;
+      if (res.ok) data = await res.json();
+
+      // GARSON ÖDEMEYİ ONAYLADIĞINDA:
+      if (!res.ok || !data || !data._id) {
+        clearInterval(checkInterval);
+
+        // 1. Bekleme ekranını kapat, Başarı (Yeşil Tik) ekranını aç
+        document.getElementById("waitingScreen").style.display = "none";
+        document.getElementById("successScreen").style.display = "block";
+
+        // Verileri temizle
+        localStorage.removeItem("sessionHash");
+        localStorage.removeItem("cart");
+
+        // 2. Yeşil tiki 3 saniye gösterdikten sonra Puanlama (Review) ekranına geç
+        setTimeout(async () => {
+          if (
+            sessionSiparislerInceleme &&
+            sessionSiparislerInceleme.length > 0
+          ) {
+            document.getElementById("dynamicScreens").style.display = "none";
+            await urunListesiniDoldur();
+            document.getElementById("reviewStep").style.display = "block";
+
+            // "Puanlamadan Geç" butonunu ayarla
+            const skipBtn = document.querySelector(
+              "#reviewStep button:last-child",
+            );
+            if (skipBtn) {
+              skipBtn.onclick = () => (window.location.href = "/");
+            }
+          } else {
+            // Eğer sipariş yoksa direkt anasayfaya at
+            window.location.href = "/";
+          }
+        }, 3000);
+      }
+    } catch (e) {
+      console.error("Bağlantı hatası bekleniyor...", e);
+    }
+  }, 1500);
 }
 
 async function urunListesiniDoldur() {
@@ -280,17 +364,15 @@ async function urunListesiniDoldur() {
   });
 
   uniqueProducts.forEach((product, index) => {
-    // Find photo from menu cache (assumes API returns 'resim' property)
     const menuItem = menuVerileriCache.find((m) => m.isim === product.isim);
-    // Fallback to a placeholder if the image isn't found
     const photoUrl =
       menuItem && menuItem.resim ? menuItem.resim : "/images/placeholder.png";
 
     const itemHtml = `
             <div class="review-item">
                 <img src="${photoUrl}" alt="${product.isim}" class="review-img" onerror="this.src='/images/placeholder.png'">
-                <div class="review-info">
-                    <strong>${product.isim}</strong>
+                <div class="review-info" style="text-align: left;">
+                    <strong style="display: block; margin-bottom: 5px;">${product.isim}</strong>
                     <div class="star-rating" id="rating-${index}">
                         <input type="radio" id="star5-${index}" name="rating-${index}" value="5"><label for="star5-${index}">★</label>
                         <input type="radio" id="star4-${index}" name="rating-${index}" value="4"><label for="star4-${index}">★</label>
@@ -310,14 +392,11 @@ async function puanGuncelle(urunIsmi, verilenPuan) {
     const res = await fetch("/api/menu");
     const menu = await res.json();
 
-    // .trim() ekleyerek boşluklardan kaynaklanan eşleşmeme sorununu çözüyoruz
     const item = menu.find((m) => m.isim && m.isim.trim() === urunIsmi.trim());
 
     if (item) {
       let eskiPuan = parseFloat(item.puan) || 0;
       let yeniPuan = ((eskiPuan + verilenPuan) / 2).toFixed(1);
-
-      // MongoDB'nin _id yapısını da destekleyecek şekilde ID'yi alıyoruz
       const itemId = item._id || item.id;
 
       await fetch(`/api/menu/${itemId}`, {
@@ -325,8 +404,6 @@ async function puanGuncelle(urunIsmi, verilenPuan) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puan: yeniPuan }),
       });
-    } else {
-      console.warn(`Test/Uygulama: "${urunIsmi}" adlı ürün menüde bulunamadı!`);
     }
   } catch (e) {
     console.error("Puan güncellenemedi:", e);
@@ -338,7 +415,6 @@ async function submitReviews() {
   const items = listDiv.querySelectorAll(".review-item");
 
   for (let i = 0; i < items.length; i++) {
-    // .trim() ekliyoruz ki HTML'deki boşluklar veya enter tuşları hataya sebep olmasın
     const urunIsmi = items[i].querySelector("strong").innerText.trim();
     const checkedStar = items[i].querySelector(
       `input[name="rating-${i}"]:checked`,
@@ -350,43 +426,18 @@ async function submitReviews() {
     }
   }
 
-  document.getElementById("paymentModal").style.display = "none";
-  bildirimGoster("Değerlendirmeniz için teşekkürler! 🌟");
+  // Değerlendirme bittikten sonra "Teşekkürler" mesajı göster ve eve dön
+  document.getElementById("reviewStep").innerHTML = `
+     <div style="text-align: center; padding: 40px 10px;">
+        <div style="font-size: 60px; margin-bottom: 15px; animation: popIn 0.5s ease-out;">🌟</div>
+        <h2 style="color: #4CAF50; margin-top: 0; font-size: 26px;">Değerlendirmeniz için teşekkürler!</h2>
+        <p style="color: #666; font-size: 16px;">Düşünceleriniz bizim için çok değerli.</p>
+     </div>
+  `;
 
-  // Give user time to see the notification before closing session
   setTimeout(() => {
-    finalCloseSession();
-  }, 1500);
-}
-async function finalCloseSession() {
-  const sessionHash = localStorage.getItem("sessionHash");
-  await oturumuKapat(sessionHash, secilenOdemeYontemi);
-}
-
-async function oturumuKapat(hash, yontem) {
-  try {
-    const response = await fetch("/api/session/close", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hash: hash, odemeYontemi: yontem }),
-    });
-
-    if (response.ok) {
-      localStorage.removeItem("sessionHash");
-      localStorage.removeItem("cart");
-
-      document.getElementById("paymentModal").style.display = "none";
-
-      // Replaced alert() with native notification box
-      bildirimGoster(`Ödeme ${yontem} ile alındı. Yine bekleriz!`);
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 2500);
-    }
-  } catch (e) {
-    console.error("Bağlantı hatası!", e);
-    bildirimGoster("Bağlantı hatası oluştu.", "uyari");
-  }
+    window.location.href = "/";
+  }, 2000);
 }
 
 window.addEventListener("load", () => {

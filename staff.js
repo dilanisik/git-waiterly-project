@@ -30,25 +30,49 @@ function renderTables(tables) {
 
   tables.forEach((table) => {
     const session = allSessions.find((s) => s.masaNo === table.masaNo);
-    const hasRequest =
-      session && session.talepler && session.talepler.length > 0;
+
+    // YENİ: Normal talepler ile Ödeme taleplerini birbirinden ayırıyoruz
+    let normalTalepler = [];
+    let isPaymentPending = false;
+
+    if (session && session.talepler) {
+      session.talepler.forEach((t) => {
+        if (t.toUpperCase().includes("ÖDEME")) {
+          isPaymentPending = true;
+        } else {
+          normalTalepler.push(t);
+        }
+      });
+    }
+
+    const hasNormalRequest = normalTalepler.length > 0;
 
     let requestsHTML = "";
-    if (hasRequest) {
-      const badges = session.talepler
-        .map((t) => `<span class="req-badge">${t}</span>`)
-        .join("");
+    if (hasNormalRequest || isPaymentPending) {
+      let badgesHTML = "";
+
+      // 1. Normal garson çağırma talepleri (Sadece içinde "ödeme" geçmeyenler)
+      if (hasNormalRequest) {
+        badgesHTML += normalTalepler
+          .map((t) => `<span class="req-badge">${t}</span>`)
+          .join("");
+      }
+
+      // 2. Ödeme talebi rozeti (Şık ve dikkat çekici turuncu rozet)
+      if (isPaymentPending) {
+        badgesHTML += `<span class="req-badge" style="background:#ff9800; color:white; border: none; font-weight:bold; box-shadow: 0 2px 5px rgba(255,152,0,0.3);">💸 Ödeme Bekliyor</span>`;
+      }
+
       requestsHTML = `
-            <div class="card-requests">
-                ${badges}
-            </div>
-        `;
+        <div class="card-requests">
+            ${badgesHTML}
+        </div>
+      `;
     }
 
     const card = document.createElement("div");
-    card.className = `table-card ${session ? "status-active" : "status-empty"} ${hasRequest ? "has-request" : ""}`;
+    card.className = `table-card ${session ? "status-active" : "status-empty"} ${hasNormalRequest || isPaymentPending ? "has-request" : ""}`;
 
-    // YENİ: 4 adet sandalye HTML'i masanın etrafına yerleştiriliyor!
     card.innerHTML = `
         <div class="chair chair-v chair-top"></div>
         <div class="chair chair-v chair-bottom"></div>
@@ -79,27 +103,54 @@ function openModal(masaNo, session) {
   unconfirmedDiv.innerHTML = "";
   confirmedDiv.innerHTML = "";
   reqDiv.innerHTML = "";
+  // Eğer masada ödeme talebi varsa, en üste kocaman bir onay butonu ekle
+  if (session.odemeTalebi) {
+    const paymentHTML = `
+            <div style="background: #fff8e1; padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #ff9800; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <div>
+                    <h3 style="margin: 0; color: #e65100; font-family: 'DM Sans', sans-serif;">💸 Ödeme Onayı Bekleniyor</h3>
+                    <p style="margin: 5px 0 0 0; color: #333; font-size: 14px;">Yöntem: <strong>${session.odemeTalebi}</strong> &nbsp;|&nbsp; Tahsil Edilecek: <strong style="font-size: 16px;">${session.genelToplam} ₺</strong></p>
+                </div>
+                <button onclick="confirmPayment('${session.hashcode}', '${session.odemeTalebi}')" style="background: #4CAF50; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);">
+                    ✅ Ödemeyi Al & Masayı Kapat
+                </button>
+            </div>
+        `;
+    reqDiv.innerHTML = paymentHTML + reqDiv.innerHTML;
+  }
 
   if (!session) {
     unconfirmedDiv.innerHTML = "<p>Bu masa şu an boş.</p>";
     confirmedDiv.innerHTML = "<p>Bu masa şu an boş.</p>";
   } else {
     // Bekleyen talepleri göster (Butonlu Versiyon)
+    let reqHtml = "";
+    // Bekleyen talepleri göster (Butonlu Versiyon)
     if (session.talepler && session.talepler.length > 0) {
       let reqList = session.talepler
-        .map(
-          (talep) => `
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #fff0f1; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ff4757;">
-            <span style="color: #ff4757; font-weight: bold;">${talep}</span>
-            <button onclick="confirmRequest('${session.hashcode}', '${talep}')" style="background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;">Tamamlandı ✓</button>
-        </div>
-      `,
-        )
+        .map((talep) => {
+          // YENİ: Eğer talep ödeme ise yeşil buton göster
+          if (talep.toUpperCase().includes("ÖDEME")) {
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff3e0; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ff9800;">
+                    <span style="color: #e65100; font-weight: bold;">💳 ${talep}</span>
+                    <button onclick="confirmPayment('${session.hashcode}', '${talep}')" style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 10px rgba(76,175,80,0.3);">Ödemeyi Onayla</button>
+                </div>
+              `;
+          } else {
+            // Normal istek ise (Peçete, Su vb.) kırmızı tamamlandı butonu göster
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff0f1; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ff4757;">
+                    <span style="color: #ff4757; font-weight: bold;">${talep}</span>
+                    <button onclick="confirmRequest('${session.hashcode}', '${talep}')" style="background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;">Tamamlandı ✓</button>
+                </div>
+              `;
+          }
+        })
         .join("");
 
       reqDiv.innerHTML = `<h3 style="margin-top: 0; color: #ff4757;">🔔 Bekleyen Talepler</h3>${reqList}`;
     }
-
     // Siparişleri listele ve ayır
     if (session.siparisler && session.siparisler.length > 0) {
       session.siparisler.forEach((siparis, index) => {
@@ -189,6 +240,23 @@ async function confirmRequest(hashcode, talep) {
     console.error("Talep onaylanamadı:", error);
   }
 }
+// Waiter "Ödemeyi Al & Masayı Kapat" butonuna bastığında çalışır
+async function confirmPayment(hash, yontem) {
+  try {
+    // Mevcut oturumu kapatma API'nizi kullanıyoruz
+    await fetch("/api/session/close", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hash: hash, odemeYontemi: yontem }),
+    });
+
+    // Modalı kapat ve ekranı yenile
+    document.getElementById("order-modal").style.display = "none";
+    await fetchData();
+  } catch (error) {
+    console.error("Ödeme onaylanıp masa kapatılamadı:", error);
+  }
+}
 
 function closeModal(event, forceClose = false) {
   if (
@@ -217,6 +285,7 @@ if (typeof module !== "undefined" && module.exports) {
     openModal,
     confirmOrder, // for staff.js
     toggleIngredient,
-    renderIngredients, // for ingredients.js
+    renderIngredients,
+    confirmPayment, // for ingredients.js
   };
 }

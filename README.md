@@ -1,7 +1,7 @@
 # PROJECT - WAITERLY (Smart Digital Waiter System)
 
 ## Live URL !!!!!!
-https://waiterly-project-1.onrender.com/
+https://waiterly-project-ii4y.onrender.com/session.html?table=12&pwd=1234
 
 ## Live URL for Admin Panel
 https://waiterly-project-1.onrender.com/admin
